@@ -138,7 +138,7 @@ body:has(.video-workbench.has-video) .workspace-utilities{display:none}
 .tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tools button[aria-pressed=true]{color:#e8e8f0;background:#2a2a35}
 
 /* ── BOTTOM SHEET: slides up over the timeline when tool is active ── */
-.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector:has(.workbench-tools button[aria-pressed=true]) .workbench-tool-panel{
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector[data-panel-open='true'] .workbench-tool-panel{
   display:block;
   position:fixed;
   left:0;right:0;bottom:72px;
@@ -152,7 +152,7 @@ body:has(.video-workbench.has-video) .workspace-utilities{display:none}
   /* drag handle at top */
   box-shadow:0 -4px 30px #000a;
 }
-.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector:has(.workbench-tools button[aria-pressed=true]) .workbench-tool-panel::before{
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector[data-panel-open='true'] .workbench-tool-panel::before{
   content:'';
   display:block;width:40px;height:4px;
   background:#3a3a44;border-radius:4px;
@@ -383,3 +383,81 @@ body:has(.video-workbench) .workspace-focus-bar>a,body:has(.video-workbench) .wo
 .tk-app .hoy-main>.video-workbench .timeline-layer-body{display:block;width:100%;height:100%;min-height:0;padding:2px 14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;border:0;background:transparent;cursor:grab;touch-action:none;color:#393542}
 .tk-app .hoy-main>.video-workbench .timeline-layer .timeline-handle{min-height:0!important;width:10px;height:calc(100% + 4px)}
 @media(min-width:901px){.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers){grid-template-rows:48px minmax(110px,1fr) 44px 50px 260px}.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers):has(.video-game-notice){grid-template-rows:48px minmax(110px,1fr) 44px 112px 260px}.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers) .timeline-surface{height:190px}}
+
+
+/* Narrow editors scroll as one workspace; settings never cover the timeline. */
+.tk-app .hoy-main>.video-workbench .workbench-sheet-close{display:none}
+@media(max-width:900px){
+ .tk-app .hoy-main>.video-workbench.has-video,
+ .tk-app .hoy-main>.video-workbench.has-video:has(.video-game-notice){
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:minmax(44px,max-content) max-content 40px max-content max-content max-content;
+  grid-auto-rows:max-content;
+  align-content:start;
+  gap:8px;
+  padding:8px 10px calc(12px + env(safe-area-inset-bottom))!important;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior-y:contain;
+  scroll-padding-block:8px;
+ }
+ .tk-app .hoy-main>.video-workbench.has-video>.workbench-preview-stage{
+  grid-column:1;grid-row:2;
+  height:clamp(260px,52dvh,460px);
+  min-height:min(52dvh,460px);
+  padding:8px;
+ }
+ .tk-app .hoy-main>.video-workbench.has-video>.workbench-playback{grid-column:1;grid-row:3}
+ .tk-app .hoy-main>.video-workbench.has-video>.video-timeline{
+  grid-column:1;grid-row:4;
+  height:max-content;min-height:146px;align-self:start;
+  overflow:visible;
+ }
+ .tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers)>.video-timeline{min-height:174px}
+ .tk-app .hoy-main>.video-workbench.has-video .timeline-surface{height:104px;min-height:104px}
+ .tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers) .timeline-surface{height:130px;min-height:130px}
+ .tk-app .hoy-main>.video-workbench.has-video>.workbench-auto-actions{
+  grid-column:1;grid-row:5;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  align-content:start;
+  height:max-content;min-height:max-content;align-self:start;
+ }
+ .tk-app .hoy-main>.video-workbench.has-video>.workbench-auto-actions>button{padding:6px;min-height:44px;font-size:11px;white-space:normal}
+ .tk-app .hoy-main>.video-workbench.has-video>.workbench-auto-actions>.video-game-notice{grid-column:1/-1}
+ .tk-app .hoy-main>.video-workbench.has-video>.workbench-inspector{
+  grid-column:1;grid-row:6;
+  position:relative;inset:auto;
+  display:flex;flex-direction:column;
+  align-items:stretch;
+  height:max-content;min-height:max-content;align-self:start;
+  padding:0;overflow:visible;
+ }
+ .tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tools{height:54px;min-height:54px;flex:none}
+ .tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tools button{height:48px;min-height:44px}
+ .tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tool-panel{
+  display:none;position:relative;inset:auto;
+  width:100%;height:max-content;min-height:max-content;max-height:none;flex:none;
+  overflow:visible;box-shadow:none;
+ }
+ .tk-app .hoy-main>.video-workbench.has-video .workbench-inspector[data-panel-open='true']>.workbench-tool-panel{
+  display:block;position:relative;inset:auto;
+  width:100%;height:max-content;min-height:max-content;max-height:none;flex:none;
+  padding:8px 12px 14px;
+  border-radius:0 0 12px 12px;
+  overflow:visible;box-shadow:none;
+ }
+ .tk-app .hoy-main>.video-workbench.has-video .workbench-inspector[data-panel-open='true']>.workbench-tool-panel::before{display:none}
+ .tk-app .hoy-main>.video-workbench.has-video .workbench-tool-panel>.workbench-sheet-close{
+  display:flex;position:sticky;top:0;z-index:4;
+  align-items:center;justify-content:center;
+  width:max-content;min-height:40px;
+  margin:0 0 8px auto;padding:6px 12px;
+  border:1px solid #3a3a4a;border-radius:8px;
+ }
+ .tk-app .hoy-main>.video-workbench.has-video .text-style-dock{
+  position:relative;inset:auto;
+  width:100%;height:auto;max-height:none;
+ }
+ .tk-app .hoy-main>.video-workbench.has-video .workbench-inspector:has(.text-style-picker.is-open) .workbench-tool-panel{overflow:visible}
+ .tk-app .hoy-main>.video-workbench.has-video>.workbench-export-progress{position:sticky;inset:auto;bottom:0;grid-column:1;max-width:100%;width:100%}
+}
