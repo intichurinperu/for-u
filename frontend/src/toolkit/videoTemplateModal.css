@@ -1,0 +1,186 @@
+.foru-template-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 14, 0.78);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: template-fade-in 0.25s ease-out;
+}
+
+@keyframes template-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.foru-template-modal {
+  background: #18181d;
+  color: #f2f2f6;
+  border: 1px solid #2a2a35;
+  border-radius: 24px;
+  max-width: 680px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: template-pop-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes template-pop-in {
+  from { transform: scale(0.95) translateY(12px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.foru-template-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.foru-template-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #c4b5fd;
+  margin-bottom: 6px;
+}
+
+.foru-template-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: #ffffff;
+}
+
+.foru-template-hint {
+  font-size: 12px;
+  color: #9d9da8;
+  margin: 6px 0 0;
+  line-height: 1.4;
+}
+
+.foru-template-hint em {
+  color: #e2e2ec;
+  font-style: normal;
+}
+
+.foru-template-close {
+  background: #25252e;
+  border: 1px solid #333340;
+  color: #a0a0b0;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.foru-template-close:hover {
+  background: #32323e;
+  color: #ffffff;
+}
+
+.foru-template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.foru-template-card {
+  background: #202028;
+  border: 1px solid #2e2e3a;
+  border-radius: 18px;
+  padding: 18px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  color: inherit;
+}
+
+.foru-template-card:hover {
+  background: #272733;
+  border-color: #7c6ea8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124, 110, 168, 0.15);
+}
+
+.foru-template-card-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.foru-template-card-intent {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: #2f2a42;
+  color: #c4b5fd;
+  margin-bottom: 8px;
+}
+
+.foru-template-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #ffffff;
+}
+
+.foru-template-card p {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #9d9da8;
+  margin: 0 0 16px;
+  flex: 1;
+}
+
+.foru-template-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #2d2d3a;
+  padding-top: 10px;
+  font-size: 11px;
+}
+
+.foru-template-card-footer small {
+  color: #7e7e8c;
+  font-weight: 600;
+}
+
+.foru-template-card-footer span {
+  color: #c4b5fd;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .foru-template-modal {
+    padding: 18px;
+    border-radius: 20px;
+    max-height: 90dvh;
+    overflow-y: auto;
+  }
+  .foru-template-grid {
+    grid-template-columns: 1fr;
+  }
+}
