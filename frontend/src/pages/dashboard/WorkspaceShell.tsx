@@ -58,14 +58,15 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
     courses: { icon: '🎓', title: 'Mis cursos', path: `/modules/courses/editor${query}`, help: 'Abre el editor de la página donde presentas tus cursos.' },
   }[type];
   const links = [
+    { icon: '🎬', title: 'Editor de video', path: `/dashboard/tools/video${query}`, help: 'Edita videos estilo CapCut con subtítulos automáticos y plantillas.' },
+    pageAccess,
+    { icon: '🎨', title: 'Creator Studio', path: `/creator-studio${query}`, help: 'Continúa la ruta creativa y convierte textos en video.' },
     { icon: '📱', title: 'Mi perfil', path: `/dashboard/tools/profile${query}`, help: 'Organiza bio, destacados y publicaciones. No modifica Instagram.' },
     { icon: '✨', title: 'Mi propuesta', path: `/dashboard/tools/proposal${query}`, help: 'Define tus ofertas y prepara tu página sin cambiar de rubro.' },
     { icon: '📤', title: 'Uploads', path: `/dashboard/tools/images${query}`, help: 'Sube y organiza las fotos de tu negocio.' },
     { icon: '📅', title: 'Calendario', path: `/dashboard/tools/calendar${query}`, help: 'Planifica tus actividades y publicaciones.' },
-    pageAccess,
     ...(type === 'restaurant' ? [{ icon: '🛒', title: 'Pedidos internos', path: `/modules/restaurant/orders${query}`, help: 'Gestiona pedidos, mesas, zonas y tarifas de delivery.' }] : []),
     { icon: '🧾', title: 'Compras y cotizaciones', path: `/dashboard/tools/orders${query}`, help: 'Gestiona compras y propuestas aceptadas de tus ofertas publicadas.' },
-    { icon: '🎨', title: 'Creator Studio', path: `/creator-studio${query}`, help: 'Continúa la ruta creativa de este proyecto.' },
     { icon: '📊', title: 'Estadísticas', path: `/dashboard/tools/analytics${query}`, help: 'Consulta las visitas y clics registrados. Los clics no equivalen a ventas.' },
     { icon: '⚙️', title: 'Configuración', path: `/dashboard/settings${query}`, help: 'Gestiona tu cuenta y las conexiones disponibles.' },
   ];
@@ -98,7 +99,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
       <DSButtonSecondary ref={menuButton} className="workspace-menu-toggle" aria-controls="workspace-navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(value => !value)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}>☰</DSButtonSecondary>
       <Link className="workspace-home-link" to="/dashboard">Mis proyectos y Hoy</Link>
       <details className="workspace-account-menu"><summary aria-label="Opciones de cuenta">•••</summary><Link to="/dashboard">Mis proyectos y Hoy</Link><DSButtonSecondary onClick={() => { if (confirmWorkspaceNavigation()) { void signOut(); navigate('/login'); } }}>Cerrar sesión</DSButtonSecondary></details><Link className="immersive-new-project" to="/dashboard?create=1">＋ Proyecto</Link><nav id="workspace-navigation" aria-label="Navegación de tu negocio" onKeyDown={event => { if (event.key === 'Escape') { setMenuOpen(false); menuButton.current?.focus(); } }}>
-        {links.filter(link=>['Mi propuesta','Creator Studio','Calendario',pageAccess.title].includes(link.title)).map(renderLink)}
+        {links.filter(link=>['Editor de video',pageAccess.title,'Creator Studio','Mi propuesta','Calendario'].includes(link.title)).map(renderLink)}
         <WorkspaceTools links={links} projectId={project?.id} type={type} onNavigate={rememberNavigation}/>
       </nav>
       {project && <PendingTasks projectId={project.id} type={type} />}
