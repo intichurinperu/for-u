@@ -73,3 +73,4 @@ export const VIDEO_TEMPLATES: Record<VideoTemplateId, VideoTemplateDef> = {
     },
   },
 };
+
