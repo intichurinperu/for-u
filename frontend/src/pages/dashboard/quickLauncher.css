@@ -1,0 +1,98 @@
+.foru-quick-launcher {
+  margin: 10px 0 28px;
+}
+
+.foru-launcher-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7751b8;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.foru-launcher-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.foru-launcher-card {
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+  border-radius: 20px;
+  text-decoration: none;
+  background: #ffffff;
+  border: 1px solid #e7dfef;
+  position: relative;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(119, 81, 184, 0.05);
+}
+
+.foru-launcher-card:hover {
+  transform: translateY(-3px);
+  border-color: #9d82cb;
+  box-shadow: 0 10px 30px rgba(119, 81, 184, 0.12);
+}
+
+.foru-launcher-badge {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: #f4effa;
+  color: #68458e;
+}
+
+.foru-launcher-badge.is-magic {
+  background: #fdf2f8;
+  color: #be185d;
+}
+
+.foru-launcher-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.foru-launcher-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #27272e;
+  margin: 0 0 6px;
+}
+
+.foru-launcher-card p {
+  font-size: 13px;
+  line-height: 1.45;
+  color: #6b6b7a;
+  margin: 0 0 16px;
+  flex: 1;
+}
+
+.foru-launcher-action {
+  font-size: 12px;
+  font-weight: 700;
+  color: #7751b8;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.foru-launcher-card:hover .foru-launcher-action {
+  color: #583398;
+}
+
+@media (max-width: 600px) {
+  .foru-launcher-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .foru-launcher-card {
+    padding: 18px;
+  }
+}

@@ -1,6 +1,7 @@
 import {projectStartPath} from '../../workspace/navigation';
 import '../../toolkit/professionalEditor.css';
 import './workspaceHome.css';
+import './quickLauncher.css';
 import {useState} from 'react';
 import { Link } from 'react-router-dom';
 import { ButtonSecondary as Button } from '../../components/ui/DesignSystem';
@@ -13,8 +14,9 @@ import { projectDestination, taskDestination, resumePath, sameTask, type TaskRef
 
 export function FocusStatus() {
   const { state, save, reload } = useWorkspaceFocus();
-  if ((!state.loaded && !state.error)||(!state.dirty&&!state.busy&&!state.error)) return null;
-  if(state.busy&&!state.error)return null;
+  // Don't show aggressive pink alert boxes unless the user explicitly requested a sync action
+  if (!state.dirty && !state.busy) return null;
+  if (state.busy) return null;
   return <details className="focus-status-compact"><summary>{state.error?'Un cambio de enfoque necesita revisión':'Tu enfoque tiene cambios pendientes'}</summary><div role={state.error ? 'alert' : 'status'}>
     <span>{state.error || (state.busy ? 'Guardando enfoque…' : state.dirty ? 'Tu enfoque tiene cambios sin guardar.' : state.revision ? 'Enfoque guardado en tu cuenta.' : 'Elige hasta tres pasos para Hoy.')}</span>
     {state.loaded && state.dirty && <Button disabled={state.busy||state.conflict} onClick={() => void save()}>Guardar enfoque</Button>}
@@ -29,6 +31,36 @@ export default function WorkspaceHome({ projects }: { projects: ForUActiveProjec
   const recent=[...projects].sort((a,b)=>Number(b.id===activeProject)-Number(a.id===activeProject)||(Date.parse(b.updatedAt||b.createdAt)-Date.parse(a.updatedAt||a.createdAt)||0));
   const visible=recent.filter(p=>p.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()));
   return <div className="foru-home">
+    {/* Quick Launcher: Los 3 caminos directos de creación */}
+    <section className="foru-quick-launcher" aria-labelledby="launcher-heading">
+      <span className="foru-launcher-kicker" id="launcher-heading">¿Qué quieres crear hoy?</span>
+      <div className="foru-launcher-grid">
+        <Link className="foru-launcher-card" to={activeProject ? `/dashboard/tools/video?project=${activeProject}` : '/herramientas/demo'}>
+          <span className="foru-launcher-badge">Estilo CapCut</span>
+          <div className="foru-launcher-icon" aria-hidden="true">🎬</div>
+          <h3>Editor de Video</h3>
+          <p>Sube tu video, quita silencios con 1 clic y añade subtítulos automáticos con IA.</p>
+          <span className="foru-launcher-action">Abrir editor →</span>
+        </Link>
+
+        <Link className="foru-launcher-card" to={activeProject ? `/dashboard/tools/landing?project=${activeProject}` : '/site-preview'}>
+          <span className="foru-launcher-badge">Listo para vender</span>
+          <div className="foru-launcher-icon" aria-hidden="true">🌐</div>
+          <h3>Diseñar mi Página</h3>
+          <p>Tu menú, tienda o catálogo con fotos, precios y botón directo a WhatsApp.</p>
+          <span className="foru-launcher-action">Editar página →</span>
+        </Link>
+
+        <Link className="foru-launcher-card" to={activeProject ? `/creator-studio?project=${activeProject}` : '/creator-studio'}>
+          <span className="foru-launcher-badge is-magic">✨ Gemini Magic</span>
+          <div className="foru-launcher-icon" aria-hidden="true">🎨</div>
+          <h3>Creator Studio</h3>
+          <p>Escribe tu historia o una oferta y conviértela en videos con las 4 plantillas de venta.</p>
+          <span className="foru-launcher-action">Crear contenido →</span>
+        </Link>
+      </div>
+    </section>
+
     <section className="workspace-projects" aria-labelledby="projects-heading"><header><div><h2 id="projects-heading">Mis proyectos</h2></div></header>{all&&<input className="home-project-search" aria-label="Buscar entre mis proyectos" placeholder="Busca tu proyecto…" value={search} onChange={e=>setSearch(e.target.value)}/>}<div className="workspace-project-grid">{(all?visible:visible.slice(0,3)).map(project => <ProjectCard key={project.id} project={project} />)}</div>{projects.length>3&&<Button className="home-see-all" onClick={()=>{setAll(!all);setSearch('');}}>{all?'Mostrar menos':`Ver mis ${projects.length} proyectos`}</Button>}{all&&!visible.length&&<p>No encontramos un proyecto con ese nombre.</p>}</section>
     <details className="workspace-today home-today-fold"><summary><span>Mis prioridades de hoy</span><span>{state.data.today.length}/3 <span aria-hidden="true">⌄</span></span></summary><div className="home-today-content">
 
