@@ -1,8 +1,11 @@
+import {prepareTransparentLogo} from './logoBackground';
+import {Scissors, Captions, Layers, Ratio, Download, Play, Pause, Sparkles} from 'lucide-react';
+import {clipAppearance,layerAppearance,endingLogoLayout,type ClipMotion,type VideoLayer} from './videoComposition';
 import TextStylePicker from './TextStylePicker';
 import CaptionArtwork from './CaptionArtwork';
 import {readVisualBrand,defaultTextLook,type TextLook,type TextPreset} from './textStyles';
 import VideoTimeline from './VideoTimeline';
-import {splitTimeline,timelineClock} from './videoTimelineModel';
+import {splitTimeline,timelineClock,removeTimelineSilences,montageAtSource,sourceAtMontage,montageTimeline} from './videoTimelineModel';
 import {Link} from 'react-router-dom';
 import {linkedPieceQuery} from '../studio/navigation';
 import {useUnsavedNavigation} from '../lib/useUnsavedNavigation';
@@ -12,6 +15,7 @@ import {beginMagic,finishMagic} from '../experience/magicTransition';
 import {readSrt,validCaptionTimes} from './videoEditing';
 import VideoGuide from './VideoGuide';
 import './videoEditorGuided.css';
+import './videoWorkspace.css';
 import {getPiece} from '../social/model';
 import {parseMaterials} from '../workspace/contracts';
 import {resolveMediaPath} from '../components/shared/mediaStorage';
@@ -19,7 +23,7 @@ import SavePieceFile from '../social/SavePieceFile';
 import {useSearchParams} from 'react-router-dom';
 import { ButtonSecondary as DSButtonSecondary, ButtonPrimary as DSButtonPrimary } from '../components/ui/DesignSystem';
 import { useEffect, useRef, useState } from "react";
-import { detectSilences, keptSegments, type Segment } from "./engine";
+import { detectSilences, type Segment } from "./engine";
 import { decodeAudio, exportVideo } from "./media";
 import { downloadBlob,transcribe } from "./api";
 import { useToolkit } from "./ToolkitContext";
@@ -35,10 +39,27 @@ export default function VideoEditor({
   const [look,setLook]=useState<TextLook>({...defaultTextLook}),[favorites,setFavorites]=useState<TextPreset[]>([]),[styleDirty,setStyleDirty]=useState(false),[styleSaving,setStyleSaving]=useState(false),[styleStatus,setStyleStatus]=useState(''),[styleInvalid,setStyleInvalid]=useState(false);
   const styleEdited=useRef(false);
   useEffect(()=>{if(styleEdited.current||loading||loadError)return;try{const value=readVisualBrand(docs['module-visual-brand'],projectId);setLook(value.look);setFavorites(value.favorites);setStyleInvalid(false);}catch(e){setStyleInvalid(true);setStyleStatus((e as Error).message);}},[docs['module-visual-brand'],projectId,loading,loadError]);
-  function changeLook(value:TextLook){styleEdited.current=true;setLook(value);setDirty(true);setStyleDirty(true);setStyleStatus('Vista previa. Guarda para recordarlo en este proyecto.');}
+  function changeLook(value:TextLook){const el=video.current;const rows=captionProposal??subtitles;if(el&&rows.length&&!rows.some(row=>el.currentTime>=row.start&&el.currentTime<row.end)){const target=rows[captionIndex]??rows[0];el.pause();el.currentTime=target.start+Math.min(.3,(target.end-target.start)/2);setTime(el.currentTime);}styleEdited.current=true;setLook(value);setDirty(true);setStyleDirty(true);setStyleStatus('Vista previa. Guarda para recordarlo en este proyecto.');}
   async function saveStyle(){if(styleSaving||styleInvalid||loading||loadError)return;setStyleSaving(true);setStyleStatus('');try{await save('module-visual-brand',{version:1,projectId,look,favorites});styleEdited.current=false;setStyleDirty(false);setStyleStatus('Estilo y favoritos guardados en este proyecto.');}catch(e){setStyleStatus((e as Error).message);}finally{setStyleSaving(false);}}
   const [params]=useSearchParams();
-  const [step,setStep]=useState<'review'|'cuts'|'captions'|'export'>('captions'),[dirty,setDirty]=useState(false),[savedExport,setSavedExport]=useState(false),[captionIndex,setCaptionIndex]=useState(-1),[framing,setFraming]=useState<RecordingRatio|'original'>('original'),[focus,setFocus]=useState(.5),[originalSize,setOriginalSize]=useState({width:16,height:9});
+  const [step,setStep]=useState<'review'|'cuts'|'captions'|'export'|'layers'>(params.get('panel')==='logos'?'layers':'captions'),[dirty,setDirty]=useState(false),[savedExport,setSavedExport]=useState(false),[captionIndex,setCaptionIndex]=useState(-1),[framing,setFraming]=useState<RecordingRatio|'original'>('original'),[focus,setFocus]=useState(.5),[originalSize,setOriginalSize]=useState({width:16,height:9});
+  const [layers,setLayers]=useState<VideoLayer[]>([]),[layerIndex,setLayerIndex]=useState(-1),[motions,setMotions]=useState<ClipMotion[]>([]);
+  const logoResize=useRef<{x:number;width:number;canvasWidth:number;id:string}|null>(null);
+  const layerUrls=useRef<string[]>([]);useEffect(()=>()=>{layerUrls.current.forEach(url=>URL.revokeObjectURL(url));},[]);
+  const [logoPreparing,setLogoPreparing]=useState(false),[backgroundPreview,setBackgroundPreview]=useState<{id:string;url:string}|null>(null);
+  async function addLayers(files:File[]){
+   if(!files.length||logoPreparing)return;if(files.length+layers.length>8){setNotice('Puedes usar hasta ocho logos o imágenes.');return;}
+   setLogoPreparing(true);const token=version.current,added:VideoLayer[]=[];
+   try{for(const file of files){if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>8*1024*1024)throw new Error('Elige logos PNG, JPG o WebP de hasta 8 MB cada uno.');
+    const url=URL.createObjectURL(file);layerUrls.current.push(url);const image=new Image();await new Promise<void>((resolve,reject)=>{image.onload=()=>resolve();image.onerror=()=>reject(new Error('No pudimos abrir uno de los logos.'));image.src=url;});
+    added.push({id:crypto.randomUUID(),url,name:file.name,start:Math.max(0,Math.min(segments.reduce((n,row)=>n+row.end-row.start,0)-.1,montageAtSource(segments,time))),end:Math.min(segments.reduce((n,row)=>n+row.end-row.start,0),Math.max(0,Math.min(segments.reduce((n,row)=>n+row.end-row.start,0)-.1,montageAtSource(segments,time)))+3),x:(added.length+1)/(files.length+1),y:.5,width:files.length>1?.23:.32,ratio:image.width/image.height,animation:'pop',placement:'overlay'});
+   }
+   if(!alive.current||token!==version.current)return;const total=segments.reduce((n,row)=>n+row.end-row.start,0);setLayers(rows=>[...rows,...added]);setLayerIndex(layers.length+added.length-1);setBackgroundPreview(null);setDirty(true);setStep('layers');seek(sourceAtMontage(segments,Math.min(total-.01,added[0].start+.75)));setNotice('Arrastra cada logo sobre el video. Su pista permite mover cuándo aparece.');
+   }catch(error){if(alive.current&&token===version.current)setNotice((error as Error).message);}finally{if(alive.current&&token===version.current)setLogoPreparing(false);}
+  }
+  async function previewBackground(){const layer=layers[layerIndex];if(!layer||logoPreparing)return;setLogoPreparing(true);setNotice('');try{const blob=await prepareTransparentLogo(layer.originalUrl??layer.url),url=URL.createObjectURL(blob);layerUrls.current.push(url);setBackgroundPreview({id:layer.id,url});}catch(error){setNotice((error as Error).message);}finally{setLogoPreparing(false);}}
+  function previewLogo(){const el=video.current;if(!el||!segments.length)return;const total=segments.reduce((n,row)=>n+row.end-row.start,0),start=Math.min(total-.01,layers[layerIndex]?.start??0),rows=montageTimeline(segments),index=rows.findIndex(row=>start>=row.start&&start<row.end);el.pause();previewCuts.current=segments;previewIndex.current=Math.max(0,index);el.currentTime=sourceAtMontage(segments,start);void el.play().catch(()=>setNotice('Pulsa reproducir para ver el cierre.'));}
+  const silenceUndo=useRef<Segment[]|null>(null);
   const previewCuts=useRef<Segment[]|null>(null),previewIndex=useRef(0);
   const [exported,setExported]=useState<File|null>(null),[exportedUrl,setExportedUrl]=useState('');
   useEffect(()=>{if(!exported){setExportedUrl('');return;}const url=URL.createObjectURL(exported);setExportedUrl(url);return()=>URL.revokeObjectURL(url);},[exported]);
@@ -57,15 +78,16 @@ export default function VideoEditor({
   const [time, setTime] = useState(0);
   const video = useRef<HTMLVideoElement>(null);
   const abort = useRef<AbortController | null>(null);
+  const audioStart=useRef<(()=>void)|null>(null);
   const version = useRef(0);
   const selection=useRef(0);
   const [clipIndex,setClipIndex]=useState(0),[playing,setPlaying]=useState(false);
   const [recoverAttempt,setRecoverAttempt]=useState(0),[recoverError,setRecoverError]=useState(''),[recovering,setRecovering]=useState(false);
   const pieceId=params.get('piece');
   useUnsavedNavigation(dirty||styleDirty||styleSaving||!!busy||!!exported&&!savedExport);
-  useEffect(()=>{setExported(null);setSavedExport(false);},[segments,subtitles,framing,focus,look]);
+  useEffect(()=>{setExported(null);setSavedExport(false);},[segments,subtitles,framing,focus,look,layers,motions]);
   useEffect(()=>{previewCuts.current=null;video.current?.pause();},[step]);
-  const editSegments=(value:Segment[])=>{previewCuts.current=null;setSegments(value);setDirty(true);};
+  const editSegments=(value:Segment[])=>{silenceUndo.current=null;previewCuts.current=null;setMotions(value.map(row=>{const i=segments.findIndex(previous=>row===previous||row.start>=previous.start&&row.end<=previous.end);return motions[i]??{enter:'none',exit:'none'};}));setSegments(value);setDirty(true);};
   const editSubtitles=(value:Segment[])=>{setSubtitles(value);setDirty(true);};
   function playCuts(value:Segment[]){if(!video.current||!value.length)return;previewCuts.current=value;previewIndex.current=0;video.current.currentTime=value[0].start;void video.current.play().catch(()=>setNotice('Pulsa reproducir sobre el video para escuchar la propuesta.'));}
   function playback(element:HTMLVideoElement){setTime(element.currentTime);const rows=previewCuts.current;if(!rows)return;const row=rows[previewIndex.current];if(!row){element.pause();previewCuts.current=null;return;}if(element.currentTime<row.start-.05){element.currentTime=row.start;return;}if(element.currentTime>=row.end-.025){previewIndex.current++;const next=rows[previewIndex.current];if(!next){element.pause();previewCuts.current=null;}else{element.currentTime=next.start;if(element.paused)void element.play().catch(()=>{});}}}
@@ -94,7 +116,8 @@ export default function VideoEditor({
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setExported(null);
     setDuration(0);
-    setSegments([]);
+    setSegments([]);setLayers([]);setMotions([]);setLayerIndex(-1);setBackgroundPreview(null);setLogoPreparing(false);
+    silenceUndo.current=null;
     setSilences([]);
     setTime(0);
     if (!file) return;
@@ -105,13 +128,15 @@ export default function VideoEditor({
       abort.current?.abort();
     };
   }, [file]);
-  async function analyze() {
-    if (!file) return;
-    setBusy("Analizando audio…");
+  async function analyze(applyNow=false) {
+    if (!file||busy) return;
+    video.current?.pause();
+    audioStart.current=null;setBusy("Analizando audio…");
     setNotice("");
     const token = version.current;
     try {
-      const audio = await decodeAudio(file);
+      abort.current?.abort();abort.current=new AbortController();
+      const audio = await decodeAudio(file,{signal:abort.current.signal,onProgress:message=>{if(alive.current&&token===version.current)setBusy(message);},onPlaybackRequired:start=>{if(alive.current&&token===version.current){audioStart.current=start;setBusy('Un toque para leer tu voz');}}});
       if (token !== version.current) return;
       const found = detectSilences(
         Array.from({ length: audio.numberOfChannels }, (_, i) =>
@@ -120,22 +145,29 @@ export default function VideoEditor({
         audio.sampleRate,
         threshold,
       );
+      if(applyNow){
+        const next=removeTimelineSilences(segments,found,duration);
+        if(!next.length||found.reduce((sum,row)=>sum+row.end-row.start,0)>=duration-.03){setNotice('No encontramos voz suficiente para cortar. Conservamos tus clips.');return;}
+        if(!found.length||segments.reduce((sum,row)=>sum+row.end-row.start,0)-next.reduce((sum,row)=>sum+row.end-row.start,0)<.001){setNotice('No encontramos silencios para quitar en tus clips actuales. Tus cortes se conservan.');return;}
+        const previous=segments.map(row=>({...row}));editSegments(next);silenceUndo.current=previous;setClipIndex(0);setSilences([]);setNotice('Silencios quitados. Puedes deshacer este corte.');return;
+      }
       setSilences(found);
       setNotice(
         `${found.length} ${found.length===1?'pausa detectada':'pausas detectadas'}. Revisa antes de aplicar los cortes.`,
       );
     } catch (e) {
-      setNotice((e as Error).message);
+      if(alive.current&&token===version.current)setNotice((e as Error).message);
     } finally {
-      setBusy("");
+      if(alive.current&&token===version.current)setBusy("");
     }
   }
   async function createCaptions(){
     if(!file||busy||!duration)return;
     const token=version.current,magic=beginMagic('Tu voz se convierte en subtítulos…');
-    setBusy('Preparando tu voz…');setNotice('');video.current?.pause();
+    audioStart.current=null;setBusy('Preparando tu voz…');setNotice('');video.current?.pause();
     try{
-      const audio=await prepareCaptionAudio(file);
+      abort.current?.abort();abort.current=new AbortController();
+      const audio=await prepareCaptionAudio(file,{signal:abort.current.signal,onProgress:message=>{if(alive.current&&token===version.current)setBusy(message);},onPlaybackRequired:start=>{if(alive.current&&token===version.current){audioStart.current=start;setBusy('Un toque para leer tu voz');}}});
       if(!alive.current||token!==version.current)return;
       setBusy('FOR U está escuchando tu toma…');
       const rows=await transcribe(audio,projectId);
@@ -162,6 +194,7 @@ export default function VideoEditor({
         abort.current.signal,
         framing==='original'?undefined:{ratio:framing,focus},
         look,
+        {layers,motions},
       );
       setExported(new File([output],`for-u-editado.${output.type.includes("mp4")?"mp4":"webm"}`,{type:output.type}));
       downloadBlob(
@@ -179,16 +212,19 @@ export default function VideoEditor({
   }
   function loadFile(next?: File) {
     if (!next) return;
-    if (!next.type.startsWith("video/")) {
-      setNotice("Elige un archivo de video.");
+    // iOS returns empty type for .MOV files; also accept video/quicktime (iPhone default)
+    const ext = next.name.split('.').pop()?.toLowerCase() ?? '';
+    const mobileVideo = ['mov', 'mp4', 'm4v', '3gp', 'avi', 'mkv', 'webm', 'hevc'].includes(ext);
+    if (!next.type.startsWith('video/') && !mobileVideo) {
+      setNotice('Elige un archivo de video. Se aceptan MP4, MOV y los formatos de iPhone.');
       return;
     }
-    if (next.size > 200 * 1024 * 1024) {
-      setNotice("Usa un video de hasta 200 MB.");
+    if (next.size > 500 * 1024 * 1024) {
+      setNotice('Usa un video de hasta 500 MB.');
       return;
     }
     selection.current++;
-    setSubtitles([]);setDirty(false);setStep('captions');setFraming('original');setCaptionIndex(-1);setClipIndex(0);
+    setSubtitles([]);setDirty(false);setStep(params.get('panel')==='logos'?'layers':'captions');setFraming('original');setCaptionIndex(-1);setClipIndex(0);
     setFile(next);
     setNotice("");
   }
@@ -202,33 +238,52 @@ export default function VideoEditor({
     }
   }
 
-  const proposed=keptSegments(duration,silences),captionRows=captionProposal??subtitles,selectedCaption=subtitles[captionIndex];
+  const proposed=removeTimelineSilences(segments,silences,duration),captionRows=captionProposal??subtitles,selectedCaption=subtitles[captionIndex];
   const previewRatio=framing==='original'?originalSize:recordingFrames[framing];
-  const previewFactor=framing==='original'?Math.min(1,1280/Math.max(originalSize.width,originalSize.height)):1;
+  const previewFactor=framing==='original'?Math.min(1,1920/Math.max(originalSize.width,originalSize.height)):1;
   const artworkWidth=Math.round(previewRatio.width*previewFactor),artworkHeight=Math.round(previewRatio.height*previewFactor);
   function seek(next:number){previewCuts.current=null;video.current?.pause();if(video.current)video.current.currentTime=Math.max(0,Math.min(duration,next));setTime(next);}
+  function splitHere(){if(busy||!duration)return;const next=splitTimeline(segments,time);if(next!==segments){editSegments(next);setClipIndex(next.findIndex(row=>row.start===time));setStep('cuts');}else setNotice('Mueve el cursor dentro de una toma para dividirla.');}
+  useEffect(()=>{const handle=(e:KeyboardEvent)=>{const target=e.target as HTMLElement;if((target.isContentEditable||target.closest('input,textarea,select,[role=dialog],.video-game-result-preview'))||busy||!file||e.altKey)return;if(e.code==='Space'&&!e.metaKey&&!e.ctrlKey){e.preventDefault();togglePlay();}else if(e.key.toLowerCase()==='b'&&(e.metaKey||e.ctrlKey)){e.preventDefault();splitHere();}};window.addEventListener('keydown',handle);return()=>window.removeEventListener('keydown',handle);});
   function togglePlay(){const element=video.current;if(!element)return;if(playing){element.pause();return;}let index=segments.findIndex(row=>element.currentTime>=row.start&&element.currentTime<row.end-.025);if(index<0){index=segments.findIndex(row=>row.start>element.currentTime);if(index<0)index=0;element.currentTime=segments[index]?.start??0;}previewCuts.current=segments;previewIndex.current=index;void element.play().catch(()=>setNotice('Toca reproducir para escuchar tu video.'));}
+  const outputDuration=segments.reduce((n,row)=>n+row.end-row.start,0),outputTime=montageAtSource(segments,time,playing?previewIndex.current:undefined),chosenLayer=layers[layerIndex];
+  const activeClip=segments[playing?previewIndex.current:segments.findIndex(row=>time>=row.start&&time<=row.end)]??segments[0];
+  const appearance=activeClip?clipAppearance(time,activeClip,motions[segments.indexOf(activeClip)]):{opacity:1,scale:1};
+  useEffect(()=>{const element=video.current;if(!element||!playing)return;let frame=0;const draw=()=>{const clip=segments[previewIndex.current];if(clip){const value=clipAppearance(element.currentTime,clip,motions[previewIndex.current]);element.style.opacity=String(value.opacity);element.style.transform=`scale(${value.scale})`;}for(const image of Array.from(element.parentElement?.querySelectorAll<HTMLImageElement>('.video-layer-preview')??[])){const layer=layers.find(row=>row.id===image.dataset.layerId);if(layer){const value=layerAppearance(layer,montageAtSource(segments,element.currentTime,previewIndex.current));image.style.opacity=String(value.opacity);image.style.top=`${(layer.y+value.rise)*100}%`;image.style.transform=`translate(-50%,-50%) scale(${value.scale})`;}}frame=requestAnimationFrame(draw);};draw();return()=>cancelAnimationFrame(frame);},[playing,segments,motions,layers]);
   const activeTool=step==='review'?'captions':step;
-  return <section className="video-game video-workbench" aria-busy={!!busy}>
-   <header className="video-game-heading"><div>{pieceId?<Link to={'/creator-studio'+linkedPieceQuery(projectId,pieceId,params)+'&tab=profile'}>← Mi contenido</Link>:<span>FOR U</span>}<strong>Editor de video</strong></div>{file&&<button className="workbench-download" type="button" disabled={!!busy||!duration||!!captionProposal} onClick={()=>void exportClip()}>{busy.startsWith('Exportando')?`${Math.round(progress*100)}%`:'↓ Descargar'}</button>}</header>
-   {!file?<><h1>Trae tu video.</h1><div className="video-game-upload" onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();if(!busy)loadFile(e.dataTransfer.files[0]);}}><span aria-hidden="true">▷</span><p>{recovering?'Abriendo tu toma…':'Elige una grabación. Tu original se conserva.'}</p><label className="video-game-file-button">Elegir video<input type="file" accept="video/*" disabled={!!busy||recovering} onChange={e=>loadFile(e.target.files?.[0])}/></label></div><TextStylePicker compact look={look} favorites={favorites} sample="Tu idea merece brillar" disabled={loading||loadError||styleInvalid} onChange={changeLook} onFavorites={value=>{styleEdited.current=true;setFavorites(value);setStyleDirty(true);}} onSave={()=>void saveStyle()} saving={styleSaving} status={styleStatus}/></>:<>
-    <div className="workbench-preview-stage"><div className="video-game-preview" style={{aspectRatio:`${previewRatio.width}/${previewRatio.height}`,width:`min(100%,420px,${24*previewRatio.width/previewRatio.height}dvh)`}}><video aria-label="Vista previa de tu video" ref={video} src={url} playsInline style={{objectFit:framing==='original'?'contain':'cover',objectPosition:`${focus*100}% 50%`}} onLoadedMetadata={e=>metadata(e.currentTarget)} onDurationChange={e=>{if(!duration&&Number.isFinite(e.currentTarget.duration)){metadata(e.currentTarget);e.currentTarget.currentTime=0;}}} onPlay={()=>setPlaying(true)} onPause={()=>setPlaying(false)} onTimeUpdate={e=>playback(e.currentTarget)} onEnded={e=>{playback(e.currentTarget);setPlaying(false);}} onError={()=>setNotice('No pudimos reproducir esta toma. Prueba MP4 o WebM.')}/><CaptionArtwork rows={captionRows} time={time} width={artworkWidth} height={artworkHeight} look={look} playing={playing} clock={()=>video.current?.currentTime??time}/></div></div>
-    <div className="workbench-playback"><button type="button" aria-label={playing?'Pausar video':'Reproducir montaje'} disabled={!!busy||!duration} onClick={togglePlay}>{playing?'Ⅱ':'▶'}</button><time>{timelineClock(time)} / {timelineClock(duration)}</time><VideoGuide step={activeTool} user={userId} project={projectId} disabled={!!busy||recovering}/></div>
-    <nav className="workbench-tools" aria-label="Herramientas de edición">{([{id:'cuts',label:'✂ Recortar'},{id:'captions',label:'▤ Subtítulos'},{id:'export',label:'▣ Formato'}] as const).map(tool=><button key={tool.id} type="button" aria-pressed={activeTool===tool.id} disabled={!!busy} onClick={()=>{setStep(tool.id);setNotice('');}}>{tool.label}</button>)}</nav>
-    {duration>0&&<VideoTimeline url={url} duration={duration} time={time} clips={segments} captions={captionRows} captionIndex={captionIndex} clipIndex={activeTool==='cuts'?clipIndex:-1} proposal={!!captionProposal} disabled={!!busy} onSeek={seek} onCaption={index=>{setStep('captions');setCaptionIndex(index);}} onClip={index=>{setStep('cuts');setClipIndex(index);}} onClips={editSegments} onCaptions={editSubtitles}/>}
+  return <section className={`video-game video-workbench${file?' has-video':''}`} aria-busy={!!busy}>
+   <header className="video-game-heading"><div>{pieceId?<Link to={'/creator-studio'+linkedPieceQuery(projectId,pieceId,params)+'&tab=profile'}>← Mi contenido</Link>:<span>FOR U</span>}<strong>Editor de video</strong></div>{file&&<details className="workbench-file-menu"><summary aria-label="Archivo y descargas">•••</summary><div>    {exported&&<details className="workbench-cloud"><summary>✓ Descargado · guardar también en FOR U</summary><video className="video-game-result-preview" src={exportedUrl} controls playsInline/><p>Guardarlo aquí ocupa espacio en tu cuenta. Descargarlo a tu dispositivo no lo sube a FOR U.</p>{pieceId&&<SavePieceFile key={exported.name+exported.lastModified} file={exported} user={userId} project={projectId} piece={pieceId} kind="video" disabled={!!busy} label="Guardar en mi pieza" onSaved={()=>{setDirty(false);setSavedExport(true);}}/>}</details>}
+    <details className="video-game-extra"><summary>Archivo original</summary><div className="workbench-inline-actions"><DSButtonSecondary onClick={()=>downloadBlob(file,file.name)}>Descargar original</DSButtonSecondary><label className="video-game-file-button">Cambiar toma<input type="file" accept="video/*,.mov,.MOV,.m4v,.M4V,video/quicktime" disabled={!!busy} onChange={e=>{if(dirty&&!window.confirm('¿Cambiar de toma y descartar estos ajustes? Tu original se conserva.'))return;loadFile(e.target.files?.[0]);}}/></label></div></details></div></details>}{file&&<button className="workbench-download" type="button" disabled={!!busy||!duration||!!captionProposal||!!backgroundPreview||logoPreparing} onClick={()=>void exportClip()}>{busy.startsWith('Exportando')?`${Math.round(progress*100)}%`:<><Download size={16} aria-hidden="true"/> Descargar</>}</button>}</header>
+   {!file?<><h1>{params.get('panel')==='logos'?'Dale tu sello al video.':'Trae tu video.'}</h1><div className="video-game-upload" onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();if(!busy)loadFile(e.dataTransfer.files[0]);}}><span aria-hidden="true">▷</span><p>{recovering?'Abriendo tu toma…':params.get('panel')==='logos'?'Elige tu video editado. Después añadimos tus logos.':'Elige una grabación. Tu original se conserva.'}</p><label className="video-game-file-button">Elegir video<input type="file" accept="video/*,.mov,.MOV,.m4v,.M4V,video/quicktime" disabled={!!busy||recovering} onChange={e=>loadFile(e.target.files?.[0])}/></label></div>{params.get('panel')!=='logos'&&<TextStylePicker compact look={look} favorites={favorites} sample="Tu idea merece brillar" disabled={loading||loadError||styleInvalid} onChange={changeLook} onFavorites={value=>{styleEdited.current=true;setFavorites(value);setStyleDirty(true);}} onSave={()=>void saveStyle()} saving={styleSaving} status={styleStatus}/>}</>:<>
+    <div className="workbench-preview-stage"><div className="video-game-preview" style={{aspectRatio:`${previewRatio.width}/${previewRatio.height}`,width:`min(100%,420px,${24*previewRatio.width/previewRatio.height}dvh)`}}><video aria-label="Vista previa de tu video" ref={video} src={url} playsInline style={{opacity:appearance.opacity,transform:`scale(${appearance.scale})`,objectFit:framing==='original'?'contain':'cover',objectPosition:`${focus*100}% 50%`}} onLoadedMetadata={e=>metadata(e.currentTarget)} onDurationChange={e=>{if(!duration&&Number.isFinite(e.currentTarget.duration)){metadata(e.currentTarget);e.currentTarget.currentTime=0;}}} onPlay={()=>setPlaying(true)} onPause={()=>setPlaying(false)} onTimeUpdate={e=>playback(e.currentTarget)} onEnded={e=>{playback(e.currentTarget);setPlaying(false);}} onError={()=>setNotice('No pudimos reproducir esta toma. En iPhone usa MP4 o MOV grabado en modo normal (no Cinematic).')}/><CaptionArtwork rows={captionRows} time={time} width={artworkWidth} height={artworkHeight} look={look} playing={playing} clock={()=>video.current?.currentTime??time}/>{layers.map(layer=><img key={layer.id} data-layer-id={layer.id} src={layer.url} alt={layer.name} className={`video-layer-preview${layers.indexOf(layer)===layerIndex?' is-selected':''}`} role="button" tabIndex={0} aria-label={`Mover logo: ${layer.name}`} onKeyDown={e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();const delta=e.shiftKey?.05:.01;setLayers(rows=>rows.map(row=>row.id===layer.id?{...row,x:Math.max(0,Math.min(1,row.x+(e.key==='ArrowLeft'?-delta:e.key==='ArrowRight'?delta:0))),y:Math.max(0,Math.min(1,row.y+(e.key==='ArrowUp'?-delta:e.key==='ArrowDown'?delta:0)))}:row));setDirty(true);}} style={{position:'absolute',left:`${layer.x*100}%`,top:`${(layer.y+layerAppearance(layer,outputTime).rise)*100}%`,width:`${layer.width*100}%`,height:'auto',transform:`translate(-50%,-50%) scale(${layerAppearance(layer,outputTime).scale})`,opacity:layerAppearance(layer,outputTime).opacity,pointerEvents:layerAppearance(layer,outputTime).opacity?'auto':'none',cursor:'move',touchAction:'none'}} onPointerDown={e=>{if(busy)return;e.currentTarget.setPointerCapture(e.pointerId);setLayerIndex(layers.indexOf(layer));setStep('layers');}} onPointerMove={e=>{if(!e.currentTarget.hasPointerCapture(e.pointerId)||busy)return;const rect=e.currentTarget.parentElement!.getBoundingClientRect();setLayers(rows=>rows.map(row=>row.id===layer.id?{...row,x:Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width)),y:Math.max(0,Math.min(1,(e.clientY-rect.top)/rect.height))}:row));setDirty(true);}}/> )}{chosenLayer&&layerAppearance(chosenLayer,outputTime).opacity>.2&&<button type="button" className="logo-resize-handle" aria-label="Cambiar tamaño del logo" style={{left:`${Math.min(1,chosenLayer.x+chosenLayer.width/2)*100}%`,top:`${Math.min(1,chosenLayer.y+chosenLayer.width*artworkWidth/(chosenLayer.ratio*artworkHeight)/2)*100}%`}} onPointerDown={e=>{e.stopPropagation();e.currentTarget.setPointerCapture(e.pointerId);logoResize.current={x:e.clientX,width:chosenLayer.width,canvasWidth:e.currentTarget.parentElement!.getBoundingClientRect().width,id:chosenLayer.id};}} onPointerMove={e=>{const drag=logoResize.current;if(!drag)return;const width=Math.max(.05,Math.min(1,drag.width+2*(e.clientX-drag.x)/drag.canvasWidth));setLayers(rows=>rows.map(row=>row.id===drag.id?{...row,width}:row));setDirty(true);}} onPointerUp={()=>{logoResize.current=null;}} onPointerCancel={()=>{logoResize.current=null;}} onKeyDown={e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();setLayers(rows=>rows.map(row=>row.id===chosenLayer.id?{...row,width:Math.max(.05,Math.min(1,row.width+(e.key==='ArrowRight'?.02:-.02)))}:row));setDirty(true);}}}>↘</button>}</div></div>
+    <div className="workbench-playback"><button type="button" aria-label={playing?'Pausar video':'Reproducir montaje'} disabled={!!busy||!duration} onClick={togglePlay}>{playing?<Pause size={18} aria-hidden="true"/>:<Play size={18} aria-hidden="true"/>}</button><time>{timelineClock(outputTime)} / {timelineClock(outputDuration)}</time><VideoGuide step={activeTool} user={userId} project={projectId} disabled={!!busy||recovering}/></div>
+
+    <div className="workbench-auto-actions">{busy&&!busy.startsWith('Exportando')&&<div className="workbench-audio-progress" role="status"><span>{busy}</span>{audioStart.current&&<button type="button" onClick={()=>{const start=audioStart.current;audioStart.current=null;setBusy('Leyendo tu voz…');start?.();}}>Leer voz</button>}<button type="button" onClick={()=>{abort.current?.abort();audioStart.current=null;version.current++;setBusy('');setNotice('Lectura cancelada. Tu video y tus cortes se conservan.');}}>Cancelar</button></div>}<button type="button" disabled={!!busy||!duration} onClick={()=>{setStep('captions');void createCaptions();}}><Sparkles size={16} aria-hidden="true"/> Crear subtítulos</button><button type="button" disabled={!!busy||!duration} onClick={()=>{setStep('cuts');void analyze(true);}}><Scissors size={16} aria-hidden="true"/> Quitar silencios</button><button type="button" disabled={!!busy} onClick={()=>{setStep('layers');setNotice('');}}>Logos y animación</button>{silenceUndo.current&&<button type="button" disabled={!!busy} onClick={()=>{const previous=silenceUndo.current;if(previous){editSegments(previous);silenceUndo.current=null;setNotice('Corte de silencios deshecho.');}}}>↶ Deshacer corte</button>}{notice&&<p role="status" className="video-game-notice">{notice}</p>}</div>
+    {duration>0&&<VideoTimeline url={url} duration={duration} time={time} clips={segments} layers={layers} onLayer={index=>{setLayerIndex(index);setStep('layers');seek(sourceAtMontage(segments,Math.min(outputDuration-.01,layers[index].start+.7)));}} onLayers={rows=>{setLayers(rows);setDirty(true);}} captions={captionRows} captionIndex={captionIndex} clipIndex={activeTool==='cuts'?clipIndex:-1} proposal={!!captionProposal} disabled={!!busy} onSeek={seek} onCaption={index=>{setStep('captions');setCaptionIndex(index);}} onClip={index=>{setStep('cuts');setClipIndex(index);}} onClips={editSegments} onCaptions={editSubtitles}/>}
+    <aside className="workbench-inspector" aria-label="Ajustes de edición">    <nav className="workbench-tools" aria-label="Herramientas de edición">{([{id:'cuts',label:'Recortar',icon:Scissors},{id:'captions',label:'Subtítulos',icon:Captions},{id:'layers',label:'Logos',icon:Layers},{id:'export',label:'Formato',icon:Ratio}] as const).map(tool=><button key={tool.id} type="button" aria-pressed={activeTool===tool.id} disabled={!!busy} onClick={()=>{setStep(tool.id);setNotice('');}}><tool.icon size={17} aria-hidden="true"/><span>{tool.label}</span></button>)}</nav>
     <section className="workbench-tool-panel">
-    {activeTool==='captions'&&<div className="video-game-captions">{captionProposal?<div className="workbench-subtitle-proposal"><p>Reproduce los subtítulos en la línea de tiempo antes de usarlos.</p><div className="workbench-inline-actions"><DSButtonPrimary disabled={!!busy} onClick={()=>{editSubtitles(captionProposal);setCaptionProposal(null);setCaptionIndex(-1);seek(0);setNotice('Subtítulos listos. Toca cualquier bloque para corregirlo.');}}>Usar estos subtítulos</DSButtonPrimary><button className="workbench-text-button" onClick={()=>{setCaptionProposal(null);setCaptionIndex(-1);}}>Conservar mi versión</button></div></div>:<>{!subtitles.length?<div className="workbench-inline-actions"><DSButtonPrimary disabled={!!busy||!duration} onClick={()=>void createCaptions()}>{busy||'✦ Subtítulos automáticos'}</DSButtonPrimary><small>FOR U escucha el audio con Gemini. Tú revisas el resultado.</small></div>:selectedCaption?<div className="workbench-caption-input"><label htmlFor="timeline-caption-text">Editar subtítulo</label><textarea id="timeline-caption-text" rows={2} maxLength={120} value={selectedCaption.text} disabled={!!busy} onChange={e=>editSubtitles(subtitles.map((row,i)=>i===captionIndex?{...row,text:e.target.value}:row))}/><div><time>{timelineClock(selectedCaption.start)} — {timelineClock(selectedCaption.end)}</time><button type="button" disabled={!!busy} onClick={()=>{editSubtitles(subtitles.filter((_,i)=>i!==captionIndex));setCaptionIndex(-1);}}>Eliminar</button><button type="button" onClick={()=>setCaptionIndex(-1)}>Listo ✓</button></div></div>:<small>Toca un bloque de subtítulo para cambiar su texto.</small>}
+    {activeTool==='captions'&&<div className="video-game-captions">{captionProposal?<div className="workbench-subtitle-proposal"><p>Reproduce los subtítulos en la línea de tiempo antes de usarlos.</p><div className="workbench-inline-actions"><DSButtonPrimary disabled={!!busy} onClick={()=>{editSubtitles(captionProposal);setCaptionProposal(null);setCaptionIndex(-1);seek(0);setNotice('Subtítulos listos. Toca cualquier bloque para corregirlo.');}}>Usar estos subtítulos</DSButtonPrimary><button className="workbench-text-button" onClick={()=>{setCaptionProposal(null);setCaptionIndex(-1);}}>Conservar mi versión</button></div></div>:<>{!subtitles.length?<><div className="workbench-mobile-quick-actions"><DSButtonPrimary disabled={!!busy||!duration} onClick={()=>void createCaptions()}><Sparkles size={15} aria-hidden="true"/> Crear subtítulos con IA</DSButtonPrimary><small>FOR U escucha tu audio y genera el texto. Tú revisas y corriges.</small></div></>:selectedCaption?<div className="workbench-caption-input"><label htmlFor="timeline-caption-text">Editar subtítulo</label><textarea id="timeline-caption-text" rows={2} maxLength={120} value={selectedCaption.text} disabled={!!busy} onChange={e=>editSubtitles(subtitles.map((row,i)=>i===captionIndex?{...row,text:e.target.value}:row))}/><div><time>{timelineClock(selectedCaption.start)} — {timelineClock(selectedCaption.end)}</time><button type="button" disabled={!!busy} onClick={()=>{editSubtitles(subtitles.filter((_,i)=>i!==captionIndex));setCaptionIndex(-1);}}>Eliminar</button><button type="button" onClick={()=>setCaptionIndex(-1)}>Listo ✓</button></div></div>:<small>Toca un bloque de subtítulo para cambiar su texto.</small>}
     <details className="video-game-extra"><summary>Más opciones de subtítulos</summary><div className="workbench-inline-actions">{!!subtitles.length&&<DSButtonSecondary disabled={!!busy} onClick={()=>void createCaptions()}>✦ Volver a generar</DSButtonSecondary>}<DSButtonSecondary disabled={!!busy||duration<.1} onClick={()=>{const nextStart=Math.max(0,Math.min(time,duration-.1));if(subtitles.some(row=>nextStart<row.end&&nextStart+1>row.start)){setNotice('Mueve el cursor a un espacio libre antes de añadir un subtítulo.');return;}const row={start:nextStart,end:Math.min(duration,nextStart+1),text:'Tu texto'};const next=[...subtitles,row].sort((a,b)=>a.start-b.start);editSubtitles(next);setCaptionIndex(next.indexOf(row));}}>＋ Subtítulo</DSButtonSecondary><label className="video-game-file-button">Importar SRT<input type="file" accept=".srt,text/plain" disabled={!!busy} onChange={async e=>{const selected=e.target.files?.[0];if(!selected)return;try{if(selected.size>300000)throw new Error('Usa un archivo SRT de hasta 300 KB.');const rows=readSrt(await selected.text());if(!validCaptionTimes(rows,duration))throw new Error('Los tiempos superan la duración de tu toma.');editSubtitles(rows);setCaptionIndex(-1);}catch(error){setNotice((error as Error).message);}}}/></label></div></details></>}
     <TextStylePicker look={look} favorites={favorites} sample={selectedCaption?.text||captionRows[0]?.text||'Tu idea merece brillar'} disabled={!!busy||loading||loadError||styleInvalid} onChange={changeLook} onFavorites={value=>{styleEdited.current=true;setFavorites(value);setStyleDirty(true);setStyleStatus('Favoritos en vista previa. Guarda para recordarlos.');}} onSave={()=>void saveStyle()} saving={styleSaving} status={styleStatus}/>
     </div>}
-    {activeTool==='cuts'&&<div className="video-game-cut-actions"><div className="workbench-inline-actions"><DSButtonSecondary disabled={!!busy||!duration} onClick={()=>{const next=splitTimeline(segments,time);if(next===segments)setNotice('Mueve el cursor dentro del video para dividirlo.');else{editSegments(next);setClipIndex(next.findIndex(row=>row.start===time));}}}>✂ Dividir aquí</DSButtonSecondary><DSButtonSecondary disabled={!!busy||segments.length<2||!segments[clipIndex]} onClick={()=>{editSegments(segments.filter((_,i)=>i!==clipIndex));setClipIndex(0);}}>Quitar clip</DSButtonSecondary><DSButtonPrimary disabled={!!busy||!duration} onClick={()=>void analyze()}>{busy||'✦ Detectar silencios'}</DSButtonPrimary></div>{silences.length>0&&<div className="workbench-subtitle-proposal"><p>{silences.length} pausas detectadas. Escucha antes de cortar.</p><div className="workbench-inline-actions"><DSButtonSecondary disabled={!!busy||!proposed.length} onClick={()=>playCuts(proposed)}>▶ Escuchar propuesta</DSButtonSecondary><DSButtonPrimary disabled={!!busy||!proposed.length} onClick={()=>{editSegments(proposed);setClipIndex(0);setSilences([]);setNotice('Cortes aplicados. Tu original se conserva.');}}>Aplicar cortes</DSButtonPrimary></div></div>}<details className="video-game-extra"><summary>Ajustes de recorte</summary><label>Sensibilidad<input aria-label="Sensibilidad del silencio" type="range" min="-55" max="-20" value={threshold} disabled={!!busy} onChange={e=>{setThreshold(Number(e.target.value));setSilences([]);}}/></label><DSButtonSecondary disabled={!!busy} onClick={()=>{editSegments([{start:0,end:duration}]);setSilences([]);setClipIndex(0);setNotice('Video completo restaurado.');}}>Restaurar video completo</DSButtonSecondary></details></div>}
+    {activeTool==='cuts'&&<div className="video-game-cut-actions"><div className="workbench-inline-actions"><DSButtonSecondary disabled={!!busy||!duration} title="Dividir en el cursor · ⌘B / Ctrl+B" onClick={splitHere}><Scissors size={15} aria-hidden="true"/> Dividir</DSButtonSecondary><DSButtonSecondary disabled={!!busy||segments.length<2||!segments[clipIndex]} onClick={()=>{editSegments(segments.filter((_,i)=>i!==clipIndex));setClipIndex(0);}}>Quitar clip</DSButtonSecondary></div>{segments[clipIndex]&&<details className="workbench-motion-options"><summary>Animaciones · opcional</summary><div className="workbench-clip-motion">{(['enter','exit'] as const).map(edge=><div key={edge}><small>{edge==='enter'?'Entrada':'Salida'} · toma {clipIndex+1}</small>{(['none','fade','zoom'] as const).map(effect=><button type="button" key={effect} aria-pressed={(motions[clipIndex]?.[edge]??'none')===effect} onClick={()=>{setMotions(segments.map((_,i)=>i===clipIndex?{enter:motions[i]?.enter??'none',exit:motions[i]?.exit??'none',[edge]:effect}:motions[i]??{enter:'none',exit:'none'}));setDirty(true);}}>{effect==='none'?'Sin efecto':effect==='fade'?'Fundido':'Zoom'}</button>)}</div>)}</div></details>}{silences.length>0&&<div className="workbench-subtitle-proposal"><p>{silences.length} pausas detectadas. Escucha antes de cortar.</p><div className="workbench-inline-actions"><DSButtonSecondary disabled={!!busy||!proposed.length} onClick={()=>playCuts(proposed)}>▶ Escuchar propuesta</DSButtonSecondary><DSButtonPrimary disabled={!!busy||!proposed.length} onClick={()=>{editSegments(proposed);setClipIndex(0);setSilences([]);setNotice('Cortes aplicados. Tu original se conserva.');}}>Aplicar cortes</DSButtonPrimary></div></div>}<details className="video-game-extra"><summary>Ajustes de recorte</summary><DSButtonSecondary disabled={!!busy||!duration} onClick={()=>void analyze()}>Detectar y revisar antes de cortar</DSButtonSecondary><label>Sensibilidad<input aria-label="Sensibilidad del silencio" type="range" min="-55" max="-20" value={threshold} disabled={!!busy} onChange={e=>{setThreshold(Number(e.target.value));setSilences([]);}}/></label><DSButtonSecondary disabled={!!busy} onClick={()=>{editSegments([{start:0,end:duration}]);setSilences([]);setClipIndex(0);setNotice('Video completo restaurado.');}}>Restaurar video completo</DSButtonSecondary></details></div>}
+    {activeTool==='layers'&&<div className="workbench-layer-tools">
+     <strong>Logos y animación</strong>
+     <label className="video-game-file-button">{logoPreparing?'Preparando…':'＋ Añadir logos'}<input type="file" multiple accept="image/png,image/jpeg,image/webp" disabled={!!busy||logoPreparing} onChange={e=>{void addLayers(Array.from(e.target.files??[]));e.target.value='';}}/></label>
+     {!!layers.length&&<div className="logo-layer-list" aria-label="Tus logos">{layers.map((layer,index)=><button type="button" key={layer.id} aria-label={`Elegir logo ${index+1}: ${layer.name}`} aria-pressed={layerIndex===index} onClick={()=>{setLayerIndex(index);setBackgroundPreview(null);seek(sourceAtMontage(segments,Math.min(outputDuration-.01,layer.start+.7)));}}><img src={layer.url} alt=""/><span>{index+1}</span></button>)}</div>}
+     {chosenLayer?<>
+      {backgroundPreview?.id===chosenLayer.id?<div className="logo-background-review"><strong>Revisa tu logo</strong><div className="logo-checker"><img src={backgroundPreview.url} alt="Vista previa del logo sin fondo"/></div><small>El cuadriculado indica transparencia.</small><div className="workbench-inline-actions"><button type="button" onClick={()=>{setLayers(rows=>rows.map(row=>row.id===chosenLayer.id?{...row,originalUrl:row.originalUrl??row.url,url:backgroundPreview.url}:row));setBackgroundPreview(null);setDirty(true);}}>Usar sin fondo</button><button type="button" onClick={()=>setBackgroundPreview(null)}>Conservar original</button></div></div>:<><button type="button" disabled={!!busy||logoPreparing} onClick={()=>void previewBackground()}>Quitar fondo liso</button>{chosenLayer.originalUrl&&<button type="button" onClick={()=>{setLayers(rows=>rows.map(row=>row.id===chosenLayer.id?{...row,url:row.originalUrl!,originalUrl:undefined}:row));setDirty(true);}}>Restaurar logo original</button>}</>}
+      <div className="logo-motion-picker" role="group" aria-label="Animación del logo">{([{id:'fade',label:'Suave'},{id:'pop',label:'Pop'},{id:'rise',label:'Flotar'}] as const).map(effect=><button type="button" key={effect.id} aria-pressed={chosenLayer.animation===effect.id} onClick={()=>{setLayers(rows=>rows.map((row,i)=>i===layerIndex?{...row,animation:effect.id}:row));setDirty(true);}}>{effect.label}</button>)}</div>
+      <button type="button" className="logo-preview-ending" disabled={!!busy} onClick={previewLogo}><Play size={15} aria-hidden="true"/> Ver animación</button>
+      <details className="logo-adjustments"><summary>Tamaño, posición y duración</summary><label>Tamaño<input aria-label="Tamaño del logo" type="range" min=".05" max="1" step=".01" value={chosenLayer.width} onChange={e=>{setLayers(rows=>rows.map((row,i)=>i===layerIndex?{...row,width:Number(e.target.value)}:row));setDirty(true);}}/></label><small>Arrastra el logo sobre el video para colocarlo.</small><div className="workbench-inline-actions"><button type="button" onClick={()=>{setLayers(rows=>rows.map((row,i)=>i===layerIndex?{...row,placement:'end',start:Math.max(0,outputDuration-3),end:outputDuration}:row));setDirty(true);}}>Últimos 3 s</button><button type="button" onClick={()=>{setLayers(rows=>rows.map((row,i)=>i===layerIndex?{...row,placement:'overlay',start:0,end:outputDuration}:row));setDirty(true);}}>Todo el video</button></div><div className="workbench-layer-times">{(['start','end'] as const).map(edge=><label key={edge}>{edge==='start'?'Desde':'Hasta'}<input aria-label={edge==='start'?'Inicio del logo':'Final del logo'} type="number" min="0" max={outputDuration} step=".1" value={chosenLayer[edge]} onChange={e=>{const n=Number(e.target.value);setLayers(rows=>rows.map((row,i)=>i!==layerIndex?row:{...row,placement:'overlay',[edge]:edge==='start'?Math.max(0,Math.min(row.end-.05,n)):Math.max(row.start+.05,Math.min(outputDuration,n))}));setDirty(true);}}/></label>)}</div><button type="button" onClick={()=>{setLayers(rows=>rows.filter((_,i)=>i!==layerIndex));setLayerIndex(-1);setDirty(true);}}>Eliminar logo</button></details>
+     </>:<small>Añade uno o varios logos. Colócalos donde quieras y mueve su pista para elegir cuándo aparecen.</small>}
+    </div>}
     {activeTool==='export'&&<div className="video-game-export"><nav aria-label="Formato de exportación"><button type="button" disabled={!!busy} aria-pressed={framing==='original'} onClick={()=>{setFraming('original');setDirty(true);}}>Original</button>{(Object.keys(recordingFrames) as RecordingRatio[]).map(id=><button key={id} type="button" disabled={!!busy} aria-pressed={framing===id} onClick={()=>{setFraming(id);setFocus(.5);setDirty(true);}}>{recordingFrames[id].label}</button>)}</nav>{framing!=='original'&&<label className="video-game-focus">Encuadre<input aria-label="Encuadre de exportación" type="range" min="0" max="1" step=".01" value={focus} disabled={!!busy} onChange={e=>{setFocus(Number(e.target.value));setDirty(true);}}/></label>}<small>El marco muestra el recorte que se descargará.</small></div>}
-    </section>
-    {busy.startsWith('Exportando')&&<div className="workbench-inline-actions"><progress aria-label="Progreso de exportación" value={progress} max={1}/><button className="workbench-text-button" onClick={()=>abort.current?.abort()}>Cancelar descarga</button><small>Mantén la pestaña visible mientras se prepara.</small></div>}
-    {exported&&<details className="workbench-cloud"><summary>✓ Descargado · guardar también en FOR U</summary><video className="video-game-result-preview" src={exportedUrl} controls playsInline/><p>Guardarlo aquí ocupa espacio en tu cuenta. Descargarlo a tu dispositivo no lo sube a FOR U.</p>{pieceId&&<SavePieceFile key={exported.name+exported.lastModified} file={exported} user={userId} project={projectId} piece={pieceId} kind="video" disabled={!!busy} label="Guardar en mi pieza" onSaved={()=>{setDirty(false);setSavedExport(true);}}/>}</details>}
-    <details className="video-game-extra"><summary>Archivo original</summary><div className="workbench-inline-actions"><DSButtonSecondary onClick={()=>downloadBlob(file,file.name)}>Descargar original</DSButtonSecondary><label className="video-game-file-button">Cambiar toma<input type="file" accept="video/*" disabled={!!busy} onChange={e=>{if(dirty&&!window.confirm('¿Cambiar de toma y descartar estos ajustes? Tu original se conserva.'))return;loadFile(e.target.files?.[0]);}}/></label></div></details>
+    </section></aside>
+    {busy.startsWith('Exportando')&&<div className="workbench-inline-actions workbench-export-progress"><progress aria-label="Progreso de exportación" value={progress} max={1}/><button className="workbench-text-button" onClick={()=>abort.current?.abort()}>Cancelar descarga</button><small>Mantén la pestaña visible mientras se prepara.</small></div>}
+
    </>}
    {styleInvalid&&<p role="alert">{styleStatus}</p>}
-   {recoverError&&<div role="alert"><p>{recoverError}</p><DSButtonSecondary disabled={recovering} onClick={()=>setRecoverAttempt(value=>value+1)}>Reintentar video guardado</DSButtonSecondary></div>}{notice&&<p role="status" className="video-game-notice">{notice}</p>}
+   {!file&&notice&&<p role="status" className="video-game-notice">{notice}</p>}{recoverError&&<div role="alert"><p>{recoverError}</p><DSButtonSecondary disabled={recovering} onClick={()=>setRecoverAttempt(value=>value+1)}>Reintentar video guardado</DSButtonSecondary></div>}
   </section>;
 }

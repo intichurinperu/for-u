@@ -1,0 +1,385 @@
+/* A bounded workspace: the canvas and timeline never move with the inspector. */
+body:has(.video-workbench.has-video) .workspace-utilities{display:none}
+.tk-app .hoy-main>.video-workbench.has-video{position:fixed;inset:60px 12px 12px;z-index:30;max-width:none;width:auto;margin:0;padding:10px!important;background:#fafafa;display:grid;grid-template-columns:minmax(0,1fr) 310px;grid-template-rows:48px minmax(110px,1fr) 44px 50px 202px;gap:8px 14px;overflow:hidden;color:#29292f}
+.tk-app .hoy-main>.video-workbench.has-video>.video-game-heading{grid-column:1/-1;grid-row:1;position:static;margin:0;padding:0 4px;border:0;min-width:0;gap:8px;display:flex;align-items:center;background:transparent}
+.tk-app .hoy-main>.video-workbench.has-video .video-game-heading>div{margin-right:auto;gap:10px;min-width:0}
+.tk-app .hoy-main>.video-workbench.has-video .video-game-heading strong{font-size:14px}
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-preview-stage{grid-column:1;grid-row:2;position:relative;min-height:0;height:100%;margin:0;padding:8px;overflow:hidden;border-radius:16px}
+.tk-app .hoy-main>.video-workbench.has-video .video-game-preview{height:100%;width:auto!important;max-height:100%;max-width:100%;margin:0;aspect-ratio:inherit}
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-playback{grid-column:1;grid-row:3;min-height:0;margin:0;gap:16px}
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-auto-actions{grid-column:1;grid-row:4;margin:0;padding:0;align-items:center;flex-wrap:nowrap}
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-auto-actions button{min-width:0;min-height:44px;padding:6px 14px}
+.tk-app .hoy-main>.video-workbench.has-video>.video-timeline{grid-column:1;grid-row:5;margin:0;padding:8px 10px;height:100%;min-height:0;overflow:hidden;border-radius:16px}
+.tk-app .hoy-main>.video-workbench.has-video .video-timeline>header{display:flex;min-height:36px;margin:0}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-zoom button{min-height:36px;min-width:36px;padding:4px}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-scroll{padding:0 2px 8px}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-surface{min-height:0;height:126px}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-ruler{height:22px;margin:0}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-track-label{font-size:8px;line-height:10px;margin:2px 0}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-track{height:42px}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-captions{height:32px}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-scrub{display:none}
+.tk-app .hoy-main>.video-workbench.has-video .video-timeline>small{display:none}
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-inspector{grid-column:2;grid-row:2/6;display:flex;flex-direction:column;min-height:0;position:relative;overflow:hidden;border:1px solid #e1e1e8;border-radius:18px;background:#fff}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tools{display:flex;flex:none;min-height:48px;padding:4px;gap:2px;border-bottom:1px solid #ededf1;margin:0}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tools button{flex:1;min-height:40px;padding:5px;font-size:11px;white-space:nowrap}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-tool-panel{min-height:0;flex:1;padding:12px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-tool-panel small{font-size:11px;line-height:1.4}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-caption-input{padding:8px;gap:4px;border-radius:12px}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-caption-input textarea{min-height:44px;max-height:66px;resize:none;padding:2px;font-size:15px;line-height:1.4}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-caption-input>div{gap:5px;flex-wrap:wrap}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-caption-input button{min-height:36px;padding:4px;font-size:11px}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-caption-input time{font-size:10px}
+.tk-app .hoy-main>.video-workbench.has-video .text-style-picker>header{min-height:40px}
+.tk-app .hoy-main>.video-workbench.has-video .text-style-picker{padding:4px 0;margin-top:6px}
+.tk-app .hoy-main>.video-workbench.has-video .text-style-recommended{margin:4px 0;gap:5px}
+.tk-app .hoy-main>.video-workbench.has-video .text-style-shortcuts{gap:4px}
+.tk-app .hoy-main>.video-workbench.has-video .text-style-shortcuts button{font-size:10px;padding:4px 6px;min-height:36px}
+.tk-app .hoy-main>.video-workbench.has-video .video-game-extra{margin:4px 0;padding:0}
+.tk-app .hoy-main>.video-workbench.has-video .video-game-extra>summary{min-height:36px;align-content:center;font-size:11px}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inline-actions{gap:6px}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inline-actions button{min-height:40px;font-size:12px;padding:8px}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-subtitle-proposal{padding:10px;font-size:12px}
+.tk-app .hoy-main>.video-workbench.has-video .video-game-export nav{flex-wrap:wrap;gap:5px;margin:0}
+.tk-app .hoy-main>.video-workbench.has-video .video-game-export nav button{min-height:40px;padding:7px;font-size:12px}
+.tk-app .hoy-main>.video-workbench.has-video .video-game-focus{font-size:12px;margin:10px 0;gap:6px}
+.tk-app .hoy-main>.video-workbench.has-video .text-style-dock{position:absolute;inset:49px 0 0;width:100%;height:auto;max-height:none;z-index:3;border:0;border-radius:0;box-shadow:none;grid-row:auto}
+.tk-app .hoy-main>.video-workbench.has-video .text-style-picker.is-open{display:contents}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector:has(.text-style-picker.is-open) .workbench-tool-panel{overflow:hidden}
+.tk-app .hoy-main>.video-workbench.has-video>.video-game-notice{position:absolute;left:16px;bottom:224px;max-width:calc(100% - 360px);margin:0;padding:6px 10px!important;font-size:11px!important;line-height:1.4;max-height:42px;overflow:auto;z-index:5;border:1px solid #e2e2ea;border-radius:10px;background:#fffffff2;box-shadow:0 3px 14px #2222220a}
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-export-progress{position:absolute;left:16px;bottom:224px;background:#fff;padding:8px;z-index:6;max-width:calc(100% - 360px);border-radius:12px;border:1px solid #e1e1e8}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-file-menu{position:relative;flex:none;margin:0;padding:0;border:0;z-index:40}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-file-menu>summary{display:flex;align-items:center;justify-content:center;min-width:40px;min-height:40px;border:1px solid #e2e2e9;background:#fff;border-radius:12px;cursor:pointer;list-style:none;letter-spacing:2px}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-file-menu>summary::-webkit-details-marker{display:none}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-file-menu>div{position:absolute;right:0;top:48px;width:min(310px,calc(100vw - 32px));max-height:calc(100dvh - 160px);overflow:auto;border:1px solid #e1e1e8;border-radius:16px;padding:12px;background:#fff;box-shadow:0 10px 40px #22222216}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-file-menu details{margin:0;padding:8px}
+/* ============================================================
+   MOBILE BOTTOM SHEET — CapCut-style (≤ 900px)
+   Layout: header / preview / playback / timeline / toolbar-dock
+   Tools slide up from the bottom as a sheet over the timeline.
+   ============================================================ */
+@media(max-width:900px){
+.tk-app .hoy-main>.video-workbench.has-video{
+  inset:60px 0 0;
+  grid-template-columns:minmax(0,1fr);
+  /* rows: header | preview | playback | timeline | bottom-dock */
+  grid-template-rows:44px minmax(80px,1fr) 44px 150px 72px;
+  gap:0;
+  padding:0 0 max(0px,env(safe-area-inset-bottom)) !important;
+  background:#111113;
+}
+/* header */
+.tk-app .hoy-main>.video-workbench.has-video .video-game-heading{background:#111113;border-bottom:1px solid #2a2a2e;padding:0 12px;gap:8px}
+.tk-app .hoy-main>.video-workbench.has-video .video-game-heading strong{color:#f0f0f4;font-size:13px}
+.tk-app .hoy-main>.video-workbench.has-video .video-game-heading a{color:#a0a0a8;font-size:12px}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-download{font-size:12px!important;padding:7px 13px!important;min-height:36px!important;border-radius:10px!important;background:#fff!important;color:#111!important;border-color:transparent!important}
+
+/* preview — full-width, dark background, no border */
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-preview-stage{grid-column:1;grid-row:2;background:#111113!important;border:0!important;border-radius:0!important;padding:6px;display:flex;align-items:center;justify-content:center;min-height:0}
+.tk-app .hoy-main>.video-workbench.has-video .video-game-preview{height:100%;width:auto!important;max-height:100%;max-width:100%;margin:0;border-radius:8px}
+
+/* playback bar */
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-playback{grid-column:1;grid-row:3;background:#111113;border:0;margin:0;padding:0 14px;gap:14px;min-height:0}
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-playback button{background:#1e1e22;border-color:#333;color:#e8e8f0;min-height:36px;height:36px;width:36px}
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-playback time{color:#a0a0a8}
+
+/* timeline — dark, compact */
+.tk-app .hoy-main>.video-workbench.has-video>.video-timeline{grid-column:1;grid-row:4;background:#111113!important;border:0!important;border-radius:0!important;margin:0;padding:4px 10px;height:100%;min-height:0;overflow:hidden}
+.tk-app .hoy-main>.video-workbench.has-video .video-timeline>header{min-height:26px;height:26px;margin:0}
+.tk-app .hoy-main>.video-workbench.has-video .video-timeline>header strong{color:#a0a0a8;font-size:10px}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-zoom button{min-height:28px;min-width:34px;padding:0;background:#1e1e22!important;color:#a0a0a8!important;border-color:#333!important}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-zoom{font-size:10px;color:#a0a0a8}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-scroll{padding:0 2px 4px}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-surface{min-height:0;height:100px}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-track{background:#1e1e22!important;height:30px}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-captions{height:24px}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-track-label{color:#666672;font-size:8px;margin:2px 0}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-ruler>span{color:#666672}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-ruler{height:16px;margin-bottom:2px}
+.tk-app .hoy-main>.video-workbench.has-video .video-timeline>small{display:none}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-clip{background:#3a3a44;border-color:#5a5a68}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-clip.is-selected{border-color:#9d8fca;box-shadow:0 0 0 1px #9d8fca}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-caption{background:#2e2a3a;border-color:#5a4f70}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-playhead{background:#e8e8f0}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-playhead i{background:#e8e8f0}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-clip-name{background:#ffffffcc;color:#111;font-size:9px}
+
+/* ── BOTTOM DOCK: 3 big tool buttons + download ── */
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-inspector{
+  grid-column:1;grid-row:5;
+  background:#1a1a1f;
+  border:0;border-top:1px solid #2a2a2e;
+  border-radius:0;
+  display:flex;flex-direction:row;
+  align-items:center;justify-content:space-around;
+  padding:0 8px;
+  min-height:0;overflow:visible;
+  position:relative;
+}
+/* hide the scrollable tool panel in the dock itself — it appears in the sheet */
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tool-panel{display:none}
+
+/* tool buttons in dock: icon+label stacked */
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tools{
+  display:flex;flex-direction:row;gap:2px;
+  border:0;padding:0;margin:0;min-height:0;
+  flex:1;height:100%;
+  align-items:center;justify-content:space-around;
+}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tools button{
+  flex:1;height:68px;min-height:68px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:5px;font-size:11px;font-weight:600;
+  background:transparent;border:0;border-radius:14px;
+  color:#a0a0a8;
+  padding:4px;
+}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tools button svg{width:22px;height:22px;stroke-width:1.8}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tools button[aria-pressed=true]{color:#e8e8f0;background:#2a2a35}
+
+/* ── BOTTOM SHEET: slides up over the timeline when tool is active ── */
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector:has(.workbench-tools button[aria-pressed=true]) .workbench-tool-panel{
+  display:block;
+  position:fixed;
+  left:0;right:0;bottom:72px;
+  max-height:45dvh;
+  background:#1a1a1f;
+  border-radius:20px 20px 0 0;
+  border-top:1px solid #2e2e38;
+  padding:16px 16px calc(16px + max(0px,env(safe-area-inset-bottom)));
+  overflow-y:auto;overscroll-behavior:contain;
+  z-index:50;
+  /* drag handle at top */
+  box-shadow:0 -4px 30px #000a;
+}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector:has(.workbench-tools button[aria-pressed=true]) .workbench-tool-panel::before{
+  content:'';
+  display:block;width:40px;height:4px;
+  background:#3a3a44;border-radius:4px;
+  margin:0 auto 14px;
+}
+/* sheet text colors — dark surface */
+.tk-app .hoy-main>.video-workbench.has-video .workbench-tool-panel{color:#e0e0e8}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-tool-panel small{color:#a0a0a8;font-size:11px}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-tool-panel button:not(.text-style-swatch){background-color:#252530!important;color:#d8d8e4!important;border-color:#3a3a4a}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-tool-panel button[aria-pressed=true]{background:#302a4a!important;box-shadow:inset 0 0 0 1px #7c6ea8}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-caption-input{background:#252530;border-color:#3a3a4a}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-caption-input textarea{color:#e0e0e8}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-caption-input label{color:#a0a0a8}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-caption-input time{color:#a0a0a8}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-caption-input button{color:#a0a0a8}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-subtitle-proposal{background:#1f2a24;border-color:#2a3a2f}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-subtitle-proposal p{color:#b0c0b4}
+.tk-app .hoy-main>.video-workbench.has-video .video-game-extra>summary{color:#a0a0a8;font-size:12px}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-motion-options>summary{color:#a0a0a8}
+
+/* quick-action buttons (Crear subtítulos / Quitar silencios) — move into sheet */
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-auto-actions{
+  display:none!important;
+}
+/* notice floats on the dark preview */
+.tk-app .hoy-main>.video-workbench.has-video>.video-game-notice{
+  position:fixed;top:56px;left:10px;right:10px;
+  background:#1e1e28ee;color:#d8d8e4;border-color:#3a3a4a;
+  font-size:12px!important;border-radius:12px;padding:8px 12px;
+  max-height:40px;overflow:hidden;
+  z-index:60;
+}
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-export-progress{
+  position:fixed;top:56px;left:10px;right:10px;
+  background:#1e1e28ee;border-color:#3a3a4a;border-radius:12px;
+  color:#d8d8e4;padding:8px 12px;z-index:61;
+}
+
+/* layers track in dark mode */
+.tk-app .hoy-main>.video-workbench.has-video .timeline-layers{height:18px}
+.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers) .timeline-surface{height:118px}
+.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers) .timeline-clips{height:22px}
+.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers) .timeline-captions{height:18px}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-layer{background:#2e2a40;border-color:#5a4f70}
+
+/* font sizes iOS */
+.tk-app .hoy-main>.video-workbench input:not([type=range]):not([type=file]),.tk-app .hoy-main>.video-workbench textarea,.tk-app .hoy-main>.video-workbench select{font-size:16px!important}
+
+/* small screen / short screen tweaks */
+@media(max-width:900px) and (max-height:700px){
+  .tk-app .hoy-main>.video-workbench.has-video{grid-template-rows:40px minmax(60px,1fr) 40px 130px 68px}
+  .tk-app .hoy-main>.video-workbench.has-video>.video-timeline{height:130px}
+}
+} /* end @media ≤900px */
+
+/* Mobile quick-action block inside the captions panel (shown when no subtitles yet) */
+.tk-app .workbench-mobile-quick-actions{display:flex;flex-direction:column;gap:10px;padding:4px 0}
+.tk-app .workbench-mobile-quick-actions small{font-size:11px;color:#686873;line-height:1.5}
+@media(max-width:900px){
+  .tk-app .hoy-main>.video-workbench.has-video .workbench-mobile-quick-actions small{color:#a0a0a8}
+}
+
+/* ── FIRST-USE HINT: arrow pointing to first tool button ── */
+.workbench-first-hint{
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:#29292f;color:#fff;font-size:12px;font-weight:600;
+  padding:7px 14px;border-radius:20px;white-space:nowrap;
+  pointer-events:none;z-index:60;
+  animation:hint-pulse 2s ease-in-out infinite;
+}
+.workbench-first-hint::after{
+  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:6px solid transparent;border-top-color:#29292f;
+}
+@keyframes hint-pulse{0%,100%{opacity:.85;transform:translateX(-50%) translateY(0)}50%{opacity:1;transform:translateX(-50%) translateY(-3px)}}
+
+/* ── DESKTOP: clean up duplicate "Logos y animación" button (auto-actions) ── */
+@media(min-width:901px){
+  /* Keep auto-actions visible on desktop — just tighten the layout */
+  .tk-app .hoy-main>.video-workbench.has-video>.workbench-auto-actions{flex-wrap:nowrap}
+}
+
+/* ── UPLOAD SCREEN: cleaner, single CTA ── */
+.tk-app .video-workbench .video-game-upload{
+  min-height:280px;
+  border-radius:24px;
+  position:relative;
+}
+.tk-app .video-workbench .video-game-upload>span{font-size:40px}
+@media(max-width:900px){
+  .tk-app .video-workbench .video-game-upload{min-height:220px;padding:20px}
+  .tk-app .video-workbench .video-game-upload>span{font-size:32px}
+  .tk-app .video-workbench h1{font-size:26px!important}
+}
+
+/* ── NOTICE inside auto-actions (desktop inline): slightly more room ── */
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-auto-actions>.video-game-notice{
+  font-size:12px!important;
+}
+
+/* ── CUTS panel: show quick-action buttons at the top of the panel on mobile ── */
+.tk-app .video-game-cut-actions{display:flex;flex-direction:column;gap:12px}
+.tk-app .video-game-cut-actions>.workbench-inline-actions{flex-wrap:wrap}
+@media(max-width:900px){
+  .tk-app .hoy-main>.video-workbench.has-video .video-game-cut-actions>.workbench-inline-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .tk-app .hoy-main>.video-workbench.has-video .video-game-cut-actions>.workbench-inline-actions button{min-height:44px}
+}
+
+/* style: dark surface for text-style-dock on mobile sheet */
+@media(max-width:900px){
+  .tk-app .hoy-main>.video-workbench.has-video .text-style-dock{
+    inset:51px 0 0;background:#1a1a1f;border-color:#2a2a2e;
+    position:absolute;border-radius:0;height:auto;max-height:none;
+  }
+  .tk-app .hoy-main>.video-workbench.has-video .text-style-panel{color:#d8d8e4}
+}
+.tk-app .hoy-main>.video-workbench .workbench-tool-panel button,.tk-app .hoy-main>.video-workbench .workbench-tool-panel summary{color:#303038}
+.tk-app .hoy-main>.video-workbench .workbench-tool-panel button:not(.text-style-swatch){background-color:#f5f5f7}
+.tk-app .hoy-main>.video-workbench .timeline-track{background:#f0f0f3}
+.tk-app .hoy-main>.video-workbench .workbench-subtitle-proposal,.tk-app .hoy-main>.video-workbench .video-game-upload{background:#fff}
+.tk-app .hoy-main>.video-workbench .timeline-clip-body{touch-action:none;cursor:grab}
+.tk-app .hoy-main>.video-workbench .timeline-clip.is-drop-target{outline:3px solid #817787;outline-offset:2px}
+.tk-app .hoy-main>.video-workbench .timeline-zoom button[aria-pressed=true]{background:#e6e4eb;box-shadow:inset 0 0 0 1px #a8a4b3}
+@media(max-width:900px) and (max-height:700px){.tk-app .hoy-main>.video-workbench.has-video{grid-template-rows:40px minmax(40px,1fr) 32px 40px 128px min(180px,28dvh)}.tk-app .hoy-main>.video-workbench.has-video>.video-timeline{height:128px}}
+
+.tk-app .hoy-main>.video-workbench.has-video .workbench-clip-motion>div{margin:8px 0;display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-clip-motion small{width:100%}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-clip-motion button,.tk-app .hoy-main>.video-workbench.has-video .workbench-layer-tools>button{border:1px solid #dddde4;border-radius:8px;min-height:36px;padding:5px 8px;font-size:11px}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-clip-motion button[aria-pressed=true]{box-shadow:inset 0 0 0 1px #85818f}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-layer-tools{display:grid;gap:8px}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-layer-tools label{font-size:12px}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-layer-times{display:flex;gap:8px}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-layer-times input{width:100%;min-height:36px;border:1px solid #dddde4;border-radius:8px;padding:4px}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-layer{height:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;border:1px solid #c9c5d1;border-radius:5px;font-size:10px;background:#e8e5ec;color:#303038;padding:2px 6px;min-height:0}
+.tk-app .hoy-main>.video-workbench.has-video .timeline-layers{height:24px}
+.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers) .timeline-surface{height:150px}
+.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers) .timeline-track-label{line-height:8px;margin:0}
+.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers) .timeline-clips{height:32px}
+.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers) .timeline-captions{height:24px}
+@media(max-width:900px){.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tools button{font-size:10px}.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers) .timeline-surface{height:96px}.tk-app .hoy-main>.video-workbench.has-video .timeline-layers{height:18px}.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers) .timeline-clips{height:22px}.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers) .timeline-captions{height:18px}.tk-app .hoy-main>.video-workbench.has-video .workbench-clip-motion{display:flex;gap:8px}.tk-app .hoy-main>.video-workbench.has-video .workbench-clip-motion>div{flex:1;margin:4px 0}.tk-app .hoy-main>.video-workbench.has-video .workbench-clip-motion button{font-size:10px;padding:3px;min-height:32px}}
+
+.tk-app .hoy-main>.video-workbench .workbench-tool-panel button:not(.text-style-swatch),.tk-app .hoy-main>.video-workbench .workbench-file-menu button{background-image:none;background-color:#f5f5f7;color:#303038}
+.tk-app .hoy-main>.video-workbench .workbench-tools button[aria-pressed=true]{background:linear-gradient(115deg,#f0edf4,#f6f1ec,#edf1f1)}
+.tk-app .hoy-main>.video-workbench .workbench-file-menu>div,.tk-app .hoy-main>.video-workbench .workbench-cloud,.tk-app .hoy-main>.video-workbench .piece-file-save{background:#fff;color:#303038}
+/* Consistent editor chrome: quiet surfaces, a clear export action, recognizable tools. */
+.tk-app .hoy-main>.video-workbench{font-family:Inter,system-ui,sans-serif;--editor-ink:#27272d;--editor-muted:#686873;--editor-line:#e5e5eb}
+.tk-app .hoy-main>.video-workbench .workbench-download,.tk-app .hoy-main>.video-workbench .workbench-auto-actions button,.tk-app .hoy-main>.video-workbench .workbench-tools button,.tk-app .hoy-main>.video-workbench .timeline-zoom button{display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.tk-app .hoy-main>.video-workbench .workbench-download{background:#29292f!important;color:#fff!important;border-color:#29292f!important;border-radius:10px!important;font-weight:600}
+.tk-app .hoy-main>.video-workbench .workbench-playback>button{display:inline-flex;align-items:center;justify-content:center}
+.tk-app .hoy-main>.video-workbench .workbench-inline-actions button{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-inspector{border-radius:12px;box-shadow:0 2px 8px #29292f04}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tools{padding:5px;gap:2px;min-height:54px}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tools button{flex-direction:column;gap:3px;font-size:11px;min-height:44px;border-radius:8px;color:#686873}
+.tk-app .hoy-main>.video-workbench .workbench-tools button[aria-pressed=true]{background:#f0eff4;border-color:transparent;color:#29292f;box-shadow:inset 0 -2px 0 #d8d1e2}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-tool-panel{padding:14px}
+.tk-app .hoy-main>.video-workbench.has-video>.workbench-preview-stage{border:1px solid #e7e7ed;background:radial-gradient(#d8d8e080 .65px,transparent .65px),#f4f4f6;background-size:18px 18px;border-radius:12px}
+.tk-app .hoy-main>.video-workbench.has-video .text-style-dock{inset-block-start:55px}
+.tk-app .hoy-main>.video-workbench .video-game-heading a{font-size:12px;color:#686873}
+.tk-app .hoy-main>.video-workbench .video-game-heading strong{font-weight:600;letter-spacing:-.02em}
+@media(max-width:900px){
+ .tk-app .hoy-main>.video-workbench.has-video{grid-template-rows:44px minmax(72px,1fr) 40px 44px 138px min(218px,28dvh)}
+ .tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tools{height:50px;min-height:50px;padding:3px}
+ .tk-app .hoy-main>.video-workbench.has-video .workbench-inspector>.workbench-tools button{font-size:11px;min-height:44px;padding:2px 4px}
+ .tk-app .hoy-main>.video-workbench.has-video .workbench-tool-panel{padding:8px 10px}
+ .tk-app .hoy-main>.video-workbench.has-video .text-style-dock{inset-block-start:51px}
+}
+@media(max-width:900px) and (max-height:700px){.tk-app .hoy-main>.video-workbench.has-video{grid-template-rows:40px minmax(40px,1fr) 36px 40px 128px min(170px,26dvh)}}
+@media(max-width:900px){
+ /* On phones the full style gallery opens in place; extra preview cards do not push controls offscreen. */
+ .tk-app .hoy-main>.video-workbench.has-video .text-style-recommended{display:none}
+ .tk-app .hoy-main>.video-workbench.has-video .text-style-shortcuts{display:flex;gap:5px}
+ .tk-app .hoy-main>.video-workbench.has-video .text-style-shortcuts button{min-height:40px;font-size:11px}
+ .tk-app .hoy-main>.video-workbench.has-video .timeline-surface{height:100px}
+ .tk-app .hoy-main>.video-workbench.has-video .timeline-clips{height:34px}
+ .tk-app .hoy-main>.video-workbench.has-video .timeline-handle{min-height:0!important;height:calc(100% + 4px)}
+}
+@media(max-width:900px){
+ .tk-app .hoy-main>.video-workbench.has-video .video-game-captions:has(.workbench-caption-input)>.text-style-picker{display:none}
+ .tk-app .hoy-main>.video-workbench.has-video .timeline-track-label{line-height:8px;margin:0}
+ .tk-app .hoy-main>.video-workbench.has-video .timeline-surface{height:96px}
+}
+@media(max-width:900px){
+ .tk-app .hoy-main>.video-workbench.has-video .text-style-shortcuts{display:none}
+ .tk-app .hoy-main>.video-workbench.has-video{grid-template-rows:44px minmax(72px,1fr) 40px 44px 146px min(218px,28dvh)}
+ .tk-app .hoy-main>.video-workbench.has-video>.video-timeline{height:100%}
+}
+@media(max-width:900px) and (max-height:700px){.tk-app .hoy-main>.video-workbench.has-video{grid-template-rows:40px minmax(40px,1fr) 36px 40px 136px min(170px,26dvh)}}
+/* Safari must never widen the document or zoom a small editing input on focus. */
+body:has(.video-workbench) .workspace-focus-bar{height:60px;min-height:60px;max-height:60px;width:100%;max-width:100vw;box-sizing:border-box;gap:10px}
+body:has(.video-workbench) .workspace-focus-bar>span{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+body:has(.video-workbench) .workspace-focus-bar>a,body:has(.video-workbench) .workspace-focus-menu{flex:none}
+.tk-app .hoy-main>.video-workbench{box-sizing:border-box;min-width:0}
+.tk-app .hoy-main>.video-workbench .workbench-motion-options{border-top:1px solid #e5e5eb;margin-top:12px;padding-top:8px}
+.tk-app .hoy-main>.video-workbench .workbench-motion-options>summary{min-height:44px;align-content:center;cursor:pointer;font-size:12px;color:#686873}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-auto-actions{display:flex;flex-wrap:wrap;align-content:center;gap:6px}
+.tk-app .hoy-main>.video-workbench.has-video .workbench-auto-actions>.video-game-notice{position:static;flex:1 0 100%;max-width:100%;margin:0;padding:6px 8px;font-size:12px!important;line-height:1.4;border:1px solid #e5e5eb;border-radius:8px;background:#fff;color:#3c3c43;box-shadow:none;max-height:none;overflow:visible}
+.tk-app .hoy-main>.video-workbench.has-video:has(.video-game-notice){grid-template-rows:48px minmax(110px,1fr) 44px 112px 202px}
+@media(max-width:900px){
+ .tk-app .hoy-main>.video-workbench input:not([type=range]):not([type=file]),.tk-app .hoy-main>.video-workbench textarea,.tk-app .hoy-main>.video-workbench select{font-size:16px!important}
+ .tk-app .hoy-main>.video-workbench.has-video .workbench-auto-actions{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-content:center;gap:4px}
+ .tk-app .hoy-main>.video-workbench.has-video .workbench-auto-actions>.video-game-notice{grid-column:1/-1;max-height:none}
+ .tk-app .hoy-main>.video-workbench.has-video:has(.video-game-notice){grid-template-rows:44px minmax(64px,1fr) 40px 110px 146px min(180px,24dvh)}
+ .tk-app .hoy-main>.video-workbench.has-video .workbench-clip-motion{display:block}
+}
+@media(max-width:900px) and (max-height:700px){.tk-app .hoy-main>.video-workbench.has-video:has(.video-game-notice){grid-template-rows:40px minmax(32px,1fr) 36px 110px 136px min(130px,20dvh)}}
+.tk-app .hoy-main>.video-workbench .workbench-audio-progress{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;grid-column:1/-1;min-height:44px;font-size:12px;color:#42424b}
+.tk-app .hoy-main>.video-workbench .workbench-audio-progress button{min-height:40px;padding:4px 10px;border:1px solid #dedee6;background:#fff;border-radius:8px}
+.tk-app .hoy-main>.video-workbench .workbench-auto-actions:has(.workbench-audio-progress)>button{display:none}
+@media(max-width:380px){.tk-app .hoy-main>.video-workbench.has-video .video-game-heading strong{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.tk-app .hoy-main>.video-workbench.has-video .video-game-heading a{white-space:nowrap}}
+/* Logos: one selected item, a small choice of motion, and an explicit transparency review. */
+.tk-app .hoy-main>.video-workbench .logo-layer-list{display:flex;gap:7px;overflow-x:auto;padding:3px}
+.tk-app .hoy-main>.video-workbench .logo-layer-list button{position:relative;flex:none;width:58px;height:58px;min-height:58px;border:1px solid #dddde5;border-radius:9px;padding:7px;background:repeating-conic-gradient(#eeeef2 0% 25%,#fff 0% 50%) 0/12px 12px}
+.tk-app .hoy-main>.video-workbench .logo-layer-list button[aria-pressed=true]{outline:2px solid #8b8598;outline-offset:1px}
+.tk-app .hoy-main>.video-workbench .logo-layer-list img{width:100%;height:100%;object-fit:contain}
+.tk-app .hoy-main>.video-workbench .logo-layer-list span{position:absolute;right:2px;bottom:1px;font-size:9px;background:#fff;border-radius:4px;padding:1px 3px}
+.tk-app .hoy-main>.video-workbench .logo-motion-picker{display:flex;gap:5px}
+.tk-app .hoy-main>.video-workbench .logo-motion-picker button{flex:1;border:1px solid #dddde5;min-height:40px;border-radius:8px;font-size:12px}
+.tk-app .hoy-main>.video-workbench .logo-motion-picker button[aria-pressed=true]{box-shadow:inset 0 0 0 1px #817a90;background:#efedf4}
+.tk-app .hoy-main>.video-workbench .logo-preview-ending{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px!important;border-radius:9px;border:1px solid #dddde5!important;background:#29292f!important;color:#fff!important}
+.tk-app .hoy-main>.video-workbench .logo-adjustments>summary{font-size:12px;min-height:44px;align-content:center;cursor:pointer}
+.tk-app .hoy-main>.video-workbench .logo-background-review{display:grid;gap:8px;border:1px solid #dedee6;border-radius:10px;padding:10px}
+.tk-app .hoy-main>.video-workbench .logo-checker{height:130px;display:flex;align-items:center;justify-content:center;background:repeating-conic-gradient(#e5e5eb 0% 25%,#fff 0% 50%) 0/18px 18px;border-radius:7px}
+.tk-app .hoy-main>.video-workbench .logo-checker img{max-width:100%;max-height:100%;object-fit:contain}
+.tk-app .hoy-main>.video-workbench .workbench-layer-tools:has(.logo-background-review)>.logo-motion-picker,.tk-app .hoy-main>.video-workbench .workbench-layer-tools:has(.logo-background-review)>.logo-preview-ending,.tk-app .hoy-main>.video-workbench .workbench-layer-tools:has(.logo-background-review)>.logo-adjustments{display:none}
+.tk-app .hoy-main>.video-workbench .video-layer-preview.is-selected{outline:1px dashed #a5a0b5;outline-offset:4px}
+.tk-app .hoy-main>.video-workbench .logo-resize-handle{position:absolute;transform:translate(-50%,-50%);width:24px;height:24px;min-height:24px;border:1px solid #c8c3d3;background:#fff;color:#504b5e;border-radius:5px;display:grid;place-items:center;font-size:16px;padding:0;cursor:nwse-resize;touch-action:none;z-index:8;box-shadow:0 2px 7px #0002}
+.tk-app .hoy-main>.video-workbench .timeline-layer{padding:0;overflow:visible}
+.tk-app .hoy-main>.video-workbench .timeline-layer-body{display:block;width:100%;height:100%;min-height:0;padding:2px 14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;border:0;background:transparent;cursor:grab;touch-action:none;color:#393542}
+.tk-app .hoy-main>.video-workbench .timeline-layer .timeline-handle{min-height:0!important;width:10px;height:calc(100% + 4px)}
+@media(min-width:901px){.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers){grid-template-rows:48px minmax(110px,1fr) 44px 50px 260px}.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers):has(.video-game-notice){grid-template-rows:48px minmax(110px,1fr) 44px 112px 260px}.tk-app .hoy-main>.video-workbench.has-video:has(.timeline-layers) .timeline-surface{height:190px}}

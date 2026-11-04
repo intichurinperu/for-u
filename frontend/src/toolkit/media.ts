@@ -1,3 +1,5 @@
+import {isolateMp4Audio,readVideoPcm,type AudioReadOptions} from './videoAudio';
+import {clipAppearance,paintLayers,type ClipMotion,type VideoLayer} from './videoComposition';
 import {paintStyledCaption,captionTypography,captionLines,type TextLook} from './textStyles';
 import {recordingFrames,recordingCrop,type RecordingRatio} from './prompterFrame';
 import type { Segment } from "./engine";
@@ -43,17 +45,27 @@ export async function compressImage(file: File): Promise<Blob> {
     ),
   );
 }
-export async function decodeAudio(file: File) {
-  const context = new AudioContext();
+const decodedAudio=new WeakMap<File,AudioBuffer>();
+export async function decodeAudio(file:File,options:AudioReadOptions={}) {
+  if(options.signal?.aborted)throw new DOMException('Cancelado','AbortError');
+  const cached=decodedAudio.get(file);if(cached)return cached;
+  const context=new AudioContext();
+  // Resume while the explicit button click still carries browser user activation.
+  const activation=context.resume().catch(()=>{});
   try {
-    return await context.decodeAudioData(await file.arrayBuffer());
-  } catch {
-    throw new Error(
-      "No se pudo leer el audio de este formato. Prueba un video WebM o MP4 con audio.",
-    );
-  } finally {
-    await context.close();
-  }
+    if(options.signal?.aborted)throw new DOMException('Cancelado','AbortError');
+    let result:AudioBuffer;
+    try{result=await context.decodeAudioData(await file.arrayBuffer());}
+    catch{
+      if(options.signal?.aborted)throw new DOMException('Cancelado','AbortError');
+      options.onProgress?.('Preparando la voz de tu video…');
+      const carrier=isolateMp4Audio(await file.arrayBuffer());
+      try{if(!carrier)throw new Error('No audio-only container');result=await context.decodeAudioData(carrier);}
+      catch{await activation;result=await readVideoPcm(file,context,options);}
+    }
+    if(options.signal?.aborted)throw new DOMException('Cancelado','AbortError');
+    decodedAudio.set(file,result);return result;
+  } finally {await context.close();}
 }
 export function waitMedia(
   video: HTMLVideoElement,
@@ -120,6 +132,7 @@ export async function exportVideo(
   signal: AbortSignal,
   framing?:{ratio:RecordingRatio;focus:number},
   textLook?:TextLook,
+  composition?:{layers:VideoLayer[];motions:ClipMotion[]},
 ): Promise<Blob> {
   if (!segments.length)
     throw new Error("Conserva al menos un fragmento del video.");
@@ -142,7 +155,7 @@ export async function exportVideo(
     const canvas = document.createElement("canvas");
     const ratio = Math.min(
       1,
-      1280 / Math.max(video.videoWidth, video.videoHeight),
+      1920 / Math.max(video.videoWidth, video.videoHeight),
     );
     canvas.width = Math.round(video.videoWidth * ratio);
     canvas.height = Math.round(video.videoHeight * ratio);
@@ -167,8 +180,8 @@ export async function exportVideo(
       ...canvas.captureStream(30).getVideoTracks(),
       ...destination.stream.getAudioTracks(),
     ]);
-    const mimeType = recordingMime();
-    recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+    const mimeType=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(type=>MediaRecorder.isTypeSupported(type))??recordingMime();
+    recorder = new MediaRecorder(stream, { ...(mimeType?{mimeType}:{}),videoBitsPerSecond:Math.min(16_000_000,Math.max(4_000_000,canvas.width*canvas.height*5)),audioBitsPerSecond:128000 });
     const chunks: Blob[] = [];
     recorder.ondataavailable = (e) => {
       if (e.data.size) chunks.push(e.data);
@@ -177,7 +190,9 @@ export async function exportVideo(
     recorder.onerror = () => {
       recordingError = new Error("No se pudo exportar el video.");
     };
-    const paintVideo=()=>{if(framing){const crop=recordingCrop(video.videoWidth,video.videoHeight,canvas.width,canvas.height,framing.focus);ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,canvas.width,canvas.height);}else ctx.drawImage(video,0,0,canvas.width,canvas.height);};
+    const images=new Map<string,HTMLImageElement>();await Promise.all((composition?.layers??[]).map(layer=>new Promise<void>((resolve,reject)=>{const img=new Image();img.onload=()=>{images.set(layer.id,img);resolve();};img.onerror=()=>reject(new Error('No pudimos cargar una superposición. Vuelve a añadirla.'));img.src=layer.url;})));
+    let currentSegment=segments[0],currentIndex=0,completed=0;
+    const paintVideo=()=>{const appearance=clipAppearance(video.currentTime,currentSegment,composition?.motions[currentIndex]);ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.save();ctx.globalAlpha=appearance.opacity;ctx.translate(canvas.width/2,canvas.height/2);ctx.scale(appearance.scale,appearance.scale);ctx.translate(-canvas.width/2,-canvas.height/2);if(framing){const crop=recordingCrop(video.videoWidth,video.videoHeight,canvas.width,canvas.height,framing.focus);ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,canvas.width,canvas.height);}else ctx.drawImage(video,0,0,canvas.width,canvas.height);ctx.restore();};
     const draw = () => {
       paintVideo();
       const text = subtitles
@@ -187,11 +202,13 @@ export async function exportVideo(
         .map((s) => s.text)
         .join(" ");
       if(text){if(textLook){const active=subtitles.filter(s=>video.currentTime>=s.start&&video.currentTime<s.end);paintStyledCaption(ctx,text,canvas.width,canvas.height,textLook,video.currentTime-Math.min(...active.map(s=>s.start)));}else drawCaption(ctx,text,canvas.width,canvas.height);}
+      paintLayers(ctx,composition?.layers??[],images,completed+Math.max(0,video.currentTime-currentSegment.start),canvas.width,canvas.height);
       raf = requestAnimationFrame(draw);
     };
     const total = segments.reduce((sum, s) => sum + s.end - s.start, 0);
-    let completed = 0;
-    for (const segment of segments) {
+
+    for (const [segmentIndex,segment] of segments.entries()) {
+      currentSegment=segment;currentIndex=segmentIndex;
       if (signal.aborted) throw new DOMException("Cancelado", "AbortError");
       video.pause();
       if (Math.abs(video.currentTime - segment.start) > 0.01) {

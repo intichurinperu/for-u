@@ -10,7 +10,7 @@ export const textPresets=[
 export type TextPreset=typeof textPresets[number]['id'];
 export type TextLook={preset:TextPreset;useBrand:boolean;primary:string;accent:string;ink:string;font:TextFont;size:number;position:'top'|'middle'|'bottom'};
 export type VisualBrand={version:1;projectId:string;look:TextLook;favorites:TextPreset[]};
-export const defaultTextLook:TextLook={preset:'glass',useBrand:false,primary:'#B9DDCC',accent:'#F1D395',ink:'#263E32',font:'modern',size:1,position:'bottom'};
+export const defaultTextLook:TextLook={preset:'glass',useBrand:false,primary:'#E5E5EA',accent:'#E9DDE8',ink:'#29292F',font:'modern',size:1,position:'bottom'};
 export function validTextLook(value:unknown):value is TextLook{
  const v=value as TextLook;return !!v&&textPresets.some(p=>p.id===v.preset)&&typeof v.useBrand==='boolean'&&[v.primary,v.accent,v.ink].every(c=>typeof c==='string'&&/^#[0-9a-f]{6}$/i.test(c))&&Object.hasOwn(textFonts,v.font)&&Number.isFinite(v.size)&&v.size>=.7&&v.size<=1.5&&['top','middle','bottom'].includes(v.position);
 }
