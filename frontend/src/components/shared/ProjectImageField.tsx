@@ -1,4 +1,5 @@
 import ImageCropper from './ImageCropper';
+import GeminiImageAssistant from './GeminiImageAssistant';
 import {resolveMediaPath} from './mediaStorage';
 import {privateMediaPath,externalImageUrl} from './mediaReference';
 import { Input as DSInput, ButtonSecondary as DSButtonSecondary, InfoIcon } from '../ui/DesignSystem';
@@ -19,6 +20,7 @@ export default function ProjectImageField({ label, value, onChange }: { label: s
     {scope && value && <DSButtonSecondary type="button" aria-expanded={open} onClick={() => setOpen(value => !value)}>{open ? 'Conservar foto actual' : 'Reemplazar foto'}</DSButtonSecondary>}
     {value&&scope&&<DSButtonSecondary type="button" onClick={()=>void openCrop()}>Encuadrar foto</DSButtonSecondary>}{crop&&scope&&<ImageCropper key={crop} {...scope} url={crop} onClose={()=>setCrop('')} onApply={next=>{onChange(next);setCrop('');}}/>}{error&&<p role="alert">{error}</p>}
     {(open||!value) && scope && <MediaGallery key={`${scope.userId}:${scope.projectId}`} {...scope} onSelect={image => { onChange(mediaReference(image.path)); setOpen(false); }} />}
+    <GeminiImageAssistant contextName={label} onSelectImage={url => { onChange(url); setOpen(false); }} />
     <details className="media-advanced"><summary>Usar un enlace · avanzado</summary><DSInput label={`Enlace de ${label.toLowerCase()}`} type="url" value={isPrivateMedia(value)?'':value} placeholder="https://…" onChange={event => onChange(event.target.value)} /></details>
   </div>;
 }
