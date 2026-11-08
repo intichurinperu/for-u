@@ -35,6 +35,7 @@ import { resolveMediaPath } from '../components/shared/mediaStorage';
 import { moduleLabels, type ModuleType } from '../modules/moduleProjects';
 import { Link, useSearchParams } from 'react-router-dom';
 import { projectStartPath } from '../workspace/navigation';
+import { studioPageReturn } from '../studio/navigation';
 import { Select as DSSelect } from '../components/ui/DesignSystem';
 import { useUnsavedNavigation } from "../lib/useUnsavedNavigation";
 import { Textarea, InfoIcon } from "../components/ui/DesignSystem";
@@ -63,6 +64,7 @@ function LandingBuilderSession({ wizard = false }: { wizard?: boolean }) {
   const { business, docs, save, reload, userId, projectId, demo, track, documentRevision } = useToolkit();
   const [routeParams] = useSearchParams();
   const routeTaskId = routeParams.get('task');
+  const studioReturnPath = studioPageReturn(routeParams, projectId);
   const [nextStep,setNextStep]=useState<'intro'|null>(()=>{try{return routeParams.get('tour')==='1'&&sessionStorage.getItem(`foru:landing-tour:${userId}:${projectId}`)!=='done'?'intro':null;}catch{return null;}});
   function dismissNext(){setNextStep(null);try{sessionStorage.setItem(`foru:landing-tour:${userId}:${projectId}`,'done');}catch{}}
   async function createFromPage(wholePage=false){if(busy)return;if(dirty||!docs.landing){if(!await saveDraft())return;}dismissNext();const query=new URLSearchParams({project:projectId,start:'first-content',from:'landing',section:wholePage?'hero':selectedId,viewport});if(!wholePage&&selectedOfferId&&draft.offers?.some(offer=>offer.id===selectedOfferId))query.set('offer',selectedOfferId);const pageRevision=documentRevision('landing');if(pageRevision)query.set('pageRevision',pageRevision);navigateAfterSave('/creator-studio?'+query.toString());}
@@ -442,8 +444,8 @@ function LandingBuilderSession({ wizard = false }: { wizard?: boolean }) {
   return (
     <div className="foru-professional-editor pe-wide-editor tk-visual-editor landing-editor-workspace" inert={busy} aria-busy={busy}>
       <header className="landing-editor-header">
-        <PearlButton className="landing-editor-back" tone="neutral" compact to={projectStartPath(projectId,routeTaskId)}>
-          <ArrowLeft size={17} aria-hidden="true"/><span>Mi ruta</span>
+        <PearlButton className="landing-editor-back" tone="neutral" compact to={studioReturnPath ?? projectStartPath(projectId,routeTaskId)}>
+          <ArrowLeft size={17} aria-hidden="true"/><span>{studioReturnPath ? 'Creator Studio' : 'Mi ruta'}</span>
         </PearlButton>
         <Logo/>
         <div className="landing-editor-identity">

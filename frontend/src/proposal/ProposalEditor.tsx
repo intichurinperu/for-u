@@ -15,15 +15,24 @@ import { useWorkspaceFocus } from '../pages/dashboard/WorkspaceFocus';
 import { blankOffer, changedPreparationFields, emptyProposal, parseProposal, nativeOffers, proposalOffers, offerPrice, prepareLanding, preparationFields, validateOffer, type Offer, type PreparationField, type Proposal } from './model';
 import { updateNativePrice, createNativeProduct } from './catalogEditing';
 import { readableStudioDraft } from '../pages/dashboard/studioJourney';
+import {businessRoutes} from '../workspace/contracts';
+import {offerCostsPath} from './offerCosts';
+import OfferCostsEditor from './OfferCostsEditor';
 import './proposal.css';
 import './proposalOffersVisual.css';
 
 export default function ProposalEditor() {
   const toolkit = useToolkit();
+  const [params] = useSearchParams();
   try {
-    if (toolkit.docs.landing !== undefined && !readableStudioDraft(toolkit.docs.landing)) throw new Error('El borrador anterior necesita recuperación. No se reemplazó por una plantilla.');
+    const type = toolkit.business.moduleType as ModuleType;
     const proposal = toolkit.docs['module-proposal'] === undefined ? emptyProposal() : parseProposal(toolkit.docs['module-proposal']);
-    nativeOffers(toolkit.business.moduleType as ModuleType, toolkit.docs['module-' + toolkit.business.moduleType]);
+    const native = nativeOffers(type, toolkit.docs['module-' + type]);
+    if (params.get('section') === 'costs') {
+      const route = toolkit.business.route ?? type;
+      return <OfferCostsEditor offers={[...native, ...proposal.offers]} route={businessRoutes.includes(route) ? route : 'services'}/>;
+    }
+    if (toolkit.docs.landing !== undefined && !readableStudioDraft(toolkit.docs.landing)) throw new Error('El borrador anterior necesita recuperación. No se reemplazó por una plantilla.');
     return <ProposalSession initial={proposal} />;
   } catch (error) { return <section role="alert"><h1>No pudimos abrir tu propuesta</h1><p>{(error as Error).message}</p><ButtonSecondary onClick={() => void toolkit.reload()}>Reintentar</ButtonSecondary></section>; }
 }
@@ -47,9 +56,11 @@ function ProposalSession({ initial }: { initial: Proposal }) {
   const saveLock = useRef(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const [offer, setOffer] = useState<Offer | null>(()=>initial.offers.find(o=>o.id===routeParams.get('offer'))??null);
+  const native = nativeOffers(type, docs[catalogKey]);
+  const initialNativeOffer = native.find(item => item.id === routeParams.get('offer'));
+  const [offer, setOffer] = useState<Offer | null>(()=>initial.offers.find(o=>o.id===routeParams.get('offer'))??initialNativeOffer??null);
   const [offerPanel,setOfferPanel]=useState(true);
-  const [nativePriceId, setNativePriceId] = useState<string | null>(null);
+  const [nativePriceId, setNativePriceId] = useState<string | null>(initialNativeOffer?.id??null);
   const editOffer = (item: Offer, fromCatalog = false) => {
     setNativePriceId(fromCatalog ? item.id : null);
     setError('');
@@ -61,7 +72,6 @@ function ProposalSession({ initial }: { initial: Proposal }) {
   const [preparing, setPreparing] = useState(false);
   const [confirmRecovery, setConfirmRecovery] = useState(false);
   const [chosen, setChosen] = useState<PreparationField[]>([]);
-  const native = nativeOffers(type, docs[catalogKey]);
   const editingNativeOffer = offer?.id === nativePriceId;
   const restaurantInventory = type === 'restaurant' && business.route !== 'services'
     ? '/modules/restaurant' + query + (routeParams.get('return') === 'island' ? '&return=island&area=finance' : '')
@@ -172,6 +182,7 @@ function ProposalSession({ initial }: { initial: Proposal }) {
                     <span className="proposal-offer-price-tag">{offerPrice(item)}</span>
                   </div>
                   <div className="proposal-offer-row-actions">
+                    <Link className="proposal-action-pill-btn" aria-label={`Ver costos de ${item.name}`} to={offerCostsPath(routeParams, projectId, item.id)}>Ver costos</Link>
                     <button type="button" className="proposal-action-pill-btn" onClick={() => editOffer(item, native.includes(item))}>
                       {native.includes(item) ? 'Editar precio' : 'Ajustar oferta'}
                     </button>
@@ -182,6 +193,7 @@ function ProposalSession({ initial }: { initial: Proposal }) {
           )}
 
           <div className="proposal-offers-footer-actions">
+            {allOffers.length > 0 && <PearlButton compact tone="neutral" to={offerCostsPath(routeParams, projectId)}>Costos y Excel</PearlButton>}
             {restaurantInventory && (
               <PearlButton
                 compact

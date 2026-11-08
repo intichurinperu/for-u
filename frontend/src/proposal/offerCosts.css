@@ -1,0 +1,42 @@
+.offer-costs { max-width: 800px; }
+.offer-costs .offer-costs-intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(90px, 27%); align-items: center; gap: 10px; text-align: left; }
+.offer-costs-intro img { width: 100%; height: auto; border-radius: 20px; }
+.offer-costs-intro .foru-pearl-button { margin-top: 8px; }
+.offer-costs .proposal-offers-card + .proposal-offers-card { margin-top: 18px; }
+.offer-costs-heading, .offer-costs-lines li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.offer-costs-heading h2, .offer-costs-heading p { margin: 0; }
+.offer-costs-heading p { margin-top: 5px; color: #605668; }
+.offer-costs-lines { margin: 16px 0; padding: 0; list-style: none; }
+.offer-costs-lines li { padding-block: 10px; border-bottom: 1px solid #ece5ee; }
+.offer-costs-lines small { display: block; margin-top: 3px; }
+.offer-costs-choice { display: inline-flex; align-items: center; gap: 9px; }
+.offer-costs-choice input { width: 18px; height: 18px; accent-color: #665176; }
+.offer-costs .proposal-action-pill-btn, .proposal-offer-row-actions a.proposal-action-pill-btn { text-decoration: none; }
+.offer-costs-form fieldset {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+}
+.offer-costs-category { display: grid; gap: 5px; }
+.offer-costs-category select { min-height: 44px; border: 1px solid #e2dce7; border-radius: 12px; padding: 8px; background: #fff; }
+.offer-costs-promotion, .offer-costs-feedback {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: #f8f4fa;
+}
+.offer-costs-promotion h3 { margin: 0; }
+.offer-costs-promotion p { margin: 6px 0 0; }
+@media (max-width: 520px) {
+  .offer-costs-form fieldset { grid-template-columns: 1fr; }
+  .offer-costs-lines li { align-items: flex-start; }
+}

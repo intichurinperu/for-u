@@ -1,7 +1,7 @@
 import {beginMagic,finishMagic} from '../experience/magicTransition';
 import {useEffect,useId,useRef,useState} from 'react';
 import {useLocation,useNavigate,useSearchParams} from 'react-router-dom';
-import {FolderOpen,LayoutTemplate,Save,SlidersHorizontal,Type,Upload,Video} from 'lucide-react';
+import {FolderOpen,ImagePlus,LayoutTemplate,Mic,Save,SlidersHorizontal,Type,Upload,Video} from 'lucide-react';
 import {useToolkit} from '../toolkit/ToolkitContext';
 import {useUnsavedNavigation} from '../lib/useUnsavedNavigation';
 import {useSavedNavigation} from '../lib/useSavedNavigation';
@@ -9,15 +9,16 @@ import {Textarea} from '../components/ui/DesignSystem';
 import Logo from '../components/Logo';
 import PearlButton from '../components/ui/PearlButton';
 import DesignArtwork from './DesignArtwork';
-import IdeaSalesAssist from './IdeaSalesAssist';
+import {requestCreative} from '../ai/creative';
 import ProjectImageField from '../components/shared/ProjectImageField';
 import {resolveMediaPath} from '../components/shared/mediaStorage';
 import {privateMediaPath,mediaReference} from '../components/shared/mediaReference';
 import EditorSheet from '../toolkit/EditorSheet';
-import MaterialAttachments,{type Material} from '../experience/MaterialAttachments';
+import type {Material} from '../experience/MaterialAttachments';
 import {exportContentImage} from '../components/shared/contentExport';
 import {downloadBlob} from '../toolkit/api';
-import {blankContent,contentSizes,type ContentDraft} from '../components/shared/contentModel';
+import {blankContent,contentSizes,type ContentDraft,type ContentVoice} from '../components/shared/contentModel';
+import StudioVoice from './StudioVoice';
 import VideoTemplateSelector from '../toolkit/VideoTemplateSelector';
 import { type VideoTemplateId } from '../toolkit/videoTemplates';
 import type {BrandProfile} from '../experience/brandProfile';
@@ -27,7 +28,7 @@ import {contentDocument,saveComposition} from './saveComposition';
 import {localCanvasDrafts,readCanvasDraft,storeCanvasDraft,type CanvasDraft} from './canvasDrafts';
 import DesignThumbnail from '../experience/DesignThumbnail';
 import {landingOrigin,linkedPieceQuery,studioDesignPath} from './navigation';
-import {adaptCanvas,ideaWords,canvasCaption} from './canvasModel';
+import {adaptCanvas,ideaWords,canvasCaption,ideaDesignSuggestion} from './canvasModel';
 import './studioCanvas.css';
 import './studioIdeaEditor.css';
 type Props={idea:string;onIdea:(text:string)=>void;pillar:string;brand?:BrandProfile;source?:CreativeSource|null;campaign?:Campaign;mainIndex?:number;onBack:()=>void;onBusy:(value:boolean)=>void};
@@ -58,16 +59,26 @@ export default function StudioCanvas({idea,onIdea,pillar,brand,source,campaign,m
  const initial=requestedDesign ? initialDesigns.entries.get(requestedDesign)
   : designOpen||!trackedIdea ? initialDesigns.legacy : null;
  const [legacyBriefOpen,setLegacyBriefOpen]=useState(!initial?.draft);
+ const [ideaMedia,setIdeaMedia]=useState<{photo?:string;voice?:ContentVoice}>(()=>{
+  try{
+   const saved=JSON.parse(sessionStorage.getItem(key+':media')||'{}');
+   const photo=typeof saved?.photo==='string'?privateMediaPath(mediaReference(saved.photo),userId,projectId):null;
+   const voice=saved?.voice;
+   return {photo:photo||undefined,voice:typeof voice?.name==='string'&&typeof voice?.path==='string'&&privateMediaPath(mediaReference(voice.path),userId,projectId)?voice:undefined};
+  }catch{return {};}
+ });
  const [draft,setDraft]=useState<ContentDraft|null>(initial?.draft||null),[files,setFiles]=useState<Material[]>(initial?.files||[]),[dirty,setDirty]=useState(initial?.dirty||false),[busy,setBusy]=useState(false),[aiBusy,setAiBusy]=useState(false),[magic,setMagic]=useState(false),[error,setError]=useState(''),[status,setStatus]=useState(''),[panel,setPanel]=useState<'photo'|'audio'|'colors'|'text'|'video'|null>(null),[format,setFormat]=useState<ContentDraft['format']>(initial?.draft.format||'portrait'),[image,setImage]=useState({path:'',url:''}),[sound,setSound]=useState(false),[templateOpen,setTemplateOpen]=useState(false);
  const briefOpen=trackedIdea?!designOpen||!draft:legacyBriefOpen;
+ const [voicePending,setVoicePending]=useState(false);
  const [storedLocally,setStoredLocally]=useState(false);
  const [savedHere,setSavedHere]=useState(false);
  const lock=useRef(false),alive=useRef(true),animation=useRef<ReturnType<typeof setTimeout>|undefined>(undefined);
  const editorHeading=useRef<HTMLHeadingElement>(null),ideaId=useId();
  const navigateAfterSave=useSavedNavigation(!dirty&&!busy&&!aiBusy);
- useUnsavedNavigation(dirty&&(!trackedIdea||!storedLocally)||busy||aiBusy);
+ useUnsavedNavigation(dirty&&(!trackedIdea||!storedLocally)||busy||aiBusy||voicePending);
  useEffect(()=>{alive.current=true;return()=>{alive.current=false;clearTimeout(animation.current);};},[]);
- useEffect(()=>{onBusy(busy||aiBusy);return()=>onBusy(false);},[busy,aiBusy]);
+ useEffect(()=>{onBusy(busy||aiBusy||voicePending);return()=>onBusy(false);},[busy,aiBusy,voicePending]);
+ useEffect(()=>{try{sessionStorage.setItem(key+':media',JSON.stringify(ideaMedia));}catch{}},[key,ideaMedia]);
  useEffect(()=>{
   if(!draft)return;
   const entry={draft,files,dirty};
@@ -97,28 +108,46 @@ export default function StudioCanvas({idea,onIdea,pillar,brand,source,campaign,m
   if(location.state?.revealDesign)shimmer();
  },[designOpen,location.key]);
  function patch(value:Partial<ContentDraft>){if(!draft||busy||aiBusy)return;const next={...draft,...value};setDraft({...next,caption:canvasCaption(next)});setDirty(true);setStatus('');setError('');}
+ function withIdeaMedia(value:ContentDraft):ContentDraft{
+  return {...value,...(ideaMedia.photo?{imagePath:ideaMedia.photo,sourceImageUrl:''}:{}),...(ideaMedia.voice?{voice:ideaMedia.voice}:{})};
+ }
  function openManual(){
   if(busy||aiBusy)return;
   const next=(!trackedIdea&&draft)||{
    ...blankContent(projectId),format,layout:'editorial' as const,
    creative:{intent:campaign?.intent||'awareness' as const,sourceKey:'idea',...(campaign?{campaignId:campaign.id}:{}),...(brand?.pillars.includes(pillar)?{pillar,brand}:{})},
   };
-  openDesign({draft:next,files,dirty:!trackedIdea&&dirty});
+  openDesign({draft:withIdeaMedia(next),files,dirty:(!trackedIdea&&dirty)||!!(ideaMedia.photo||ideaMedia.voice)});
   setError('');setStatus('');
   requestAnimationFrame(()=>editorHeading.current?.focus());
  }
- function convert(text=idea){
-  if(busy||aiBusy)return;
-  try {
-   const words=ideaWords(text);
+ function convert(suggestion?:ReturnType<typeof ideaDesignSuggestion>){
+   const words=suggestion||ideaWords(idea);
    const chosen:CreativeSource={...(source||{key:'idea',image:'',cta:'',reference:null,group:'idea'}),...words};
    const option=compositionOptions(chosen,campaign?.intent||'awareness',format,projectId,userId,business.name,campaign,brand,brand?.pillars.includes(pillar)?pillar:undefined)[0];
    const existing=trackedIdea?null:draft;
-   const next={...option,id:existing?.id||option.id,...(existing?{layout:existing.layout,background:existing.background,foreground:existing.foreground,imagePath:existing.imagePath,sourceImageUrl:existing.sourceImageUrl}:{}),creative:option.creative?{...option.creative,origin:landingOrigin(params,projectId,documentRevision('landing'))}:undefined};
-   openDesign({draft:next,files,dirty:true},true);
+   const next=withIdeaMedia({...option,id:existing?.id||option.id,...(suggestion?{cta:suggestion.cta,layout:suggestion.layout}:{}),...(existing?{layout:existing.layout,background:existing.background,foreground:existing.foreground,imagePath:existing.imagePath,sourceImageUrl:existing.sourceImageUrl,voice:existing.voice}:{}),creative:option.creative?{...option.creative,origin:landingOrigin(params,projectId,documentRevision('landing'))}:undefined});
+   openDesign({draft:suggestion?{...next,caption:canvasCaption(next)}:next,files,dirty:true},true);
    setError('');setStatus('Tu idea ya tiene forma. Toca el texto para editarlo.');
    if(!trackedIdea){shimmer();requestAnimationFrame(()=>editorHeading.current?.focus());}
-  }catch(e){setError((e as Error).message);}
+ }
+ async function createWithAI(){
+  const prompt=idea.trim();
+  if(!prompt||lock.current)return;
+  lock.current=true;
+  setAiBusy(true);setError('');setStatus('');
+  try{
+   const result=await requestCreative(projectId,{action:'idea-design',prompt});
+   if(alive.current)convert(ideaDesignSuggestion(result));
+  }catch{
+   if(alive.current)setError('No pudimos preparar tu diseño. Puedes seguir con tu texto.');
+  }finally{
+   lock.current=false;
+   if(alive.current)setAiBusy(false);
+  }
+ }
+ function createWithMyText(){
+  try{convert();}catch(e){setError((e as Error).message);}
  }
  async function save(destination?:'video'|'teleprompter', template?:VideoTemplateId){
   if(!draft||lock.current)return;
@@ -145,6 +174,9 @@ export default function StudioCanvas({idea,onIdea,pillar,brand,source,campaign,m
  async function exportAll(){if(!draft||lock.current)return;lock.current=true;setBusy(true);setError('');try{if(draft.imagePath&&!imageUrl)throw new Error('Espera a que cargue tu foto.');const versions=await Promise.all((['post','portrait','story'] as const).map(async ratio=>({ratio,blob:await exportContentImage(adaptCanvas(draft,ratio),imageUrl)})));for(const value of versions)downloadBlob(value.blob,`mi-contenido-${value.ratio==='post'?'1x1':value.ratio==='portrait'?'4x5':'9x16'}.png`);setStatus('Tres imágenes preparadas. Revisa cada encuadre antes de anunciar.');}catch(e){setError((e as Error).message);}finally{lock.current=false;if(alive.current)setBusy(false);}}
  const canSave=!!(draft?.title.trim()||draft?.caption.trim());
  const dimensions=contentSizes[draft?.format||format];
+ const voice=briefOpen?ideaMedia.voice:draft?.voice;
+ const selectedPhoto=briefOpen?ideaMedia.photo:draft?.imagePath;
+ const currentVoiceText=(briefOpen?idea:draft?.subtitle||'').trimEnd();
  const designs=briefOpen&&trackedIdea?[...initialDesigns.entries.values()]
   .filter(entry=>!campaign||entry.draft.creative?.campaignId===campaign.id)
   .sort((a,b)=>b.draft.updatedAt.localeCompare(a.draft.updatedAt)):[];
@@ -157,22 +189,26 @@ export default function StudioCanvas({idea,onIdea,pillar,brand,source,campaign,m
     ? <PearlButton tone="neutral" compact disabled={busy||aiBusy} onClick={onBack}>Mis temas</PearlButton>
     : <PearlButton tone="neutral" compact disabled={busy||aiBusy} onClick={backToIdea}>Atrás a mi idea</PearlButton>}
   </div>
-  {briefOpen?<><h1>Empieza con una idea</h1><p>¿Qué te gustaría contar de tu negocio?</p>
+  {briefOpen?<><div className="studio-idea-intro">
+   <div><h1>¿Cómo imaginas tu publicación?</h1><p>Cuéntalo con texto, voz o fotos.</p></div>
+   <img src="/brand/foru-project-pavilion.png" alt="" width={460} height={345}/>
+  </div>
    <div className="studio-idea-writing">
     <label htmlFor={ideaId}>Tu idea</label>
     <textarea id={ideaId} rows={3} maxLength={2000} value={idea} disabled={busy||aiBusy}
      placeholder={business.route==='restaurant'?'Ejemplo: quiero contar que este viernes vuelve nuestro brownie de chocolate.':'Ejemplo: quiero contar cómo preparamos lo que más nos piden.'}
      onChange={event=>onIdea(event.target.value)}/>
-    <PearlButton tone="neutral" compact disabled={busy||aiBusy} onClick={()=>setPanel('audio')}>
-     <span className="studio-idea-audio"><svg aria-hidden="true" width="16" height="18" viewBox="0 0 16 18" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"><rect x="5" y="1" width="6" height="10" rx="3"/><path d="M2.5 8v1a5.5 5.5 0 0 0 11 0V8M8 14.5V17m-2 0h4"/></svg>Añadir audio</span>
-    </PearlButton>
+    <div className="studio-idea-materials">
+     <PearlButton tone="neutral" compact disabled={busy||aiBusy} onClick={()=>setPanel('audio')}><Mic aria-hidden="true"/>{voice?'Mi audio':'Añadir audio'}</PearlButton>
+     <PearlButton tone="neutral" compact disabled={busy||aiBusy} onClick={()=>setPanel('photo')}><ImagePlus aria-hidden="true"/>{selectedPhoto?'Mi foto':'Añadir foto'}</PearlButton>
+    </div>
    </div>
    <div className="studio-idea-actions">
-    <PearlButton className="studio-idea-create" disabled={!idea.trim()||busy||aiBusy} onClick={()=>convert()}>Crear mi diseño</PearlButton>
-    <PearlButton tone="neutral" compact disabled={busy||aiBusy} onClick={openManual}>Abrir editor manualmente</PearlButton>
+    <PearlButton className="studio-idea-create" disabled={!idea.trim()||busy||aiBusy} onClick={()=>void createWithAI()}>{aiBusy?'Preparando tu diseño…':'Crear mi diseño con FOR U'}</PearlButton>
+    {error&&<p className="studio-idea-notice" role="alert">{error}</p>}
+    <PearlButton tone="neutral" compact disabled={busy||aiBusy} onClick={idea.trim()?createWithMyText:openManual}>{idea.trim()?'Crear con mi texto':'Abrir editor manualmente'}</PearlButton>
    </div>
    {designOpen&&requestedDesign&&!draft&&<p role="status">Este diseño no está disponible. Puedes abrir otro diseño guardado abajo.</p>}
-   {idea.trim()&&<IdeaSalesAssist idea={idea} pillar={pillar} brand={brand} disabled={busy} onAccept={value=>{onIdea(value);convert(value);}} onBusy={setAiBusy}/>}
   </>:null}
  </div>
  {briefOpen&&trackedIdea&&<section className="studio-saved-designs" aria-labelledby="studio-saved-heading">
@@ -201,6 +237,7 @@ export default function StudioCanvas({idea,onIdea,pillar,brand,source,campaign,m
   <div className="studio-image-tools" role="group" aria-label="Herramientas del diseño">
    <PearlButton tone="neutral" compact disabled={busy||aiBusy} onClick={()=>setPanel('text')}><Type aria-hidden="true"/>Texto</PearlButton>
    <PearlButton tone="neutral" compact disabled={busy||aiBusy} onClick={()=>setPanel('photo')}><FolderOpen aria-hidden="true"/>Mis archivos</PearlButton>
+   <PearlButton tone="neutral" compact disabled={busy||aiBusy} onClick={()=>setPanel('audio')}>{voice?'Mi audio':'Añadir audio'}</PearlButton>
    <PearlButton tone="neutral" compact disabled={busy||aiBusy} onClick={()=>setPanel('colors')}><SlidersHorizontal aria-hidden="true"/>Estilo</PearlButton>
   </div>
   <div className={`studio-canvas-stage${magic?' is-transforming':''}`}>
@@ -218,8 +255,8 @@ export default function StudioCanvas({idea,onIdea,pillar,brand,source,campaign,m
    </div>
   </footer>
  </section>}
- {(error||status)&&<p className="studio-canvas-status" role={error?'alert':'status'}>{error||status}</p>}
- {panel&&<EditorSheet open title={{photo:'Mis archivos',colors:'Colores y estilo',audio:'Tu voz y tus materiales',text:'Texto del diseño',video:'¿Cómo quieres empezar tu video?'}[panel]} closeLabel={panel==='video'?'Cerrar':undefined} onClose={()=>setPanel(null)}><>
+ {!briefOpen&&(error||status)&&<p className="studio-canvas-status" role={error?'alert':'status'}>{error||status}</p>}
+ {panel&&<EditorSheet open title={{photo:'Foto del post',colors:'Colores y estilo',audio:'Tu voz',text:'Texto del diseño',video:'¿Cómo quieres empezar tu video?'}[panel]} closeLabel={panel==='video'?'Cerrar':undefined} closeDisabled={voicePending} onClose={()=>{if(!voicePending)setPanel(null);}}><>
  {panel==='text'&&draft&&<div className="studio-text-fields">
   <Textarea label="Título" maxLength={160} rows={2} value={draft.title} onChange={e=>patch({title:e.target.value})}/>
   <Textarea label="Texto" maxLength={2000} rows={3} value={draft.subtitle} onChange={e=>patch({subtitle:e.target.value})}/>
@@ -237,7 +274,29 @@ export default function StudioCanvas({idea,onIdea,pillar,brand,source,campaign,m
    <Upload aria-hidden="true"/><span><strong>Subir un video</strong><span>Edita un video que ya tengas.</span></span>
   </PearlButton>
  </div>}
- {panel==='photo'&&draft&&<ProjectImageField label="Foto del post" value={draft.imagePath?mediaReference(draft.imagePath):draft.sourceImageUrl||''} onChange={value=>{const path=privateMediaPath(value,userId,projectId);patch({imagePath:path||'',sourceImageUrl:path?'':value});setPanel(null);}}/>}{panel==='colors'&&draft&&<><div className="studio-canvas-colors"><label>Fondo<input type="color" value={draft.background} onChange={e=>patch({background:e.target.value})}/></label><label>Texto<input type="color" value={draft.foreground} onChange={e=>patch({foreground:e.target.value})}/></label></div><div className="studio-canvas-layouts" role="group" aria-label="Composición">{(['editorial','poster','split'] as const).map(layout=><button type="button" aria-pressed={draft.layout===layout} key={layout} onClick={()=>patch({layout})}>{layout==='editorial'?'Editorial':layout==='poster'?'Protagonista':'Contraste'}</button>)}</div></>}{panel==='audio'&&<><p>Graba o adjunta tu idea. Se conservará como material privado de este contenido.</p><p>La conversión actual usa el texto que escribas; el audio todavía no se transcribe en este espacio.</p><MaterialAttachments user={userId} project={projectId} files={files} disabled={busy||aiBusy} onChange={value=>{setFiles(value);setDirty(true);}}/></>}</></EditorSheet>}
+ {panel==='photo'&&<ProjectImageField libraryOnly={briefOpen} showStockSuggestions={false} label="Foto del post"
+  value={selectedPhoto?mediaReference(selectedPhoto):briefOpen?'':draft?.sourceImageUrl||''}
+  onChange={value=>{
+   const path=privateMediaPath(value,userId,projectId);
+   if(briefOpen)setIdeaMedia(media=>({...media,photo:path||undefined}));
+   else patch({imagePath:path||'',sourceImageUrl:path?'':value});
+   setPanel(null);
+  }}/>}
+ {panel==='colors'&&draft&&<><div className="studio-canvas-colors"><label>Fondo<input type="color" value={draft.background} onChange={e=>patch({background:e.target.value})}/></label><label>Texto<input type="color" value={draft.foreground} onChange={e=>patch({foreground:e.target.value})}/></label></div><div className="studio-canvas-layouts" role="group" aria-label="Composición">{(['editorial','poster','split'] as const).map(layout=><button type="button" aria-pressed={draft.layout===layout} key={layout} onClick={()=>patch({layout})}>{layout==='editorial'?'Editorial':layout==='poster'?'Protagonista':'Contraste'}</button>)}</div></>}
+ {panel==='audio'&&<StudioVoice user={userId} project={projectId} voice={voice}
+  onPendingChange={setVoicePending}
+  textCapacity={Math.max(0,2000-currentVoiceText.length-(currentVoiceText?2:0))}
+  onVoice={value=>{
+   if(briefOpen)setIdeaMedia(media=>({...media,voice:value}));
+   else patch({voice:value});
+  }}
+  onText={value=>{
+   const next=[currentVoiceText,value].filter(Boolean).join('\n\n');
+   if(briefOpen)onIdea(next);
+   else patch({subtitle:next});
+   setPanel(null);
+  }}/>}
+ </></EditorSheet>}
  {templateOpen&&<VideoTemplateSelector busy={busy} error={error} onClose={()=>{setTemplateOpen(false);setPanel('video');setError('');}} onSelect={templateId=>void save('video',templateId)} sourceText={draft?.title||idea}/>}
  </section>;
 }

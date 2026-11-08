@@ -17,6 +17,17 @@ test('partial save can retry the same design without duplicating piece or campai
 test('stale source or unavailable campaign does not write a design',async()=>{const storage=store(),d=draft();d.creative.reference={kind:'proposal',projectId:project,id:'proposal',revision:'old'};await assert.rejects(()=>saveComposition(user,project,d,()=>{},storage),/cambió/);assert.equal(storage.docs.has('content-creator'),false);const missing=store();missing.docs.clear();await assert.rejects(()=>saveComposition(user,project,draft(),()=>{},missing),/campaña/);assert.equal(missing.docs.size,0);});
 test('saved source ID must exist even when its revision matches',async()=>{const storage=store(),d=draft();storage.docs.set('proposal',{payload:emptyProposal(),revision:'r1'});d.creative.reference={kind:'proposal',projectId:project,id:'removed-offer',revision:'r1'};await assert.rejects(()=>saveComposition(user,project,d,()=>{},storage),/fuente ya no/);assert.equal(storage.docs.has('content-creator'),false);});
 test('traversal in private asset path is rejected before any storage write',async()=>{const storage=store(),d={...draft(),imagePath:`${user}/${project}/../secret`};await assert.rejects(()=>saveComposition(user,project,d,()=>{},storage),/ruta/);assert.equal(storage.docs.has('content-creator'),false);});
+test('a design saves its photo and voice together and rejects a voice from another account',async()=>{
+ const storage=store();
+ const voice={path:`${user}/${project}/idea.wav`,name:'Mi idea'};
+ const photo=`${user}/${project}/brownie.jpg`;
+ const design={...draft(),imagePath:photo,voice};
+ await saveComposition(user,project,design,()=>{},storage);
+ await assert.rejects(()=>saveComposition(user,project,{...design,voice:{...voice,path:`otro/${project}/idea.wav`}},()=>{},storage),/otro proyecto/);
+ const [saved]=storage.docs.get('content-creator').payload.drafts;
+ assert.equal(saved.imagePath,photo);
+ assert.deepEqual(saved.voice,voice);
+});
 test('layout exposes overflow instead of silently dropping long text',()=>{const d={...draft(),subtitle:'Mucho contenido '.repeat(2000)};assert.equal(artworkLayout(d,false,(t,s)=>t.length*s*.5).overflow,true);});
 test('creating for a main profile space preserves its exact position and retries without duplicates',async()=>{const storage=store(),d=draft();await saveComposition(user,project,d,()=>{},storage,2);let p=storage.docs.get('social-profile').payload;assert.deepEqual(p.mainSlots,[null,null,d.id]);assert.deepEqual(p.main,[d.id]);await saveComposition(user,project,d,()=>{},storage,2);p=storage.docs.get('social-profile').payload;assert.equal(p.pieces.length,1);assert.deepEqual(p.mainSlots,[null,null,d.id]);});
 test('a concurrently occupied profile space is not replaced by a newly created design',async()=>{const storage=store(),a=draft();await saveComposition(user,project,a,()=>{},storage,0);const b=draft();await assert.rejects(()=>saveComposition(user,project,b,()=>{},storage,0),/ya tiene una pieza/);assert.equal(storage.docs.get('content-creator').payload.drafts.length,1);assert.deepEqual(storage.docs.get('social-profile').payload.mainSlots,[a.id,null,null]);});

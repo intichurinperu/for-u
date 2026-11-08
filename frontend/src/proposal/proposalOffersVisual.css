@@ -1,5 +1,9 @@
 /* 02 · Mi ruta digital - Define tu oferta y tus precios (Referencia oficial 2026-11-08) */
 
+.foru-experience.foru-experience :is(.tk-shell, .hoy-shell, .hoy-main):has(.proposal-offers-container) {
+  background: radial-gradient(ellipse at 84% 0%, #f8f1fc 0%, transparent 52%), #fdfcfe;
+}
+
 .proposal-offers-container {
   max-width: 620px;
   margin: 0 auto 48px;

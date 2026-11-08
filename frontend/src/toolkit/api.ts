@@ -29,16 +29,17 @@ export async function askAI(
     throw new Error("La IA no devolvió contenido. Inténtalo de nuevo.");
   return data.text;
 }
-export async function transcribe(file:File,projectId:string):Promise<Segment[]>{
- if(!supabase)throw new Error('Inicia sesión para crear subtítulos.');
+export async function transcribe(file:File,projectId:string,options?:{explicitProject?:boolean}):Promise<Segment[]>{
+ if(!supabase)throw new Error('Inicia sesión para transcribir el audio.');
  const scope=useActiveProjectsStore.getState();
  const body=new FormData();body.set('action','transcribe');body.set('projectId',projectId);body.set('file',file);
  const {data,error}=await supabase.functions.invoke('toolkit-ai',{body});
  const current=useActiveProjectsStore.getState();
- if(scope.cloudUserId!==current.cloudUserId||current.activeProjectId!==projectId)throw new Error('Cambiaste de cuenta o proyecto. No se aplicaron subtítulos.');
+ const expectedProject=options?.explicitProject?scope.activeProjectId:projectId;
+ if(scope.cloudUserId!==current.cloudUserId||current.activeProjectId!==expectedProject)throw new Error('Cambiaste de cuenta o proyecto. La transcripción no se aplicó.');
  let message=data?.error;
  if(error&&!message){try{message=(await error.context?.json())?.error;}catch{}}
- if(error||message)throw new Error(message||'No pudimos transcribir. Tu video sigue intacto; puedes reintentar.');
+ if(error||message)throw new Error(message||'No pudimos transcribir. Puedes reintentar.');
  if(!Array.isArray(data?.segments))throw new Error('No se recibió una transcripción válida.');
  return data.segments;
 }

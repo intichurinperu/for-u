@@ -66,7 +66,10 @@ export default function ProjectIslandArea({ projectId, type, route, area }: Prop
             {showTasks ? 'Ocultar tareas' : 'Ver tareas'}
           </PearlButton>
         </div>
-        {(links || operations) && <nav className="island-area-links" aria-label={`Más opciones de ${area.title}`}>
+        {(links || operations || area.id === 'finance') && <nav className="island-area-links" aria-label={`Más opciones de ${area.title}`}>
+          {area.id === 'finance' && <Link to={to({path:'/dashboard/tools/proposal', params:{section:'costs'}})}>
+            <ClipboardList size={16} aria-hidden="true" />Costos y Excel
+          </Link>}
           {links?.map(link => <Link key={link.label} to={to(link)}>
             {link.path === '/dashboard' ? <CalendarDays size={16} aria-hidden="true" /> : <ClipboardList size={16} aria-hidden="true" />}
             {link.label}

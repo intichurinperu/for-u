@@ -19,7 +19,7 @@ export function contentDocument(value:unknown,project:string):ContentDocument{
 /** Ordered, retryable writes. A partial success is retained and named, not rolled back or hidden. */
 export async function saveComposition(user:string,project:string,draft:ContentDraft,status:(message:string)=>void=()=>{},storage=studioStorage,mainIndex?:number,canvasFiles?:{path:string;name:string}[],seedScript=false){
  validateCreativeContext(draft,project);if(draft.projectId!==project)throw new Error('El diseño pertenece a otro proyecto.');
- for(const path of [draft.imagePath,draft.logoPath])if(path){mediaReference(path);if(!path.startsWith(`${user}/${project}/`))throw new Error('Un archivo pertenece a otro proyecto.');}
+ for(const path of [draft.imagePath,draft.logoPath,draft.voice?.path])if(path){mediaReference(path);if(!path.startsWith(`${user}/${project}/`))throw new Error('Un archivo pertenece a otro proyecto.');}
  const reference=draft.creative?.reference;
  if(reference?.kind==='offer')throw new Error('Esta fuente necesita abrirse desde su oferta antes de crear.');
  const kind:ModuleDocumentKind|undefined=reference?.kind==='catalog'?reference.id.split(':')[0] as ModuleDocumentKind:reference?.kind==='page'?'landing':reference?.kind==='proposal'?'proposal':undefined;

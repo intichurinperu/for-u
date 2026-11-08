@@ -33,6 +33,13 @@ export function studioDesignPath(params:URLSearchParams,project:string,design:st
  if(design&&/^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(design))query.set('design',design);
  return '/creator-studio?'+query;
 }
+export function studioPageReturn(params: URLSearchParams, projectId: string): string | undefined {
+ if (params.get('return') !== 'studio-page') return;
+ const query = new URLSearchParams({ project: projectId, tab: 'page' });
+ const offers = params.get('offers');
+ if (offers && offers.length <= 500 && !/[\x00-\x1f]/.test(offers)) query.set('offers', offers);
+ return '/creator-studio?' + query;
+}
 export function studioDesignReturn(params:URLSearchParams,project:string):string|undefined {
  if(params.get('return')==='studio-design')return studioDesignPath(params,project,params.get('piece'));
 }

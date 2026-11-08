@@ -60,6 +60,9 @@ function StudioHome({type}:{type:ModuleType}){
  }
 
  const rawOffers=params.get('offers')||'';
+ const landingParams = new URLSearchParams({ project: projectId, return: 'studio-page' });
+ if (rawOffers && rawOffers.length <= 500) landingParams.set('offers', rawOffers);
+ const landingEditorPath = '/dashboard/tools/landing?' + landingParams;
  const requestedOfferIds=rawOffers.split(',').map(s=>s.trim()).filter(Boolean);
  const offerSources=sources.filter(s=>s.group==='offer');
  const selectedOfferSources=offerSources.filter(s=>{
@@ -173,7 +176,7 @@ function StudioHome({type}:{type:ModuleType}){
     activeArea==='campaigns' ? <CampaignStudio sources={sources} onBusy={setWorking} startNew={params.get('start')==='campaign'}/> :
     activeArea==='profile' ? <SocialProfile/> :
     activeArea==='library' ? <StudioLibrary/> :
-    activeArea==='page' ? <StudioPageView project={projectId} businessName={business.name} type={type} page={page} selectedOffers={selectedOfferSources}/> :
+    activeArea==='page' ? <StudioPageView businessName={business.name} editorPath={landingEditorPath} page={page} selectedOffers={selectedOfferSources}/> :
     activeArea==='videos' ? <StudioVideosView project={projectId} selectedOffers={selectedOfferSources} featuredDraft={drafts[0]} offersQuery={rawOffers}/> :
     inCanvasEditor ? <StudioComposer brand={brand} key={projectId+':'+(params.get('campaign')||'independent')} sources={sources} onBusy={setWorking}/> :
     <StudioPostsView
@@ -192,7 +195,7 @@ function StudioHome({type}:{type:ModuleType}){
   {!firstContent&&!focusedPiece&&<details className="studio-more-tools">
    <summary>Otras formas de crear y continuar</summary>
    <nav>
-    <Link to={`/dashboard/tools/landing?project=${projectId}`}>Editar mi página</Link>
+    <Link to={landingEditorPath}>Editar mi página</Link>
     <Link to={`/dashboard/tools/proposal?project=${projectId}&section=offers`}>Revisar mis ofertas</Link>
     <Link to={`/dashboard/tools/content?project=${projectId}`}>Preparar texto con IA</Link>
     <Link to={`/dashboard/tools/teleprompter?project=${projectId}`}>Abrir teleprompter</Link>
@@ -309,19 +312,16 @@ function StudioPostsView({
 }
 
 function StudioPageView({
- project,
  businessName,
- type,
+ editorPath,
  page,
  selectedOffers,
 }:{
- project:string;
  businessName:string;
- type:ModuleType;
+ editorPath:string;
  page:LandingDraft|null;
  selectedOffers:CreativeSource[];
 }){
- const editorPath=type==='restaurant'?`/modules/restaurant/editor?project=${project}`:`/dashboard/tools/landing?project=${project}`;
  const isPublished=Boolean(page?.published);
  const blocksCount=page?.blocks?.length||0;
 
@@ -329,7 +329,7 @@ function StudioPageView({
   <section className="studio-page-status-card">
    <div className="studio-page-info">
     <span className={`studio-status-pill${isPublished?' is-live':' is-draft'}`}>
-     {isPublished?'● Página publicada':'○ Borrador listo'}
+     {isPublished?'● Página publicada':page?'○ Borrador guardado':'○ Nueva página'}
     </span>
     <h2>{page?.headline||page?.name||businessName}</h2>
     <p>{page?.description||'Tu página reúne lo que vendes, tus horarios y un botón directo a WhatsApp.'}</p>
@@ -347,7 +347,7 @@ function StudioPageView({
   </section>
 
   {selectedOffers.length>0&&<section className="studio-page-offers-section">
-   <h3 className="studio-section-heading">Ofertas seleccionadas en tu página</h3>
+   <h3 className="studio-section-heading">Ofertas seleccionadas</h3>
    <div className="studio-page-offers-grid">
     {selectedOffers.map(offer=><div key={offer.key} className="studio-page-offer-item">
      {offer.image&&<img src={offer.image} alt="" className="studio-page-offer-thumb"/>}

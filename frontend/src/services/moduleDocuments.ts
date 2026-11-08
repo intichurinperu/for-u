@@ -41,7 +41,7 @@ export async function loadModuleProjects(userId: string): Promise<ModuleProject[
   });
 }
 
-export type ModuleDocumentKind = ModuleType | 'content-creator' | 'dashboard-progress' | 'area-tasks' | 'world-state' | 'workspace-focus' | 'proposal' | 'social-profile' | 'project-journey' | 'idea-inbox' | 'personal-ideas' | 'project-diagnostic' | 'project-route' | 'campaigns' | 'specific-offers' | 'materials' | 'landing';
+export type ModuleDocumentKind = ModuleType | 'content-creator' | 'dashboard-progress' | 'area-tasks' | 'world-state' | 'workspace-focus' | 'proposal' | 'offer-costs' | 'social-profile' | 'project-journey' | 'idea-inbox' | 'personal-ideas' | 'project-diagnostic' | 'project-route' | 'campaigns' | 'specific-offers' | 'materials' | 'landing';
 
 export async function loadModuleDocument(userId: string, projectId: string, type: ModuleDocumentKind) {
   const { data, error } = await client().from('toolkit_documents').select('payload,updated_at').eq('user_id', userId).eq('project_id', projectId).eq('kind', type === 'landing' ? 'landing' : `module-${type}`).maybeSingle();

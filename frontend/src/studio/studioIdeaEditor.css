@@ -1,7 +1,20 @@
+.studio-canvas {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
 .studio-idea-composer {
-  width: min(100%, 640px);
-  margin: clamp(24px, 5vw, 56px) auto 32px;
-  color: #242321;
+  position: relative;
+  box-sizing: border-box;
+  width: min(100%, 720px);
+  margin: clamp(18px, 3vw, 36px) auto 20px;
+  padding: clamp(16px, 4vw, 32px);
+  border: 1px solid #e9e3ec;
+  border-radius: 26px;
+  background:
+    radial-gradient(ellipse at top right, #f1ebfa90, transparent 53%),
+    radial-gradient(ellipse at 12% 97%, #f8ede280, transparent 37%),
+    #fdfcfe;
+  box-shadow: 0 8px 28px #3424490b;
+  color: #26232a;
 }
 
 .studio-idea-context {
@@ -11,10 +24,14 @@
   gap: 10px;
 }
 
-.studio-idea-context small { font-size: 15px; }
+.studio-idea-context small { font-size: 14px; color: #51495b; }
 .studio-idea-summary {
   width: 100%;
   margin: 12px 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 .studio-idea-summary .studio-idea-context {
   justify-content: flex-start;
@@ -22,24 +39,37 @@
   gap: 6px;
 }
 .studio-idea-summary .studio-idea-context small { margin-right: auto; }
-.studio-idea-composer h1 {
-  margin: 18px 0 6px;
-  font-size: clamp(32px, 4.4vw, 52px);
-  font-weight: 550;
+.studio-idea-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(100px, 32%);
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 18px;
+}
+.studio-idea-intro img {
+  display: block;
+  width: 100%;
+  height: auto;
+  mix-blend-mode: multiply;
+}
+.studio-idea-intro h1 {
+  margin: 0 0 8px;
+  font-size: clamp(27px, 4.4vw, 46px);
+  font-weight: 590;
   line-height: 1.09;
   letter-spacing: -.04em;
 }
-.studio-idea-composer > p { margin: 0 0 20px; color: #4f4b48; }
+.studio-idea-intro p { margin: 0; color: #51495b; }
 .studio-idea-writing {
   display: grid;
   justify-items: start;
   gap: 9px;
   padding: 16px;
-  border: 1px solid #d8d2cc;
-  border-radius: 17px;
-  background: #fff;
+  border: 1px solid #ded7e5;
+  border-radius: 18px;
+  background: #ffffffed;
 }
-.studio-idea-writing:focus-within { border-color: #8a8077; }
+.studio-idea-writing:focus-within { border-color: #9b86ac; }
 .studio-idea-writing label { font-weight: 650; }
 .studio-idea-writing textarea {
   width: 100%;
@@ -56,9 +86,23 @@
 }
 .studio-idea-writing textarea:focus { outline: 0; }
 .studio-idea-writing textarea::placeholder { color: #66615d; }
-.studio-idea-audio { display: inline-flex; align-items: center; gap: 8px; }
+.studio-idea-materials { display: flex; flex-wrap: wrap; gap: 8px; }
+.studio-idea-materials .foru-pearl-button > span { display: inline-flex; align-items: center; gap: 6px; }
+.studio-idea-materials svg { width: 17px; height: 17px; stroke-width: 1.65; }
 .studio-idea-actions { display: grid; justify-items: start; gap: 10px; margin-top: 18px; }
 .studio-idea-actions > .studio-idea-create { width: 100%; }
+.studio-idea-notice {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #e8deed;
+  border-radius: 12px;
+  background: #faf6fc;
+  color: #51425e;
+  font-size: 14px;
+  line-height: 1.45;
+}
 .studio-canvas, .studio-video-start-actions {
   --studio-prism: conic-gradient(from 128deg at 54% 58%, #f3d7e5, #ede1f8, #d0ebe4, #fff1ce, #f7ddc7, #ead8f2, #f3d7e5);
 }
@@ -214,7 +258,9 @@
 }
 .studio-canvas button:focus-visible { outline-color: #695670; }
 @media (max-width: 520px) {
-  .studio-idea-composer { margin-top: 24px; }
+  .studio-idea-composer { margin-top: 14px; border-radius: 22px; }
+  .studio-idea-intro { margin-block: 16px; }
+  .studio-idea-materials .foru-pearl-button { padding-inline: 10px; }
   .studio-idea-summary { margin-top: 10px; }
   .studio-idea-summary .foru-pearl-button { padding-inline: 10px; font-size: 13px; }
   .studio-idea-actions { justify-items: stretch; }
@@ -226,14 +272,18 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  background: #fff;
+  background:
+    radial-gradient(ellipse at 93% -185%, transparent 70%, #ecdff3 71%, #fff0d9 73%, transparent 75%) top right / min(72%, 560px) 58px no-repeat,
+    #fff;
 }
-.workspace-studio-idea-bar .foru-original-logo { width: 104px; }
+.workspace-studio-idea-bar .foru-original-logo:not(.is-compact) { width: 112px; height: 49px; background: transparent; }
+.workspace-studio-idea-bar .foru-original-logo:not(.is-compact) img { width: 169px !important; height: 169px !important; left: -22px; top: -60px; }
 .workspace-studio-idea-bar .foru-pearl-button { color: #292a26; text-decoration: none; }
 
 .studio-saved-designs {
-  width: min(100%, 680px);
-  margin: 28px auto;
+  box-sizing: border-box;
+  width: min(100%, 720px);
+  margin: 20px auto 28px;
   padding: 18px;
   border: 1px solid #e9e0e8;
   border-radius: 20px;

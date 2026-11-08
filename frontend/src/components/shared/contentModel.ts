@@ -2,9 +2,11 @@ import {validBrandProfile,type BrandProfile} from '../../experience/brandProfile
 import {validLandingOrigin,type LandingOrigin} from '../../studio/navigation';
 import type {Campaign,SourceReference} from '../../workspace/contracts';
 import {uuid} from '../../social/model';
+import {mediaReference} from './mediaReference';
 import type { ContentTemplate } from '../../data/templates/types';
 import type { ModuleProject } from '../../modules/moduleProjects';
-export type ContentDraft = { usage?:'image'|'reel-cover'; layout?:'editorial'|'poster'|'split';creative?:{brand?:BrandProfile;pillar?:string;origin?:LandingOrigin;intent:Campaign['intent'];campaignId?:string;reference?:SourceReference;sourceKey:string}; logoPath?:string;carouselId?:string;slide?:number;sourceImageUrl?:string; brandName?:string; cta?:string; source?:{mode?:'draft'|'published';kind:'landing';revision:string;sectionId:string}; id: string; projectId: string; title: string; subtitle: string; caption: string; format: 'post' | 'portrait' | 'story'; background: string; foreground: string; imagePath: string; templateId: string | null; updatedAt: string };
+export type ContentVoice = {path:string;name:string};
+export type ContentDraft = { voice?:ContentVoice; usage?:'image'|'reel-cover'; layout?:'editorial'|'poster'|'split';creative?:{brand?:BrandProfile;pillar?:string;origin?:LandingOrigin;intent:Campaign['intent'];campaignId?:string;reference?:SourceReference;sourceKey:string}; logoPath?:string;carouselId?:string;slide?:number;sourceImageUrl?:string; brandName?:string; cta?:string; source?:{mode?:'draft'|'published';kind:'landing';revision:string;sectionId:string}; id: string; projectId: string; title: string; subtitle: string; caption: string; format: 'post' | 'portrait' | 'story'; background: string; foreground: string; imagePath: string; templateId: string | null; updatedAt: string };
 export type ContentDocument = { version: 1; drafts: ContentDraft[] };
 export const contentSizes = { post: { width: 1080, height: 1080 }, portrait: { width: 1080, height: 1350 }, story: { width: 1080, height: 1920 } };
 export function blankContent(projectId: string): ContentDraft {
@@ -25,6 +27,11 @@ export function saveContentDraft(document: ContentDocument, draft: ContentDraft,
 }
 
 export function validateCreativeContext(draft:ContentDraft,project:string){
+ if(draft.voice!==undefined){
+  const {path,name}=draft.voice??{};
+  if(typeof path!=='string'||path.split('/')[1]!==project||typeof name!=='string'||!name.trim()||name.length>200)throw new Error('El audio guardado no pertenece a este diseño.');
+  mediaReference(path);
+ }
  if(draft.usage&&!['image','reel-cover'].includes(draft.usage))throw new Error('El uso de esta pieza no es compatible.');
  if(draft.layout&&!['editorial','poster','split'].includes(draft.layout))throw new Error('Esta composición no es compatible. Conservamos el diseño.');
  const context=draft.creative;if(!context)return;
