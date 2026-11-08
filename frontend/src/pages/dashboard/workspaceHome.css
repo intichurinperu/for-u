@@ -46,3 +46,63 @@ body:has(.foru-home) .floating-pomodoro:not(.is-open){width:48px!important;heigh
 .foru-home .workspace-projects>header{margin-bottom:18px}.foru-home .workspace-projects h2{font-size:26px}.foru-home .workspace-projects>header p{font-size:14px;color:#6b6476;margin:8px 0 0;line-height:1.5}.foru-home .workspace-project-card nav{display:block}.foru-home .home-project-open{width:100%;justify-content:space-between!important;background:#7751b8;color:#fff!important}.foru-home .home-today-fold{padding:0!important;background:#fff!important;border-radius:18px!important;margin:0!important}.home-today-fold>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;min-height:58px;padding:16px 20px;font-weight:600;font-size:14px;color:#554761;list-style:none}.home-today-fold>summary::-webkit-details-marker{display:none}.home-today-fold>summary>span:last-child{font-size:12px;color:#766d7f}.home-today-content{padding:0 20px 18px}.dashboard-home:has(.foru-home)>.world-intro{margin-bottom:22px}.dashboard-home:has(.foru-home)>.world-intro h1{font-size:30px!important}.dashboard-home:has(.foru-home)>.world-intro p{font-size:15px!important;margin:8px 0!important}.dashboard-home:has(.foru-home)>.local-draft-notice{margin:0 0 18px!important;padding:0!important;border:0!important;background:transparent!important;font-size:12px!important}.foru-home{padding-bottom:76px}.foru-home .workspace-projects>header{flex-wrap:wrap}.foru-home .workspace-project-card{overflow:hidden}.foru-home .home-project-open{box-sizing:border-box}
 
 .foru-home .workspace-projects>header{align-items:flex-start!important;text-align:left!important;justify-content:flex-start!important}.foru-home .workspace-projects>header>div{width:100%}
+
+.foru-experience .is-home .dashboard-home > .workspace-project-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 195px;
+  width: 100%;
+  max-width: none;
+  overflow: hidden;
+  padding: clamp(20px, 4vw, 46px);
+  border: 1px solid #e7dce9;
+  border-radius: 32px;
+  background: #fffdfc;
+}
+.workspace-project-hero > div { position: relative; z-index: 1; }
+.workspace-project-hero > img {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 52%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 46%;
+  mask-image: linear-gradient(90deg, transparent, #000 20%);
+}
+.foru-home .home-project-search { margin-bottom: 18px; }
+.foru-home .workspace-project-grid .workspace-project-card { display: flex; flex-direction: column; padding: 16px; }
+.foru-home .home-project-art {
+  height: 116px;
+  margin-bottom: 12px;
+  border-radius: 17px;
+  background: #fffcfa url('/brand/foru-workspace-archipelago.jpg') var(--home-art-position, 52% 28%) / 210% auto no-repeat;
+}
+.foru-home .home-project-ecommerce .home-project-art { --home-art-position: 100% 59%; }
+.foru-home .home-project-hospitality .home-project-art { --home-art-position: 50% 80%; }
+.foru-home .home-project-courses .home-project-art { --home-art-position: 0% 55%; }
+.foru-home .home-project-tourism .home-project-art { background-image: url('/brand/foru-landing-islands.png'); background-size: cover; }
+.foru-home .home-project-heading { gap: 6px; }
+.foru-home .workspace-project-card progress { width: 100%; height: 7px; accent-color: #9b83bb; }
+.foru-home .workspace-project-card nav { margin-top: auto; }
+.foru-home .workspace-project-card nav a { text-decoration: none; }
+@media (max-width: 620px) {
+  .foru-experience .is-home .dashboard-home > .workspace-project-hero { display: grid; min-height: 0; padding: 20px; }
+  .workspace-project-hero > img { position: static; width: 100%; height: 112px; mask-image: none; }
+  .foru-home .home-project-art { height: 108px; }
+}
+
+.foru-experience .is-home .local-draft-notice > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #e7dceb;
+  border-radius: 99px;
+  background: #fffdfb;
+  color: #51425e;
+  list-style: none;
+  cursor: pointer;
+}
+.foru-experience .is-home .local-draft-notice > summary::-webkit-details-marker { display: none; }

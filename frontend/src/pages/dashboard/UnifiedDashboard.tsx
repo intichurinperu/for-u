@@ -1,4 +1,5 @@
 import ProjectStart from './ProjectStart';
+import ProjectIsland from './ProjectIsland';
 import {accountPreferences} from './workspaceFocusModel';
 import ProjectJourney, {ProjectWizard} from '../../experience/ProjectJourney';
 import ProjectViews from '../../experience/ProjectViews';
@@ -23,22 +24,34 @@ export default function UnifiedDashboard() {
   const { user } = useAuth();
   const store = useActiveProjectsStore();
   const [params, setParams] = useSearchParams();
-  const owned = store.cloudUserId === user?.id ? Object.values(store.projectsById) : [];
+  const accountReady = Boolean(user && store.cloudUserId === user.id);
+  const loadingProjects = !accountReady || store.isCloudSyncing;
+  const owned = accountReady ? Object.values(store.projectsById) : [];
   const projects = owned.filter(p => isSavedProject(p.id) && !p.cloudPending && projectModuleType(p));
   const legacy = owned.filter(p => !isSavedProject(p.id) || p.cloudPending);
   const requested = params.get('project');
+  const view = params.get('view');
+  const islandArea = view === 'island' ? params.get('area') : null;
   const project = requested ? projects.find(p => p.id === requested) : undefined;
   useEffect(() => { if (user && store.cloudUserId !== user.id) void store.hydrateFromSupabase(user.id); }, [user?.id, store.cloudUserId]);
   useEffect(() => { if (project && store.activeProjectId !== project.id) store.switchProject(project.id); }, [project?.id, store.activeProjectId]);
+  useEffect(() => {
+    if (!requested || view === 'start' || view === 'island') window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [requested, view, islandArea]);
   if(project&&params.get('setup')==='1')return <section className="dashboard-guided"><ProjectJourney key={`journey:${project.id}`} projectId={project.id}/></section>;
-  return <section className="dashboard-home"><header className="world-intro"><span>Tu espacio de trabajo</span><h1>{project?project.name:'Mis proyectos'}</h1><p>{project?(params.get('view')==='start'?'Este es tu punto de partida.':'¿En qué quieres avanzar hoy?'):'¿Con qué proyecto seguimos hoy?' }</p></header>
+  const routeView = project && (view === 'start' || view === 'island');
+  return <section className="dashboard-home">{!routeView && <header className={project ? "world-intro" : "world-intro workspace-project-hero"}>
+    <div><h1>{project ? project.name : 'Mis proyectos'}</h1>
+      <p>{project ? '¿En qué quieres avanzar hoy?' : 'Elige el proyecto en el que quieres avanzar.'}</p></div>
+    {!project && <img src="/brand/foru-landing-islands.png" alt="" />}
+  </header>}
     {legacy.length > 0 && !project && <details className="local-draft-notice"><summary>{legacy.length===1?'Tienes un borrador en este dispositivo':`Tienes ${legacy.length} borradores en este dispositivo`}</summary><p>Estos borradores aún no están confirmados en la nube. Se conservan en este dispositivo; algunos usan IDs antiguos.</p><ul>{legacy.map(p => <li key={p.id}>{p.name} <DSButtonSecondary onClick={() => { const blob = new Blob([JSON.stringify(p, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `borrador-${p.id}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }}>Descargar respaldo</DSButtonSecondary></li>)}</ul></details>}
-    {store.isCloudSyncing && <p role="status">Cargando tus proyectos…</p>}
+    {loadingProjects && <p role="status">Cargando tus proyectos…</p>}
     {store.projectLoadError && <div className="recovery-notice" role="alert">{store.projectLoadError} <DSButtonSecondary onClick={() => { if (user) void store.hydrateFromSupabase(user.id); }}>Reintentar proyectos</DSButtonSecondary></div>}
     {!requested && <WorkspaceHome projects={projects} />}
-    {requested && !project && !store.isCloudSyncing && <p role="alert">No encontramos este proyecto en tu cuenta. <Link to="/dashboard">Volver a mis proyectos</Link></p>}
-    {project&&params.get('view')==='start'?<ProjectStart key={project.id} projectId={project.id} type={projectModuleType(project)!}/>:project ? <>{params.get('setup')!=='1'&&<ProjectAreas key={project.id} projectId={project.id} type={projectModuleType(project)!} />}</> : !requested && params.get('create')!=='1' && !projects.length && !store.isCloudSyncing && !store.projectLoadError && <Navigate to="/onboarding" replace />}
-    {params.get('create') === '1' && <ProjectWizard onClose={() => setParams(project ? {project:project.id} : {})} />}
+    {requested && !project && !loadingProjects && <p role="alert">No encontramos este proyecto en tu cuenta. <Link to="/dashboard">Volver a mis proyectos</Link></p>}
+    {project && view === 'island' ? <ProjectIsland key={project.id + ':' + islandArea} project={project} type={projectModuleType(project)!} /> : project&&view==='start'?<ProjectStart key={project.id} projectId={project.id} type={projectModuleType(project)!}/>:project ? <>{params.get('setup')!=='1'&&<ProjectAreas key={project.id} projectId={project.id} type={projectModuleType(project)!} />}</> : !requested && params.get('create')!=='1' && !projects.length && !loadingProjects && !store.projectLoadError && <Navigate to="/onboarding" replace />}
+    {params.get('create') === '1' && <ProjectWizard startWithName onClose={() => setParams(project ? {project:project.id, view:'start'} : {}, { replace: true })} />}
   </section>;
 }
 

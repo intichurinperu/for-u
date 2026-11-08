@@ -1,6 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
-import {Link,useNavigate,useSearchParams} from 'react-router-dom';
+import {Link,useLocation,useNavigate,useSearchParams} from 'react-router-dom';
 import {useAuth} from '../contexts/AuthContext';
 import {useActiveProjectsStore} from '../stores/useActiveProjectsStore';
 import {projectModuleType,type ModuleType} from '../modules/moduleProjects';
@@ -22,6 +22,7 @@ export const routeSymbols:Record<BusinessRoute,string>={restaurant:'☕',ecommer
 export function projectRouteType(project:{strategyProfile?:Record<string,unknown>;industryKey?:string}|undefined):BusinessRoute{const saved=project?.strategyProfile?.businessRoute;return businessRoutes.includes(saved as BusinessRoute)?saved as BusinessRoute:project?projectModuleType(project)??'services':'services';}
 export function ProjectWizard({onClose,startWithName=false}:{onClose:()=>void;startWithName?:boolean}){
  const {user}=useAuth(),store=useActiveProjectsStore(),focus=useWorkspaceFocus(),navigate=useNavigate();
+ const {pathname}=useLocation();
  const key=`foru-create-v2:${user!.id}`,dialog=useRef<HTMLDivElement>(null),lock=useRef(false);
  const [draft,setDraft]=useState<CreationDraft>(()=>{const prefs=accountPreferences(focus.state.data);try{return creationDraft(JSON.parse(localStorage.getItem(key)||'null'),prefs,startWithName);}catch{return creationDraft(null,prefs,startWithName);}});
  const [busy,setBusy]=useState(false),[error,setError]=useState('');
@@ -42,7 +43,7 @@ export function ProjectWizard({onClose,startWithName=false}:{onClose:()=>void;st
    store.switchProject(id);
    if(savedDraft.entry==='guided'&&savedDraft.savePreferences!==false){if(!focus.state.loaded)throw new Error('Tu proyecto está guardado. Falta cargar las preferencias de tu cuenta; reintenta para continuar.');focus.setPreferences({...accountPreferences(focus.state.data),preferredName:savedDraft.preferredName.trim()||accountPreferences(focus.state.data).preferredName,addressing:savedDraft.addressing});if(!await focus.save())throw new Error('Tu proyecto está guardado. Falta guardar tus preferencias personales; reintenta para continuar.');}
    localStorage.removeItem(key);
-   navigate(savedDraft.entry==='manual'?`/dashboard/tools/landing?project=${id}`:savedDraft.entry==='explore'?`/dashboard?project=${id}&view=map`:`/dashboard?project=${id}&setup=1`);
+   navigate(savedDraft.entry==='manual'?`/dashboard/tools/landing?project=${id}`:savedDraft.entry==='explore'?`/dashboard?project=${id}&view=map`:`/dashboard?project=${id}&setup=1`,{replace:pathname==='/dashboard'});
   }catch(e){setError((e as Error).message);}finally{lock.current=false;setBusy(false);}
  }
  if(nameScreen)return createPortal(<ProjectNameStep name={draft.name} readOnly={!!draft.projectId} error={error} onName={name=>patch({name})} onNext={()=>patch({step:3})} onClose={onClose}/>,document.body);

@@ -1,27 +1,39 @@
 import DesignThumbnail from '../experience/DesignThumbnail';
 import {contentDocument} from './saveComposition';
+import {randomId} from '../lib/randomId';
 import {useUnsavedNavigation} from '../lib/useUnsavedNavigation';
 import {useEffect,useRef,useState} from 'react';
-import {Link,useNavigate} from 'react-router-dom';
+import {Link,useNavigate,useSearchParams} from 'react-router-dom';
 import {useToolkit} from '../toolkit/ToolkitContext';
 import {usePrivateDocument} from '../experience/usePrivateDocument';
 import {emptyCampaigns,parseCampaigns,type Campaign} from '../workspace/contracts';
 import {ButtonPrimary,ButtonSecondary,Input} from '../components/ui/DesignSystem';
 import {intentions,type CreativeSource} from './model';
 import EditorDecision from '../toolkit/EditorDecision';
-export default function CampaignStudio({sources,onBusy}:{sources:CreativeSource[];onBusy:(value:boolean)=>void}){
+const blankCampaign = (): Campaign => ({ id: randomId(), title: '', intent: 'awareness', offer: null, start: null, end: null, pieceIds: [] });
+
+export default function CampaignStudio({sources,onBusy,startNew=false}:{sources:CreativeSource[];onBusy:(value:boolean)=>void;startNew?:boolean}){
  const {userId,projectId}=useToolkit(),navigate=useNavigate();
+ const [params,setParams]=useSearchParams();
  const doc=usePrivateDocument(userId,projectId,'campaigns',()=>emptyCampaigns(projectId),v=>parseCampaigns(v,projectId));
  const designs=usePrivateDocument(userId,projectId,'content-creator',()=>contentDocument(null,projectId),v=>contentDocument(v,projectId));
- const [draft,setDraft]=useState<Campaign|null>(null),[step,setStep]=useState<'intent'|'offer'|'title'|'review'>('intent'),[error,setError]=useState('');const lock=useRef(false);
+ const [draft,setDraft]=useState<Campaign|null>(()=>startNew?blankCampaign():null),[step,setStep]=useState<'intent'|'offer'|'title'|'review'>('intent'),[error,setError]=useState('');const lock=useRef(false);
  useEffect(()=>{onBusy(Boolean(draft));return()=>onBusy(false);},[Boolean(draft)]);
- useUnsavedNavigation(Boolean(draft)||doc.dirty);
- function create(){setDraft({id:crypto.randomUUID(),title:'',intent:'awareness',offer:null,start:null,end:null,pieceIds:[]});setStep('intent');setError('');}
- async function save(){if(!draft||lock.current)return;setError('');if(!draft.title.trim()){setError('Dale un nombre para reconocer esta campaña.');return;}lock.current=true;try{const next=parseCampaigns({...doc.data,campaigns:doc.data.campaigns.some(c=>c.id===draft.id)?doc.data.campaigns.map(c=>c.id===draft.id?draft:c):[...doc.data.campaigns,draft]},projectId);doc.change(next);if(!await doc.save())throw new Error('Tu campaña sigue en pantalla. Revisa el guardado y vuelve a intentarlo.');setDraft(null);}catch(e){setError((e as Error).message);}finally{lock.current=false;}}
+ useUnsavedNavigation(Boolean(draft&&(!startNew||step!=='intent'))||doc.dirty);
+ function create(){setDraft(blankCampaign());setStep('intent');setError('');}
+ function closeDraft(){
+  setDraft(null);
+  if(params.get('start')==='campaign'){
+   const next=new URLSearchParams(params);
+   next.delete('start');
+   setParams(next,{replace:true});
+  }
+ }
+ async function save(){if(!draft||lock.current)return;setError('');if(!draft.title.trim()){setError('Dale un nombre para reconocer esta campaña.');return;}lock.current=true;try{const next=parseCampaigns({...doc.data,campaigns:doc.data.campaigns.some(c=>c.id===draft.id)?doc.data.campaigns.map(c=>c.id===draft.id?draft:c):[...doc.data.campaigns,draft]},projectId);doc.change(next);if(!await doc.save())throw new Error('Tu campaña sigue en pantalla. Revisa el guardado y vuelve a intentarlo.');closeDraft();}catch(e){setError((e as Error).message);}finally{lock.current=false;}}
  if(!doc.loaded)return <p role="status">Abriendo tus campañas…</p>;
- if(doc.error&&!draft)return <section role="alert"><p>{doc.error}</p><ButtonSecondary onClick={()=>void doc.reload()}>Reintentar lectura</ButtonSecondary></section>;
+ if(doc.error&&(!draft||step==='intent'))return <section role="alert"><p>{doc.error}</p><ButtonSecondary onClick={()=>void doc.reload()}>Reintentar lectura</ButtonSecondary></section>;
  const offers=sources.filter(s=>s.group==='offer');
- if(draft)return <section className="studio-flow"><ButtonSecondary disabled={doc.busy} onClick={()=>{if(step==='intent'||step==='review')setDraft(null);else setStep(step==='offer'?'intent':'offer');}}>← {step==='intent'||step==='review'?'Mis campañas':'Atrás'}</ButtonSecondary><h2>{({intent:'¿Qué quieres conseguir con esta campaña?',offer:'¿Qué oferta la acompaña?',title:'¿Cómo la reconocerás?',review:'Tu campaña, con un rumbo claro.'})[step]}</h2>
+ if(draft)return <section className="studio-flow"><ButtonSecondary disabled={doc.busy} onClick={()=>{if(step==='intent'||step==='review')closeDraft();else setStep(step==='offer'?'intent':'offer');}}>← {step==='intent'||step==='review'?'Mis campañas':'Atrás'}</ButtonSecondary><h2>{({intent:'¿Qué quieres conseguir con esta campaña?',offer:'¿Qué oferta la acompaña?',title:'¿Cómo la reconocerás?',review:'Tu campaña, con un rumbo claro.'})[step]}</h2>
  {step==='intent'&&<div className="studio-answer-grid">{intentions.map(item=><button key={item.id} onClick={()=>{setDraft({...draft,intent:item.id});setStep('offer');}}><span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.hint}</small></button>)}</div>}
  {step==='offer'&&<><p>Puedes vincular una oferta confirmada o hablar de tu negocio en general.</p><div className="studio-source-list">{offers.map(item=><button key={item.key} onClick={()=>{setDraft({...draft,offer:item.reference});setStep('title');}}><strong>{item.title}</strong><span>{item.body.slice(0,100)}</span></button>)}<button onClick={()=>{setDraft({...draft,offer:null});setStep('title');}}><strong>Mi negocio en general</strong><span>Sin una oferta específica.</span></button></div></>}
  {step==='title'&&<><p>Un nombre para ti. No se publica.</p><Input disabled={doc.busy} label="Nombre de la campaña" value={draft.title} maxLength={160} onChange={e=>setDraft({...draft,title:e.target.value})}/><ButtonPrimary disabled={!draft.title.trim()} onClick={()=>setStep('review')}>Revisar mi campaña →</ButtonPrimary></>}

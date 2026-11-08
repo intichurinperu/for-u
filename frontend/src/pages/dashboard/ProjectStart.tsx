@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
-import { FolderOpen } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Compass, MapPin, Sparkles, Tags } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import PearlButton from '../../components/ui/PearlButton';
 import { useAuth } from '../../contexts/AuthContext';
 import { projectRouteType } from '../../experience/GuidedProject';
-import { missingRouteAnswers } from '../../experience/initialJourney';
+import { initialQuestions } from '../../experience/initialJourney';
+import { buildQuestions, list, meaningful, type Answers } from '../../experience/personalizationModel';
 import { emptyJourney, parseJourney } from '../../experience/journeyModel';
 import { canonicalAnswer } from '../../experience/routePreparation';
 import { usePrivateDocument } from '../../experience/usePrivateDocument';
@@ -30,14 +31,10 @@ export default function ProjectStart({ projectId, type }: { projectId: string; t
   const history = usePrivateDocument(userId, projectId, 'project-journey', emptyJourney, parseJourney);
   const { entry, reload, change, save } = useAreaDocuments(projectId, type);
   const [completion, setCompletion] = useState<{id: string; state: 'saving' | 'failed'} | null>(null);
-  const [toolsOpen,setToolsOpen] = useState(false);
   const completionLock = useRef(false);
-  const heading = useRef<HTMLHeadingElement>(null);
   const query = new URLSearchParams({ project: projectId });
   const setup = `/dashboard?${query}&setup=1`;
-  const ready = !!route.revision && !!entry?.loaded;
   useUnsavedNavigation(!!completion && (completion.state === 'saving' || !!entry?.dirty));
-  useEffect(() => { if (ready) heading.current?.focus({ preventScroll: true }); }, [ready]);
 
   if (route.error || (entry?.error && !completion)) return <section className="project-start" role="alert">
     <h2>No pudimos abrir tu ruta</h2>
@@ -50,9 +47,8 @@ export default function ProjectStart({ projectId, type }: { projectId: string; t
     const task = byId.get(id);
     return task ? [task] : [];
   });
-  const next = steps.find(task => !task.done || task.id === completion?.id);
+  const next = steps.find(task => task.id === (completion?.id ?? params.get('task')));
   const destination = next && routeTaskWorkPath(projectId, next, type);
-  const returningToStep = !!next && params.get('task') === next.id;
   const completionConflict = entry.taskStatus === 'conflict' || entry.worldStatus === 'conflict';
 
   async function completeStep(task: AreaTask) {
@@ -72,64 +68,73 @@ export default function ProjectStart({ projectId, type }: { projectId: string; t
       completionLock.current = false;
     }
   }
-  const answers = diagnostic.data.version === 2 ? {
+  const answers: Answers = diagnostic.data.version === 2 ? {
     ...diagnostic.data.answers,
     offering: canonicalAnswer(diagnostic.data, proposal.data, 'offering') ?? '',
     audience: canonicalAnswer(diagnostic.data, proposal.data, 'audience') ?? '',
   } : {};
   const answeredByAudio = new Set((history.data.files || []).flatMap(file => file.question ? [file.question] : []));
-  const missing = ready && diagnostic.loaded && !diagnostic.error && proposal.loaded && !proposal.error && history.loaded && !history.error
-    ? missingRouteAnswers(answers, answeredByAudio)
-    : [];
-  const map = `/dashboard?${query}&view=map`;
+  const questions = initialQuestions(buildQuestions(businessRoute, answers), answers);
+  const answered = questions.filter(({ key, customKey }) => list(answers[key]).some(meaningful) ||
+    list(answers[customKey || key + 'Custom']).some(meaningful) || answeredByAudio.has(key)).length;
+  const hasRoute = Boolean(route.revision);
+  const hasOffer = proposal.data.offers.length > 0 || proposal.data.nativeIds.length > 0;
+  const answersReady = diagnostic.loaded && proposal.loaded && history.loaded &&
+    !diagnostic.error && !proposal.error && !history.error;
+  const island = `/dashboard?${query}&view=island`;
+  const offers = `/dashboard/tools/proposal?${query}&section=offers`;
+  const studio = `/creator-studio?${query}&tab=create`;
+  const stages = [
+    {
+      title: 'Cuéntame sobre tu proyecto', icon: Compass,
+      detail: answersReady ? `${answered} de ${questions.length} respuestas` : 'Tu historia y a quién quieres llegar',
+      action: hasRoute ? 'Revisar mis respuestas' : answered ? 'Continuar preguntas' : 'Empezar preguntas',
+      path: hasRoute ? `${setup}&step=answers` : setup,
+    },
+    {
+      title: 'Define tu oferta y tus precios', icon: Tags,
+      detail: hasOffer ? 'Tienes ofertas en tu propuesta' : 'Reúne lo que vendes y ponle precio',
+      action: hasOffer ? 'Revisar mi oferta' : 'Definir oferta', path: offers,
+    },
+    {
+      title: 'Cómo vender tu oferta', icon: Sparkles,
+      detail: 'Tu página, publicaciones y videos',
+      action: 'Abrir Creator Studio', path: studio,
+    },
+  ];
+  const current = !hasRoute ? 0 : !hasOffer ? 1 : 2;
 
-  return <section className="project-start" aria-labelledby="project-next-step">
-    <div className="project-start-route" aria-hidden="true"><span>⌁</span><i/><span>✦</span><i/><span>⚑</span></div>
-    <h2 id="project-next-step" ref={heading} tabIndex={-1}>{ready ? 'Tu ruta digital está lista' : 'Traza tu ruta digital'}</h2>
-    {!ready ? <>
-      <p className="project-start-help">Cuéntanos qué haces y qué quieres lograr. Te proponemos por dónde empezar.</p>
-      <PearlButton to={setup}>Preparar mi ruta</PearlButton>
-    </> : <>
-      {next ? <div className="project-start-feature">
-        <small>TU SIGUIENTE PASO</small>
-        <h3>{next.title}</h3>
-        {route.data.reasons[next.id] && <p>{route.data.reasons[next.id]}</p>}
-        {completion?.state === 'saving' ? <p role="status">Guardando tu progreso…</p> : <>
-          {returningToStep || completion?.state === 'failed' ? <>
-            <PearlButton to={destination || map}>Continuar este paso</PearlButton>
-            <PearlButton compact tone="neutral" disabled={entry.busy || completionConflict} onClick={() => void completeStep(next)}>
-              {completion?.state === 'failed' ? 'Reintentar guardado' : 'Marcar como hecho'}
-            </PearlButton>
-          </> : <PearlButton to={destination || map}>Empezar este paso</PearlButton>}
-          {completion?.state === 'failed' && <p role="alert">{completionConflict
-            ? 'El paso cambió en otra ventana. Revisa la versión guardada en Kanban.'
-            : 'Tu progreso quedó pendiente. Vuelve a intentar el guardado.'}</p>}
-        </>}
-      </div> : <p className="project-start-help">{steps.length ? 'Ya completaste los pasos de esta ruta.' : 'Tu isla reúne las áreas de tu proyecto.'}</p>}
-      {steps.length > 0 && <ol className="project-start-steps" aria-label="Pasos de mi ruta">
-        {steps.map((step, index) => {
-          const current = step.id === next?.id;
-          const done = step.done && !current;
-          return <li key={step.id} className={current ? 'is-current' : done ? 'is-done' : ''} aria-current={current ? 'step' : undefined}>
-            <span className="project-start-number" aria-hidden="true">{done ? '✓' : index + 1}</span>
-            <div><strong>{step.title}</strong><small>{current ? 'Empieza aquí' : done ? 'Completado' : 'Después'}</small></div>
-          </li>;
-        })}
-      </ol>}
-      {missing.length > 0 && <section className="project-start-missing" aria-label="Respuestas pendientes">
-        <h3>Puedes completar esto más adelante</h3>
-        <div className="project-start-links">{missing.map(item => <PearlButton key={item.key} compact tone="neutral" to={`${setup}&question=${item.key}&return=route`}>{item.label}</PearlButton>)}</div>
-      </section>}
-    </>}
-    <footer className="project-start-footer">
-      <PearlButton compact tone="neutral" to={map}>Ver mi isla</PearlButton>
-      <PearlButton compact tone="neutral" aria-expanded={toolsOpen} aria-controls="project-start-tools" onClick={()=>setToolsOpen(!toolsOpen)}><span className="project-start-tool-label"><FolderOpen size={16} aria-hidden="true"/>Más herramientas</span></PearlButton>
+  return <section className="digital-route" aria-labelledby="digital-route-title">
+    <header className="digital-route-hero">
+      <div>
+        <p>{project?.name}</p>
+        <h1 id="digital-route-title">Mi ruta digital</h1>
+      </div>
+      <img src="/brand/foru-project-pavilion.png" alt="" />
+    </header>
+    <ol className="digital-route-stages">
+      {stages.map(({ title, icon: Icon, detail, action, path }, index) => <li
+        key={title}
+        className={index === current ? 'is-current' : undefined}
+        aria-current={index === current ? 'step' : undefined}
+      >
+        <span className="digital-route-marker" aria-hidden="true"><Icon size={18} /></span>
+        <div><span className="digital-route-step">Etapa {index + 1}</span><h2>{title}</h2><p>{detail}</p></div>
+        <PearlButton compact tone={index === current ? undefined : 'neutral'} to={path}>{action}</PearlButton>
+      </li>)}
+    </ol>
+    {next && <aside className="project-start-feature">
+      <h2>{next.title}</h2>
+      {destination && <PearlButton compact tone="neutral" to={destination}>Volver a este paso</PearlButton>}
+      {next.done && completion?.state !== 'failed' ? <p>Paso completado</p> : <PearlButton
+        compact disabled={entry.busy || completionConflict} onClick={() => void completeStep(next)}
+      >{completion?.state === 'saving' ? 'Guardando…' : completion?.state === 'failed' ? 'Reintentar guardado' : 'Marcar como hecho'}</PearlButton>}
+      {completion?.state === 'failed' && <p role="alert">{completionConflict
+        ? 'El paso cambió en otra ventana. Revisa la versión guardada en Kanban.'
+        : 'Tu progreso quedó pendiente. Vuelve a intentar el guardado.'}</p>}
+    </aside>}
+    <footer className="digital-route-footer">
+      <PearlButton compact tone="neutral" to={island}><MapPin size={18} aria-hidden="true" /> Ver mi isla</PearlButton>
     </footer>
-    <nav id="project-start-tools" className="project-start-tool-list" aria-label="Más herramientas" hidden={!toolsOpen}>
-      <PearlButton compact tone="neutral" to={`/dashboard/tools/landing?${query}`}>Diseñar mi página</PearlButton>
-      <PearlButton compact tone="neutral" to={`/creator-studio?${query}&tab=create`}>Creator Studio</PearlButton>
-      <PearlButton compact tone="neutral" to={`/dashboard/tools/video?${query}`}>Editor de video</PearlButton>
-      {ready && <PearlButton compact tone="neutral" to={`${setup}&step=answers`}>Ajustar mis respuestas</PearlButton>}
-    </nav>
   </section>;
 }

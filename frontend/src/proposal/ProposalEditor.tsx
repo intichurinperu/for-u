@@ -1,5 +1,6 @@
 import EditorSheet from '../toolkit/EditorSheet';
 import OfferComposer from './OfferComposer';
+import PearlButton from '../components/ui/PearlButton';
 import '../toolkit/professionalEditor.css';
 import JourneyImport from '../experience/JourneyImport';
 import { useRef, useState } from 'react';
@@ -38,9 +39,11 @@ function ProposalSession({ initial }: { initial: Proposal }) {
   const cardLabels={offering:'¿Qué ofreces?',audience:'¿Para quién?',need:'¿Qué le facilitas?',value:'¿Qué hace especial tu oferta?',message:'Tu mensaje principal',conditions:'Condiciones',cta:'Tu invitación a actuar',whatsapp:'Contacto de WhatsApp'};
   const cardTitles={offering:'Tu oferta',audience:'Tus personas',need:'La necesidad',value:'Tu diferencia',message:'Mensaje principal',conditions:'Condiciones',cta:'Tu invitación',whatsapp:'Contacto'};
   const proposalRef=useRef(proposal);proposalRef.current=proposal;
-  const [step, setStep] = useState(routeParams.has('offer')?1:0);
+  const compactOffers = routeParams.get('section') === 'offers';
+  const [step, setStep] = useState(routeParams.has('offer') || compactOffers ? 1 : 0);
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
+  const saveLock = useRef(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [offer, setOffer] = useState<Offer | null>(()=>initial.offers.find(o=>o.id===routeParams.get('offer'))??null);
@@ -56,9 +59,10 @@ function ProposalSession({ initial }: { initial: Proposal }) {
   useUnsavedNavigation(dirty || uncommitted || busy);
   const patch = (value: Partial<Proposal>) => { setProposal(current => ({ ...current, ...value })); setDirty(true); setError(''); setNotice(''); };
   async function run(action: () => Promise<void>) {
-    if (busy) return;
+    if (saveLock.current) return;
+    saveLock.current = true;
     setBusy(true); setError(''); setNotice('');
-    try { await action(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
+    try { await action(); } catch (e) { setError((e as Error).message); } finally { saveLock.current = false; setBusy(false); }
   }
   async function storeProposal() {
     await run(async () => { const snapshot=proposal;await save('module-proposal', parseProposal(snapshot));if(proposalRef.current===snapshot){setDirty(false);setField(null);} setNotice('Propuesta guardada en tu cuenta. Tu página pública no cambió.'); });
@@ -78,12 +82,24 @@ function ProposalSession({ initial }: { initial: Proposal }) {
     if (!offer) return;
     await run(async () => {
       validateOffer(offer, true);
-      const nativeData = createNativeProduct(type, docs[catalogKey], offer, business.name);
-      if (nativeData !== null && !proposal.offers.some(o => o.id === offer.id)) {
-        await save(catalogKey, nativeData);
-        patch({ nativeIds: [...new Set([...proposal.nativeIds, type + ':' + offer.id])] });
-        setNotice('Producto guardado en tu catálogo. Guarda la propuesta para conservar su selección.');
-      } else patch({ offers: proposal.offers.some(o => o.id === offer.id) ? proposal.offers.map(o => o.id === offer.id ? offer : o) : [...proposal.offers, offer] });
+      const exists = proposal.offers.some(item => item.id === offer.id);
+      if (!exists && proposal.nativeIds.length + proposal.offers.length >= 30) {
+        throw new Error('Puedes guardar hasta 30 ofertas en tu propuesta.');
+      }
+      const nativeData = exists ? null : createNativeProduct(type, docs[catalogKey], offer, business.name);
+      const next = parseProposal(nativeData !== null
+        ? { ...proposal, nativeIds: [...new Set([...proposal.nativeIds, type + ':' + offer.id])] }
+        : { ...proposal, offers: exists ? proposal.offers.map(item => item.id === offer.id ? offer : item) : [...proposal.offers, offer] });
+      if (nativeData !== null) await save(catalogKey, nativeData);
+      if (compactOffers) {
+        await save('module-proposal', next);
+        setProposal(next);
+        setDirty(false);
+        setNotice('Oferta guardada.');
+      } else {
+        patch(next);
+        if (nativeData !== null) setNotice('Producto guardado en tu catálogo. Guarda la propuesta para conservar su selección.');
+      }
       setOffer(null);
     });
   }
@@ -105,11 +121,11 @@ function ProposalSession({ initial }: { initial: Proposal }) {
     return updated ? values[field] : base[field];
   }
   return <section className="proposal-page">
-    <header><span className="proposal-kicker">MI PROPUESTA · {business.name}</span><h1>Mi propuesta</h1><p>Lo que ya definiste, listo para seguir tomando forma.</p></header>
-    <JourneyImport proposal={proposal} onApply={patch}/><details className="proposal-switch" key={step}><summary>{['Tu idea','Tus ofertas','Mensaje y contacto'][step]} <span aria-hidden="true">⌄</span></summary><nav aria-label="Pasos de mi propuesta">{type&&business.route!=='services'&&<Link className="pe-action-link" to={'/modules/'+type+'/editor'+query}>Catálogo original →</Link>}{['Tu idea','Tus ofertas','Mensaje y contacto'].map((title,i)=><button type="button" key={title} aria-current={i===step?'step':undefined} onClick={()=>setStep(i)}>{title}</button>)}<Link className="pe-action-link" to={'/dashboard/tools/landing'+query}>Abrir mi página →</Link></nav></details>
+    <header><span className="proposal-kicker">MI PROPUESTA · {business.name}</span><h1>{compactOffers ? 'Define tu oferta y tus precios' : 'Mi propuesta'}</h1><p>{compactOffers ? 'Reúne aquí las ofertas que quieres vender.' : 'Lo que ya definiste, listo para seguir tomando forma.'}</p></header>
+    {!compactOffers && <><JourneyImport proposal={proposal} onApply={patch}/><details className="proposal-switch" key={step}><summary>{['Tu idea','Tus ofertas','Mensaje y contacto'][step]} <span aria-hidden="true">⌄</span></summary><nav aria-label="Pasos de mi propuesta">{type&&business.route!=='services'&&<Link className="pe-action-link" to={'/modules/'+type+'/editor'+query}>Catálogo original →</Link>}{['Tu idea','Tus ofertas','Mensaje y contacto'].map((title,i)=><button type="button" key={title} aria-current={i===step?'step':undefined} onClick={()=>setStep(i)}>{title}</button>)}<Link className="pe-action-link" to={'/dashboard/tools/landing'+query}>Abrir mi página →</Link></nav></details></>}
     <fieldset disabled={busy} className="proposal-fields">
       {step === 0 && <><h2 className="sr-only">Tu idea</h2><div className="proposal-definition-cards">{(['offering','audience','need','value'] as const).map((key,i)=><button type="button" className={`proposal-definition-card proposal-card-${i}`} key={key} onClick={()=>setField(key)}><span aria-hidden="true">{['✦','◉','♡','✧'][i]}</span><h3>{cardTitles[key]}</h3><p>{proposal[key]||'Toca para darle forma'}</p><small>{proposal[key]?'Editar →':'Comenzar →'}</small></button>)}</div></>}
-      {step === 1 && <><div className="proposal-section-title"><h2>Mis ofertas</h2><ButtonSecondary onClick={() => editOffer(blankOffer())}>＋ Añadir oferta</ButtonSecondary></div>
+      {step === 1 && <><div className="proposal-section-title"><h2>Mis ofertas</h2><PearlButton compact onClick={() => editOffer(blankOffer())}>＋ Añadir oferta</PearlButton></div>
         <p>Empieza con una oferta. Puedes añadir más cuando quieras.</p>
 
         {!native.length && !proposal.offers.length && <p>Aún no hay ofertas. Añade la primera cuando estés lista.</p>}
@@ -118,12 +134,35 @@ function ProposalSession({ initial }: { initial: Proposal }) {
           <details className="proposal-offer-controls"><summary>Ajustar esta oferta</summary><label><input type="checkbox" checked={proposal.nativeIds.includes(item.id)} onChange={e => patch({ nativeIds:e.target.checked ? [...proposal.nativeIds,item.id] : proposal.nativeIds.filter(id => id !== item.id) })} /> Incluir {item.name} en mi propuesta</label>
           <details><summary>Editar precio en el catálogo</summary><Input label={'Precio de ' + item.name} type="number" min="0" step="0.01" value={prices[item.id] ?? item.price ?? ''} onChange={e => setPrices(current => ({ ...current,[item.id]:e.target.value }))} /><label><input type="checkbox" checked={!!free[item.id]} onChange={e => setFree(current => ({ ...current,[item.id]:e.target.checked }))} /> Confirmar Gratis si el precio es cero</label><ButtonSecondary disabled={prices[item.id] === undefined} onClick={() => void storePrice(item)}>Guardar precio de {item.name}</ButtonSecondary></details></details>
         </article>)}{proposal.offers.map(item => <article className="proposal-offer" key={item.id}>{item.image&&<ProjectImage value={item.image} alt={item.name} />}<h3>{item.name}</h3><p>{item.description}</p><strong>{offerPrice(item)}</strong><small>{item.kind === 'package' ? 'Paquete' : item.kind === 'service' ? 'Servicio' : 'Producto'} · oferta complementaria</small><ButtonSecondary onClick={() => editOffer(item)}>Editar {item.name}</ButtonSecondary><ButtonSecondary onClick={() => patch({ offers:proposal.offers.filter(o => o.id !== item.id) })}>Quitar de la propuesta {item.name}</ButtonSecondary></article>)}</div>
-        {offer && <EditorSheet open={offerPanel} title="Tu oferta" onClose={()=>setOfferPanel(false)}><OfferComposer key={offer.id} offer={offer} onChange={setOffer} onApply={()=>void applyOffer()} onCancel={()=>setOffer(null)} busy={busy}/></EditorSheet>}{offer&&!offerPanel&&<ButtonSecondary onClick={()=>setOfferPanel(true)}>Retomar mi oferta pendiente</ButtonSecondary>}
+        {compactOffers && type === 'restaurant' && business.route !== 'services' &&
+          <PearlButton compact tone="neutral" to={'/modules/restaurant' + query + (routeParams.get('return') === 'island' ? '&return=island&area=finance' : '')}>Ver costos e inventario</PearlButton>}
+        {offer && <EditorSheet open={offerPanel} title={compactOffers ? 'Tu oferta' : 'Editar oferta'} onClose={() => setOfferPanel(false)}>
+          {compactOffers ? <form className="proposal-quick-offer" onSubmit={event => { event.preventDefault(); void applyOffer(); }}>
+            <Input required autoFocus disabled={busy} label="Nombre de la oferta" maxLength={120} value={offer.name} onChange={event => setOffer({ ...offer, name: event.target.value })} />
+            <label>Tipo de oferta
+              <select disabled={busy || offer.experience !== undefined} value={offer.kind} onChange={event => setOffer({ ...offer, kind: event.target.value as Offer['kind'] })}>
+                <option value="product">Producto</option><option value="service">Servicio</option><option value="package">Paquete</option>
+                <option value="experience">Experiencia</option><option value="stay">Estadía</option><option value="course">Curso</option>
+              </select>
+            </label>
+            <Input disabled={busy} label="Precio de venta (S/)" type="number" min="0" max="1000000" step="0.01" placeholder="Por consultar" value={offer.price ?? ''} onChange={event => {
+              const price = event.target.value ? event.target.valueAsNumber : null;
+              setOffer({ ...offer, price, pricing: price === null ? 'quote' : price === 0 ? 'free' : 'fixed' });
+            }} />
+            {offer.pricing === 'free' && <p>Esta oferta se mostrará como Gratis.</p>}
+            {error && <p role="alert">{error}</p>}
+            <div className="proposal-quick-actions">
+              <PearlButton compact type="submit" disabled={busy}>{busy ? 'Guardando…' : 'Guardar oferta'}</PearlButton>
+              <PearlButton compact tone="neutral" disabled={busy} onClick={() => { setOffer(null); setError(''); }}>Cancelar</PearlButton>
+            </div>
+          </form> : <OfferComposer key={offer.id} offer={offer} onChange={setOffer} onApply={() => void applyOffer()} onCancel={() => setOffer(null)} busy={busy} />}
+        </EditorSheet>}
+        {offer && !offerPanel && <ButtonSecondary onClick={() => setOfferPanel(true)}>Retomar mi oferta pendiente</ButtonSecondary>}
       </>}
       {step === 2 && <><h2>Invita a dar el siguiente paso</h2><div className="proposal-definition-cards">{(['message','cta','whatsapp','conditions'] as const).map((key,i)=><button type="button" className={`proposal-definition-card proposal-card-${i}`} key={key} onClick={()=>setField(key)}><h3>{cardTitles[key]}</h3><p>{proposal[key]||'Lo puedes definir después'}</p><small>Editar →</small></button>)}</div></>}
     </fieldset>
     <EditorSheet open={field!==null} title={field?cardLabels[field]:''} onClose={()=>setField(null)}>{field&&<><Textarea disabled={busy} label={cardLabels[field]} autoFocus value={proposal[field]} maxLength={field==='cta'?50:field==='message'?180:field==='whatsapp'?30:2000} onChange={e=>patch({[field]:e.target.value})}/><p>Escribe con tus palabras. Podrás volver a cambiarlo.</p><ButtonPrimary disabled={busy} onClick={()=>void storeProposal()}>Guardar esta parte</ButtonPrimary></>}</EditorSheet>
-    <footer className="proposal-actions">{step===1&&!dirty?native.length+proposal.offers.length>0?<Link className="pe-action-link pe-action-primary" to={'/dashboard/tools/landing'+query}>Ver mi página →</Link>:null:dirty?<ButtonPrimary disabled={busy||uncommitted} onClick={()=>void storeProposal()}>{busy?'Guardando…':'Guardar mis cambios'}</ButtonPrimary>:step<2?<ButtonPrimary disabled={busy} onClick={()=>setStep(step+1)}>Continuar →</ButtonPrimary>:<ButtonPrimary disabled={!canPrepare} onClick={openPreparation}>Ver mi página →</ButtonPrimary>}</footer>
+    <footer className="proposal-actions">{step===1&&!dirty?!compactOffers && native.length+proposal.offers.length>0?<Link className="pe-action-link pe-action-primary" to={'/dashboard/tools/landing'+query}>Ver mi página →</Link>:null:dirty?<ButtonPrimary disabled={busy||uncommitted} onClick={()=>void storeProposal()}>{busy?'Guardando…':'Guardar mis cambios'}</ButtonPrimary>:step<2?<ButtonPrimary disabled={busy} onClick={()=>setStep(step+1)}>Continuar →</ButtonPrimary>:<ButtonPrimary disabled={!canPrepare} onClick={openPreparation}>Ver mi página →</ButtonPrimary>}</footer>
     <p role={error ? 'alert' : 'status'}>{error || (busy ? 'Guardando…' : uncommitted ? 'Aplica o cancela las ediciones de ofertas pendientes.' : dirty ? 'Propuesta pendiente de guardar.' : notice || (documentRevision('module-proposal') ? 'Propuesta guardada en tu cuenta.' : 'Aún no guardaste tu propuesta.'))}</p>
     {error && <ButtonSecondary disabled={busy} onClick={() => { if (dirty || uncommitted) setConfirmRecovery(true); else void reload(); }}>Recuperar datos guardados</ButtonSecondary>}
     {confirmRecovery && <section className="proposal-preparation" aria-label="Confirmar recuperación"><h2>¿Recuperar la versión guardada?</h2><p>Se descartarán las ediciones pendientes de esta propuesta. Puedes cancelar para conservarlas en pantalla.</p><ButtonSecondary onClick={() => setConfirmRecovery(false)}>Conservar mis cambios pendientes</ButtonSecondary><ButtonPrimary disabled={busy} onClick={() => void reload()}>Descartar pendientes y recuperar</ButtonPrimary></section>}

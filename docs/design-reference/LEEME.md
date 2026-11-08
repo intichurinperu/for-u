@@ -2,6 +2,8 @@
 
 Recuperadas de los dos chats el 6 de noviembre de 2026. Se conservan los originales sin modificaciones.
 
+El [índice del 8 de noviembre](2026-11-08/LEEME.md) reúne las propuestas de proyectos, ruta digital, Creator Studio e islas, en el orden del recorrido, desde Mis proyectos hasta Creator Studio y el editor de video.
+
 ## Referencias elegidas por la usuaria
 
 - [Inicio y botones](referencias-elegidas/01-inicio-y-botones.png): referencia principal para el acabado de los botones, aprobado expresamente («amo esos botones usa esos siempre»). También conserva la entrada de tres opciones.

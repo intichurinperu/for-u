@@ -1,0 +1,122 @@
+[
+  {
+    "origen": "exec-9dc77e35-740c-47bb-9367-514d55039a81.png",
+    "archivo": "01-proyectos/01-mis-proyectos.png",
+    "estado": "Dirección visual aprobada",
+    "sha256": "d4ee35a7b2a6aeade37fb576307b1173d7781a7319e1a2558e4c1aa07b3c7673"
+  },
+  {
+    "origen": "exec-746ec679-c09e-40bb-aab3-9df3df67784a.png",
+    "archivo": "01-proyectos/02-nuevo-proyecto.png",
+    "estado": "Para revisar",
+    "sha256": "ac98378485e3a76184b33d4d4c0f32d25ccdea169322ac04345ca6f0f99ad796"
+  },
+  {
+    "origen": "exec-ac008c65-0ee9-44b8-ba72-14794cdb6aa5.png",
+    "archivo": "02-ruta-digital/01-mi-ruta-digital.png",
+    "estado": "Para revisar",
+    "sha256": "b915fcb949ef663429a6116c798e9aa1934b55ae3c60fc7b7376232aeff7681a"
+  },
+  {
+    "origen": "exec-da7a1440-8a2a-45ff-9341-8b52729b48f3.png",
+    "archivo": "02-ruta-digital/02-preguntas-anadir-oferta-y-costos.png",
+    "estado": "Para revisar",
+    "sha256": "4df80d66c68de43b64b6199131ea16b568e6c9084b98ca14595ed52abe28d995"
+  },
+  {
+    "origen": "exec-c56d9b26-13dc-4aef-abb1-87aadee3f2cb.png",
+    "archivo": "03-creator-studio/01-ofertas-y-entrada-al-studio.png",
+    "estado": "Para revisar",
+    "sha256": "c8ee08e598f0a406304e5439014848ecb284e05b0e4f52a205ef6ac07f80100d"
+  },
+  {
+    "origen": "exec-6a6ed6f8-c9aa-4939-b261-5a8cb099d705.png",
+    "archivo": "03-creator-studio/02-editor-de-video-computadora-y-celular.png",
+    "estado": "Para revisar",
+    "sha256": "62b24440f0e872456a1f7acfff44435e54745967c4811c40392763dc89d09e19"
+  },
+  {
+    "origen": "exec-309558f1-da8c-4d7a-a9e2-2cd3a289cc09.png",
+    "archivo": "04-islas/01-mapa-cuatro-islas.png",
+    "estado": "Para revisar",
+    "sha256": "d07a90e751490f1d0b5e02a0e9dad552293c19c879c808b8d75674168eb75072"
+  },
+  {
+    "origen": "exec-8ae1b7df-ff58-48cf-b559-1aa44bc2b43e.png",
+    "archivo": "04-islas/02-restaurante.png",
+    "estado": "Para revisar",
+    "sha256": "37aeeaa45d6f48790cf0a99b489adf0014331fcf049485cdf06272714b2cce3c"
+  },
+  {
+    "origen": "exec-ee2f3e50-649c-49ee-9556-50d908b7ba69.png",
+    "archivo": "04-islas/03-hospedaje.png",
+    "estado": "Para revisar",
+    "sha256": "11b34cec9bcf354a5e8ad3f2a67231c3e6a41789f90af6b094d084ac0f8055a5"
+  },
+  {
+    "origen": "exec-c922a5d2-12bf-4283-8908-270bf736b366.png",
+    "archivo": "04-islas/04-turismo.png",
+    "estado": "Para revisar",
+    "sha256": "8ca68b156650ec934ba91d342f494a0dd63410fc814de5f7acc4f9fed24263c6"
+  },
+  {
+    "origen": "exec-1428ac3a-e7a7-4328-a201-f9bf4c1ef23d.png",
+    "archivo": "04-islas/05-clases-y-cursos.png",
+    "estado": "Para revisar",
+    "sha256": "9998b588161aa87f59870d592e1f37b0662a456f609b9716e1cbe1d9ef447c4d"
+  },
+  {
+    "origen": "exec-38b72937-a15a-4a42-9b76-7b26d72f9b1c.png",
+    "archivo": "04-islas/06-tienda.png",
+    "estado": "Para revisar",
+    "sha256": "5480936116d39cda108e7a08afb97475e8bba0e972596c51d236e296653b24c2"
+  },
+  {
+    "origen": "exec-f6a3d269-d60e-40bf-a045-5502399a3580.png",
+    "archivo": "04-islas/07-servicios.png",
+    "estado": "Para revisar",
+    "sha256": "ba62473a79f2de3d3c1c7d75c4fbca96e92403fb5322e2bfaeb28b66aa9a2f94"
+  },
+  {
+    "origen": "exec-c93da050-daa7-43dd-8e9a-5ed36f63d94f.png",
+    "archivo": "04-islas/08-precios-promocion-y-producto-digital.png",
+    "estado": "Para revisar",
+    "sha256": "86d74751a62a8f8329e5d0db1701726738c65ca74e568ec0d03932babd45b795"
+  },
+  {
+    "origen": "exec-9481ca5d-e214-40eb-9b78-b9cf0e54b2ce.png",
+    "archivo": "05-versiones-anteriores/01-ruta-por-piezas.png",
+    "estado": "Versión anterior",
+    "sha256": "bf91312e0c080449fd3426c68453f0fd33e6f9bbffd971543f521846c2595db3"
+  },
+  {
+    "origen": "exec-2d88766c-5293-4988-bfab-ca3c09fe2098.png",
+    "archivo": "05-versiones-anteriores/02-mapa-tres-islas.png",
+    "estado": "Versión anterior",
+    "sha256": "e66e614b86e656047d0419f8a19877b76ccab794c88aad00b01364eb38af023e"
+  },
+  {
+    "origen": "exec-32a14e89-2d28-4b0a-92c8-613c7b944be4.png",
+    "archivo": "05-versiones-anteriores/03-mapa-con-botones-duplicados.png",
+    "estado": "Versión anterior",
+    "sha256": "201aa366704b2b4f936dea684ca4f597c072be18149c5c06a37224fe3a16e2c1"
+  },
+  {
+    "origen": "exec-a1e8d483-965c-45ae-b0c2-ac36a056dede.png",
+    "archivo": "05-versiones-anteriores/04-ruta-ilustraciones-repetidas.png",
+    "estado": "Versión anterior",
+    "sha256": "b0be29ed8a1f792fd2a62b0afd86d2452a20fbfd75952b4cc8cbaa9222cc60da"
+  },
+  {
+    "origen": "exec-cbf479fb-7d4a-4c23-88a8-78eefcb1212e.png",
+    "archivo": "05-versiones-anteriores/05-islas-accesos-secundarios-visibles.png",
+    "estado": "Versión anterior",
+    "sha256": "2b1193766abc6782db7bfb27d7d5521f0cbb229094871de83da0bd8660a808ed"
+  },
+  {
+    "origen": "exec-033e4a43-496d-45fa-8d52-579630d55ad5.png",
+    "archivo": "05-versiones-anteriores/06-ruta-digital-primera-version.png",
+    "estado": "Versión anterior",
+    "sha256": "db27c35a62f9a8f41a1fa5457aed49d06b7baa8ac25999c8916e0baf515063d7"
+  }
+]

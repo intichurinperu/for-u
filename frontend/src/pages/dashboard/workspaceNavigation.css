@@ -18,3 +18,13 @@
 .workspace-project-menu .workspace-tool-search{width:100%;font-size:13px!important;background:#f4effa!important;color:#513477!important;min-height:44px}
 .workspace-project-bar a:focus-visible,.workspace-project-bar summary:focus-visible,.workspace-project-bar select:focus-visible{outline:3px solid #7751b8;outline-offset:3px}
 @media(max-width:950px){.foru-experience .workspace-project-bar{gap:10px;padding:10px 16px}.workspace-project-identity{flex:1}.workspace-project-identity>label{max-width:none}.foru-experience .workspace-project-bar .workspace-view-switch{order:3;width:100%;justify-content:center;box-sizing:border-box}.foru-experience .workspace-project-bar .workspace-view-switch>a{flex:1;padding:10px 8px;font-size:12px}.workspace-project-logo .foru-original-logo{width:64px;height:36px}.workspace-project-menu>summary{font-size:12px;padding:10px 12px}.workspace-project-identity{gap:8px}}
+
+.foru-experience .workspace-project-bar.is-route-header,
+.workspace-home-bar {
+  background: linear-gradient(110deg, #fffdf9 20%, #faf4fb 72%, #f4fbfc);
+}
+@media (max-width: 600px) {
+  .workspace-project-bar.is-route-header .workspace-project-identity { justify-content: space-between; }
+  .workspace-project-bar.is-route-header .workspace-project-identity > label { display: none; }
+  .workspace-project-bar.is-route-header .workspace-project-identity:has(.workspace-project-back) .workspace-project-logo { display: inline-flex; }
+}

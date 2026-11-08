@@ -1,28 +1,117 @@
-.project-start{max-width:680px;margin:1.5rem auto 4rem;padding:clamp(24px,5vw,56px);border:1px solid #e3dbef;border-radius:28px;background:#fff;box-shadow:0 16px 60px #63488a09;text-align:center;overflow-wrap:anywhere}
-.project-start-route{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto 28px;color:#7751b8}.project-start-route span{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#f1ebf9}.project-start-route i{width:44px;height:1px;background:#d8c9eb}.project-start-kicker{font-size:.75rem!important;letter-spacing:.12em;color:#6d5a84;font-weight:700}.project-start h2{font-size:clamp(1.6rem,3vw,2.25rem);line-height:1.2;margin:12px 0 16px;letter-spacing:-.03em}.project-start-help{font-size:1rem;line-height:1.6;color:#6d6476;max-width:420px;margin:0 auto 28px}.project-start-primary{display:flex;justify-content:center;align-items:center;gap:16px;min-height:52px;padding:12px 24px;border-radius:16px;background:#7751b8;color:#fff!important;text-decoration:none!important;font-weight:650;max-width:360px;margin:auto}.project-start-secondary{display:block;width:fit-content;margin:18px auto;color:#63438f;text-decoration:none;font-size:.9rem;min-height:44px;padding:12px}.project-start-orientation{font-size:.8rem!important;color:#81748d;line-height:1.7;margin:28px auto 0;max-width:380px}.project-start :focus-visible,.workspace-project-back:focus-visible{outline:3px solid #7952b6;outline-offset:4px}.workspace-project-back{display:inline-flex;align-items:center;min-height:44px;white-space:nowrap;text-decoration:none!important;color:#63438f!important;font-size:.85rem;font-weight:600}
-@media(max-width:600px){.workspace-project-identity:has(.workspace-project-back) .workspace-project-logo{display:none}.project-start{margin:.75rem 0 3rem;border-radius:22px}.workspace-project-identity{gap:.6rem}}
-
-.project-start-steps{list-style:none;padding:0;margin:32px 0 0;text-align:left}.project-start-steps li{display:flex;gap:16px;position:relative;align-items:flex-start;padding:0 0 24px}.project-start-steps li:not(:last-child)::before{content:'';position:absolute;left:17px;top:35px;bottom:0;width:2px;background:#e8e0f0}.project-start-number{width:36px;height:36px;border-radius:50%;background:#f1ebf8;color:#7d6695;display:grid;place-items:center;flex-shrink:0;font-weight:650}.project-start-steps li.is-current .project-start-number{background:#7751b8;color:#fff}.project-start-steps li.is-done .project-start-number{background:#dcf3e9;color:#315e4c}.project-start-steps button{font:inherit;font-weight:600;color:#332a3f;background:transparent;border:0;text-align:left;padding:0;min-height:44px;cursor:pointer}.project-start-steps strong{display:block;padding-top:8px}.project-start-steps small{display:block;font-size:.8rem;color:#84768e;margin-top:2px}.project-start-goal{text-align:left;padding:18px;border-radius:16px;background:#f5f1e8;font-weight:650;font-size:1rem!important}.project-start-goal small{display:block;font-size:.75rem;font-weight:400;line-height:1.5;margin-top:6px;color:#776954}.project-route-overview{display:inline-flex;min-height:44px;align-items:center;color:#63438f;text-decoration:none;font-size:.9rem;margin:0 0 16px}
-
-.project-start-feature { display: grid; justify-items: center; gap: 10px; padding: clamp(16px, 4vw, 30px); border: 1px solid #e2d8ce; border-radius: 20px; background: #faf6ef; }
-.project-start-feature > small { color: #64574b; font-size: .75rem; letter-spacing: .08em; }
-.project-start-feature h3 { margin: 0; font-size: clamp(1.35rem, 4vw, 1.8rem); line-height: 1.2; }
-.project-start-feature p { margin: 0 0 6px; color: #62574e; line-height: 1.5; }
-.project-start-feature .foru-pearl-button { font-size: clamp(16px, 3vw, 21px); }
-.project-start-missing { text-align: left; border-top: 1px solid #e9dfd4; padding-top: 12px; }
-.project-start-missing h3 { margin: 0; font-size: 1rem; }
-.project-start-links, .project-start-footer { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; }
-.project-start-missing .project-start-links { justify-content: flex-start; }
-.project-start-footer { border-top: 1px solid #e9dfd4; padding-top: 16px; }
-.project-start-tool-label { display: inline-flex; align-items: center; gap: 8px; }
-.project-start-tool-list:not([hidden]) {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(min(100%,180px),1fr));
-  gap: 8px;
-  margin-top: 12px;
-  padding: 12px;
-  border: 1px solid #ede5ef;
-  border-radius: 16px;
-  background: #fcfafc;
+.project-start {
+  max-width: 680px;
+  margin: 24px auto 64px;
+  padding: clamp(24px, 5vw, 56px);
+  border: 1px solid #e3dbef;
+  border-radius: 28px;
+  background: #fff;
+  text-align: center;
 }
-.project-start-tool-list .foru-pearl-button { text-decoration: none; }
+.project-start-feature {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: clamp(16px, 4vw, 30px);
+  border: 1px solid #e2d8ce;
+  border-radius: 20px;
+  background: #faf6ef;
+}
+.project-start-feature h2 { margin: 0; font-size: 1.1rem; }
+.project-start-feature p { margin: 0; color: #62574e; }
+.workspace-project-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #5c4276;
+  text-decoration: none;
+  font-size: .85rem;
+  font-weight: 600;
+}
+@media (max-width: 600px) {
+  .workspace-project-identity:has(.workspace-project-back) .workspace-project-logo { display: none; }
+  .workspace-project-identity { gap: .6rem; }
+}
+
+.digital-route {
+  width: min(100%, 1024px);
+  margin: 0 auto 32px;
+}
+.digital-route-hero {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  align-items: center;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 240px;
+  padding-left: clamp(24px, 6vw, 72px);
+  border: 1px solid #e9dde9;
+  border-radius: 32px;
+  background: linear-gradient(145deg, #fffdfb 28%, #faf5fc, #fff);
+}
+.digital-route-hero img {
+  display: block;
+  width: 100%;
+  height: 255px;
+  object-fit: cover;
+  object-position: center 48%;
+  mask-image: linear-gradient(90deg, transparent, #000 20%);
+}
+.digital-route h1, .island-heading h1 {
+  color: #26222b;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 520;
+  line-height: 1.04;
+  letter-spacing: -.05em;
+  margin: 6px 0 0;
+}
+.digital-route-hero p, .digital-route-stages p { margin: 0; color: #61576b; }
+.digital-route-stages {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding: 0;
+  margin: 24px 0;
+}
+.digital-route-stages li {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: start;
+  gap: 13px;
+  padding: 20px;
+  border: 1px solid #e9e1ed;
+  border-radius: 23px;
+  background: #fffdfc;
+}
+.digital-route-stages li.is-current {
+  border-color: #cfb8df;
+  background: linear-gradient(145deg, #fbf4ff 0%, #fffdfb 68%);
+}
+.digital-route-marker {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f0e8f7;
+  color: #5c4276;
+}
+.digital-route-step { font-size: .78rem; color: #65566e; }
+.digital-route-stages h2 { margin: 5px 0; font-size: 1.12rem; line-height: 1.2; }
+.digital-route-stages p { font-size: .86rem; line-height: 1.4; }
+.digital-route-footer { display: flex; justify-content: center; }
+.digital-route-footer .foru-pearl-button span { display: inline-flex; align-items: center; gap: 8px; }
+.digital-route .project-start-feature { margin: 16px 0; }
+@media (max-width: 680px) {
+  .digital-route-hero { grid-template-columns: 1fr; min-height: 0; padding: 22px 18px 0; }
+  .digital-route-hero img { height: 130px; mask-image: none; }
+  .digital-route-stages { grid-template-columns: 1fr; gap: 10px; margin: 16px 0; }
+  .digital-route-stages li { grid-template-columns: 36px minmax(0, 1fr); grid-template-rows: auto auto; gap: 8px 12px; padding: 14px; }
+  .digital-route-stages li .foru-pearl-button { grid-column: 2; }
+}
+
+@media (max-width: 680px) {
+  .foru-experience:has(.digital-route, .project-island) .workspace-utilities {
+    display: none;
+  }
+}

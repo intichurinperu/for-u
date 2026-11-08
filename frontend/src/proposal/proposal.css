@@ -16,3 +16,17 @@
 .proposal-page>header h1{font-size:30px;line-height:1.2;letter-spacing:-.03em;margin:8px 0}@media(max-width:600px){.proposal-page>header h1{font-size:28px}}
 
 .offer-optional>summary{min-height:44px;align-content:center;font-size:13px;color:#513477;cursor:pointer}.offer-optional .pe-decision-choices{margin-top:12px}
+
+.proposal-quick-offer { display: grid; gap: 16px; padding-block: 6px; }
+.proposal-quick-offer > label { display: grid; gap: 6px; }
+.proposal-quick-offer select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #d9cedf;
+  border-radius: 12px;
+  background: #fffdfc;
+  color: #302837;
+  font: inherit;
+}
+.proposal-quick-actions { display: flex; flex-wrap: wrap; gap: 8px; }
