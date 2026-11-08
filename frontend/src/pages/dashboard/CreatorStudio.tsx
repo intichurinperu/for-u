@@ -36,9 +36,10 @@ export default function CreatorStudio() {
   if (!user || store.cloudUserId !== user.id) return <p role="status">Cargando tu espacio creativo…</p>;
   if (params.get('create') === '1' || params.get('view') === 'management') return <UnifiedDashboard />;
   if (!project) return <section className="cs-empty"><h1>{requested ? 'No encontramos este proyecto' : 'Tu próxima idea empieza aquí'}</h1><Link to={requested ? '/creator-studio' : '/dashboard?create=1'}>{requested ? 'Ver mis proyectos' : '＋ Crear mi proyecto'}</Link></section>;
-  return <ToolkitProvider key={`${user.id}:${project.id}`} userId={user.id} projectId={project.id} business={businessFromProject(project)}><StudioHome type={projectModuleType(project)!} /></ToolkitProvider>;
+  const type = projectModuleType(project) || 'restaurant';
+  return <ToolkitProvider key={`${user.id}:${project.id}`} userId={user.id} projectId={project.id} business={businessFromProject(project)}><StudioHome type={type} /></ToolkitProvider>;
 }
-function StudioHome({type}:{type:NonNullable<ReturnType<typeof projectModuleType>>}){
+function StudioHome({type}:{type:ModuleType}){
  const {business,docs,loading,loadError,reload,projectId,documentRevision}=useToolkit();
  const [params,setParams]=useSearchParams(),[working,setWorking]=useState(false);
  const pillarWorkshop=params.get('start')==='pillars';
@@ -51,8 +52,9 @@ function StudioHome({type}:{type:NonNullable<ReturnType<typeof projectModuleType
 
  let sources:CreativeSource[],brand:BrandProfile|undefined;
  try{
-  brand=brandProfile(docs['module-project-diagnostic'],docs['module-proposal']===undefined?emptyProposal():parseProposal(docs['module-proposal']),projectId,documentRevision('module-project-diagnostic'));
-  sources=studioSources({project:projectId,type,proposal:docs['module-proposal']===undefined?emptyProposal():parseProposal(docs['module-proposal']),page:readableStudioDraft(docs.landing)?docs.landing as LandingDraft:null,catalog:docs[`module-${type}`],revisions:{proposal:documentRevision('module-proposal'),page:documentRevision('landing'),catalog:documentRevision(`module-${type}`)}});
+  const proposalDoc = !docs['module-proposal'] ? emptyProposal() : parseProposal(docs['module-proposal']);
+  brand=brandProfile(docs['module-project-diagnostic'],proposalDoc,projectId,documentRevision('module-project-diagnostic'));
+  sources=studioSources({project:projectId,type,proposal:proposalDoc,page:readableStudioDraft(docs.landing)?docs.landing as LandingDraft:null,catalog:docs[`module-${type}`],revisions:{proposal:documentRevision('module-proposal'),page:documentRevision('landing'),catalog:documentRevision(`module-${type}`)}});
  }catch(e){
   return <section role="alert"><h1>Conservamos tu información.</h1><p>{(e as Error).message}</p><ButtonSecondary onClick={()=>void reload()}>Reintentar lectura</ButtonSecondary></section>;
  }

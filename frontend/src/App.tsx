@@ -185,15 +185,16 @@ function ApplicationRoutes() {
 }
 
 function RouteFailure() {
-  const error = useRouteError() as { message?: string; statusText?: string } | null;
+  const error = useRouteError() as any;
   console.error('For U route error:', error);
+  const detail = error instanceof Error ? error.message : (error?.message || error?.statusText || (typeof error === 'string' ? error : (error ? JSON.stringify(error) : '')));
   return (
     <main className="foru-auth-page">
       <DSCard as="section" className="foru-auth-card">
         <span className="foru-auth-kicker">FOR U</span>
         <h1>No pudimos abrir esta pantalla.</h1>
         <p>Tu información guardada se conserva. Puedes recargar o volver al inicio.</p>
-        {error?.message ? <small style={{ color: '#8b263e', background: '#fff0f3', padding: '6px 10px', borderRadius: '8px', display: 'block', margin: '8px 0' }}>{error.message}</small> : null}
+        {detail ? <small style={{ color: '#8b263e', background: '#fff0f3', padding: '6px 10px', borderRadius: '8px', display: 'block', margin: '8px 0', wordBreak: 'break-word' }}>{detail}</small> : null}
         <a className="pe-action-link" href="/dashboard">Volver a mis proyectos</a>
       </DSCard>
     </main>

@@ -34,7 +34,7 @@ export default function StudioComposer({sources,onBusy,brand}:{brand?:BrandProfi
  const campaigns=usePrivateDocument(userId,projectId,'campaigns',()=>emptyCampaigns(projectId),value=>parseCampaigns(value,projectId));
  const campaign=campaigns.data.campaigns.find(row=>row.id===params.get('campaign'));
  const requestedIntent=intentions.some(row=>row.id===params.get('intent'))?params.get('intent') as Intent:'awareness';
- const suggested=pillarSuggestions[business.route||'services'];
+ const suggested=(business?.route&&pillarSuggestions[business.route])?pillarSuggestions[business.route]:(pillarSuggestions.restaurant||pillarSuggestions.services||[]);
  const incoming=brand?.pillars.includes(params.get('pillar')||'')?params.get('pillar')!:suggested.includes(params.get('topic')||'')?params.get('topic')!:'';
  const notes=brand?.pillarDetails?.find(row=>row.name===incoming)?.notes||'';
  const themes=brand?.pillars.length?brand.pillars.slice(0,3):suggested.slice(0,3);
