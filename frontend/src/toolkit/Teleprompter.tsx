@@ -3,7 +3,7 @@ import PearlButton from '../components/ui/PearlButton';
 import PrompterGuide from './PrompterGuide';
 import {useEffect,useRef,useState} from 'react';
 import {Link,useSearchParams} from 'react-router-dom';
-import {linkedPieceQuery} from '../studio/navigation';
+import {linkedPieceQuery,studioReturn} from '../studio/navigation';
 import SavePieceFile from '../social/SavePieceFile';
 import {getPiece,changePiece} from '../social/model';
 import {useUnsavedNavigation} from '../lib/useUnsavedNavigation';
@@ -24,6 +24,7 @@ type Take={file:File;captions:Segment[];ratio:RecordingRatio;saved:boolean};
 export default function Teleprompter({initialScript,onEdit}:{initialScript:string;onEdit:(file:File,captions:Segment[])=>void}){
  const {docs,save,track,projectId,userId}=useToolkit(),[params]=useSearchParams();
  const pieceId=params.get('piece'),section=sectionContext(docs.landing,params.get('section'));
+ const returnTarget=studioReturn(params,null,projectId,pieceId?'profile':'library');
  let pieceContext:ReturnType<typeof getPiece>|undefined,pieceError='';try{if(pieceId)pieceContext=getPiece(docs['module-social-profile'],projectId,pieceId,userId);}catch(e){pieceError=(e as Error).message;}
  const scriptKey=section?`script-section-${section.id}`:'script';
  const [script,setScript]=useState(pieceContext?pieceContext.piece.script||pieceContext.piece.text:initialScript||String(docs[scriptKey]||(section?[section.title,section.body].join('\n\n'):'')));
@@ -75,7 +76,10 @@ export default function Teleprompter({initialScript,onEdit}:{initialScript:strin
  {moment==='prepare'&&<div className="prompter-prepare"><h1>Prepara tu guion para grabar.</h1><p>El texto te acompañará cerca de la cámara. Puedes practicar primero o ir directamente a grabar.</p><div className="prompter-entry-actions"><ButtonPrimary disabled={busy||!script.trim()} onClick={()=>void rehearse()}>{busy?'Guardando…':'▷ Ensayar sin cámara'}</ButtonPrimary><ButtonSecondary disabled={busy||!script.trim()} onClick={()=>void directRecord()}>Ir a grabar →</ButtonSecondary></div><Textarea label="Lo que voy a decir" value={script} maxLength={20000} disabled={busy} onChange={e=>{setScript(e.target.value);setScriptDirty(true);setNotice('');}}/><PrompterScriptAssist script={script} disabled={busy} onAccept={value=>{setScript(value);setScriptDirty(true);}}/>{take&&<button className="prompter-quiet" onClick={()=>move('review')}>Revisar mi última toma</button>}</div>}
  {moment==='rehearse'&&<><h1>Encuentra tu ritmo.</h1><p className="prompter-lead">Solo tú y tus palabras. La cámara está apagada.</p><div className="prompter-reading" ref={text} style={{fontSize}} aria-label="Ensayo de tu guion">{lines.map((line,index)=><p key={index}>{line||'\u00a0'}</p>)}<div aria-hidden="true" className="prompter-reading-tail"/></div><div className="prompter-reading-controls"><ButtonPrimary disabled={!script.trim()} onClick={()=>setPlaying(!playing)}>{playing?'Ⅱ Pausar':'▷ Reproducir'}</ButtonPrimary><label>Velocidad<input aria-label="Velocidad de lectura" type="range" min="8" max="70" value={speed} onChange={e=>setSpeed(Number(e.target.value))}/><small>{speed<24?'Con calma':speed<45?'A tu ritmo':'Más ágil'}</small></label></div><details className="prompter-options"><summary>Ajustar mi lectura</summary><label>Tamaño del texto<input aria-label="Tamaño del texto" type="range" min="24" max="58" value={fontSize} onChange={e=>setFontSize(Number(e.target.value))}/></label><ButtonSecondary onClick={stopReading}>Volver al inicio del texto</ButtonSecondary></details><footer className="prompter-next"><ButtonPrimary onClick={()=>move('record')}>Preparar grabación →</ButtonPrimary></footer></>}
  {moment==='record'&&<>
-  <h1>Graba tu video</h1>
+  <header className="prompter-top prompter-record-top">
+   <div><Link to={returnTarget.path} className="prompter-back-link">← {returnTarget.label}</Link><strong>Graba tu video</strong></div>
+   <nav aria-label="Proporción de grabación">{(Object.entries(recordingFrames) as [RecordingRatio,typeof recordingFrames[RecordingRatio]][]).map(([id,item])=><button type="button" key={id} aria-label={`Grabar en ${item.label}`} aria-pressed={ratio===id} disabled={lockControls} onClick={()=>{setRatio(id);setFocus(.5);}}>{item.label}</button>)}</nav>
+  </header>
   <div className="prompter-camera-stage">
    <div className="prompter-record-frame" style={{aspectRatio:`${frame.width}/${frame.height}`,width:`min(100%, ${54*frame.width/frame.height}dvh)`}}>
     {ready

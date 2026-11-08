@@ -3,8 +3,11 @@ import CaptionArtwork from './CaptionArtwork';
 import {textPresets,textFonts,type TextLook,type TextPreset} from './textStyles';
 import './textStyles.css';
 const sampleRows=(text:string)=>[{start:0,end:10,text}];
-export default function TextStylePicker({look,favorites,sample,disabled,onChange,onFavorites,onSave,saving,status,compact=false}:{look:TextLook;favorites:TextPreset[];sample:string;disabled:boolean;onChange:(look:TextLook)=>void;onFavorites:(ids:TextPreset[])=>void;onSave:()=>void;saving:boolean;status:string;compact?:boolean}){
- const [open,setOpen]=useState(false),[tab,setTab]=useState<'styles'|'brand'|'favorites'>('styles');
+export default function TextStylePicker({look,favorites,sample,disabled,onChange,onFavorites,onSave,saving,status,compact=false,isOpen,onOpenChange}:{look:TextLook;favorites:TextPreset[];sample:string;disabled:boolean;onChange:(look:TextLook)=>void;onFavorites:(ids:TextPreset[])=>void;onSave:()=>void;saving:boolean;status:string;compact?:boolean;isOpen?:boolean;onOpenChange?:(open:boolean)=>void;}){
+ const [internalOpen,setInternalOpen]=useState(false);
+ const open=isOpen!==undefined?isOpen:internalOpen;
+ const setOpen=(val:boolean)=>{if(onOpenChange)onOpenChange(val);else setInternalOpen(val);};
+ const [tab,setTab]=useState<'styles'|'brand'|'favorites'>('styles');
  const host=useRef<HTMLElement>(null),trigger=useRef<HTMLElement|null>(null);
  useEffect(()=>{if(!open)return;trigger.current=document.activeElement as HTMLElement;host.current?.closest('.video-workbench')?.querySelector('.workbench-preview-stage')?.scrollIntoView({block:'start',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});const escape=(e:KeyboardEvent)=>{if(e.key==='Escape'){setOpen(false);trigger.current?.focus();}};window.addEventListener('keydown',escape);return()=>window.removeEventListener('keydown',escape);},[open]);
  function close(){setOpen(false);trigger.current?.focus();}
