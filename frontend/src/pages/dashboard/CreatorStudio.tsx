@@ -7,7 +7,7 @@ import {FileText,Image as ImageIcon,Play,X,Video,Mic,LayoutTemplate,Sparkles,Glo
 import PearlButton from '../../components/ui/PearlButton';
 import {useAuth} from '../../contexts/AuthContext';
 import {useActiveProjectsStore} from '../../stores/useActiveProjectsStore';
-import {projectModuleType} from '../../modules/moduleProjects';
+import {projectModuleType, type ModuleType} from '../../modules/moduleProjects';
 import {isSavedProject} from './areaModel';
 import {ToolkitProvider,useToolkit} from '../../toolkit/ToolkitContext';
 import {businessFromProject,type LandingDraft} from '../../toolkit/types';
