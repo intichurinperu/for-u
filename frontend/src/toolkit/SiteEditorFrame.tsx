@@ -1,11 +1,11 @@
 import EmptyPageSection from './EmptyPageSection';
 import {HeroCopy,HeroMark} from './PageIdentity';
-import {GripVertical,ArrowUp,ArrowDown} from 'lucide-react';
+import {GripVertical,ArrowUp,ArrowDown,Pencil} from 'lucide-react';
 import SectionComposition from './PageSectionBody';
 import {sectionKind,sectionLayout,sectionHint,sectionConfigured} from './sectionComposition';
 import {presentationClass} from '../presentation/model';
 import ProjectWidgets from '../widgets/ProjectWidgets';
-import { LandingExtras } from "./LandingPreview";
+import { LandingExtras, LandingPreview } from "./LandingPreview";
 import { ButtonGhost, Card } from "../components/ui/DesignSystem";
 import "./professionalEditor.css";
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +13,7 @@ import type { LandingDraft } from "./types";
 import { parseSiteData } from "./publicData";
 import "./toolkit.css";
 import "./pagePresentation.css";
+import "./landingEditorWorkspace.css";
 function Editable({
   value,
   field,
@@ -74,6 +75,7 @@ export default function SiteEditorFrame() {
   const [dropTarget, setDropTarget] = useState<string | null>(null);
   const [imageDrop, setImageDrop] = useState(false);
   const [selected, setSelected] = useState("hero");
+  const [previewOnly, setPreviewOnly] = useState(false);
   const [resume,setResume]=useState<string|null>(null);
   const [focusOffer,setFocusOffer]=useState<string|null>(null);
 
@@ -101,6 +103,7 @@ export default function SiteEditorFrame() {
         return;
       const next = parseSiteData(event.data.draft);
       if (next) {
+        setPreviewOnly(event.data.previewOnly === true);
         setDraft(next);if(typeof event.data.focusOfferId==='string'&&next.offers?.some(offer=>offer.id===event.data.focusOfferId))setFocusOffer(event.data.focusOfferId);
         setHostProject(typeof event.data.projectId==='string'&&/^[0-9a-f-]{36}$/i.test(event.data.projectId)?event.data.projectId:undefined);
         const id = event.data.selectedId;
@@ -116,15 +119,28 @@ export default function SiteEditorFrame() {
     return () => window.removeEventListener("message", receive);
   }, [channel]);
   if (!draft) return <p>Preparando vista previa…</p>;
+  if (previewOnly) return (
+    <div onClick={event=>{if ((event.target as HTMLElement).closest('a[href]')) event.preventDefault();}}
+      onSubmit={event=>event.preventDefault()}>
+      <LandingPreview draft={draft}/>
+    </div>
+  );
+  const sectionAction = (id: string, label: string) => selected === id && (
+    <button type="button" className="landing-frame-edit"
+      onClick={event=>{event.stopPropagation();send('foru:edit-section',{id});}}>
+      <Pencil size={14} aria-hidden="true"/>{label}
+    </button>
+  );
   const edit = (field: string, value: string, blockId?: string) =>
     send("foru:edit", { field, value, blockId });
   return (
     <article className={"pe-editable-page tk-landing-preview tk-template-" + draft.template+' '+presentationClass(draft.presentationVersion)} onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); const preset = event.dataTransfer.getData('application/foru-section'); if (preset) send('foru:add', { preset }); }}>
       <header>
         <strong>{draft.name}</strong>
-        <span>Haz clic en un texto para editarlo</span>
+        <span>Edición de página</span>
       </header>
       <Card as="section" className={`tk-site-hero pe-editable-section ${selected === 'hero' ? 'pe-selected' : ''} ${!draft.heroImage?'pe-without-cover':'pe-with-cover'}`} onClick={() => { setSelected('hero'); send('foru:select', { id: 'hero' }); }} onFocus={() => { setSelected('hero'); send('foru:select', { id: 'hero' }); }}>
+        {sectionAction('hero','Editar portada')}
         <button type="button" className={`pe-image-target ${imageDrop?'pe-drop-target':''}`} onClick={event=>{event.stopPropagation();send('foru:context',{target:'image'});}} onDragOver={event=>{event.preventDefault();event.stopPropagation();setImageDrop(true);}} onDragLeave={()=>setImageDrop(false)} onDrop={event=>{event.preventDefault();event.stopPropagation();setImageDrop(false);const file=event.dataTransfer.files[0];if(file)send('foru:image-drop',{target:'hero',file});}} aria-label="Cambiar foto de portada">
           {draft.heroImage?<img src={draft.heroImage} alt={draft.heroImageAlt||''} className="tk-site-image"/>:<span>{[3,4].includes(draft.presentationVersion||1)?'＋ Añadir una foto · opcional':<>＋ Tu foto aquí<br/><small>Toca para elegir · arrastra para reemplazar</small></>}</span>}
           {draft.heroImage&&<span className="pe-image-caption">Cambiar foto</span>}
@@ -148,6 +164,7 @@ export default function SiteEditorFrame() {
       {draft.blocks.map((block, index) => (<div key={block.id} className="pe-section-slot">
         <button type="button" className="pe-insert-section" onClick={()=>send('foru:sections',{beforeId:block.id})}>＋ Sección</button>
         <Card as="section" key={block.id} data-block-id={block.id} className={`tk-site-block page-section-${sectionKind(block)||'details'} pe-editable-section ${selected === block.id ? 'pe-selected' : ''} ${dropTarget === block.id ? 'pe-drop-target' : ''}`} onClick={() => { setSelected(block.id); send('foru:select', { id: block.id }); }} onFocus={event => { setSelected(block.id); const offerId=(event.target as HTMLElement).closest<HTMLElement>('[data-offer-id]')?.dataset.offerId; send('foru:select', { id: block.id, ...(offerId?{offerId}:{}) }); }} onDragOver={event => { event.preventDefault(); setDropTarget(block.id); }} onDragLeave={() => setDropTarget(null)} onDrop={event => { setDropTarget(null); if (!drag.current) return; event.preventDefault(); event.stopPropagation(); send('foru:move', { from: drag.current, to: block.id }); drag.current = null; }}>
+          {sectionAction(block.id,'Editar sección')}
           <div className="pe-block-controls" contentEditable={false}>
             <ButtonGhost type="button" draggable aria-label={`Arrastrar ${block.title}`} tooltip="Arrastra para mover esta sección. También puedes usar los botones Subir y Bajar." onDragStart={event => { drag.current = block.id; event.dataTransfer.setData('text/plain', block.id); event.dataTransfer.effectAllowed = 'move'; }} onDragEnd={() => { drag.current = null; setDropTarget(null); }}><GripVertical size={18} aria-hidden="true"/></ButtonGhost>
             <ButtonGhost type="button" aria-label={`Subir ${block.title}`} disabled={index === 0} onClick={() => send('foru:move', { from: block.id, to: draft.blocks[index - 1].id })}><ArrowUp size={18} aria-hidden="true"/></ButtonGhost>

@@ -4,7 +4,7 @@ import type { ModuleType } from '../../modules/moduleProjects';
 
 export const taskTools = [
   ['profile', 'Mi perfil y publicaciones'], ['proposal', 'Mi propuesta'], ['landing', 'Mi página'], ['editor', 'Editar oferta'], ['summary', 'Resumen del negocio'],
-  ['studio', 'Creator Studio'], ['kanban', 'Mi Kanban'], ['creator', 'Creador visual'], ['content', 'Contenido con IA'], ['teleprompter', 'Teleprompter'],
+  ['studio', 'Creator Studio'], ['video', 'Editor de video'], ['kanban', 'Mi Kanban'], ['creator', 'Creador visual'], ['content', 'Contenido con IA'], ['teleprompter', 'Teleprompter'],
   ['orders', 'Pedidos internos de restaurante'], ['commerce-orders', 'Compras y cotizaciones'], ['calendar', 'Calendario'], ['bookings', 'Reservas y pedidos'], ['automation', 'Contacto y respuestas'],
   ['images', 'Uploads'], ['analytics', 'Estadísticas'],
 ] as const;
@@ -57,6 +57,16 @@ export function taskWorkPath(projectId:string,task:{id:string;tool?:string},type
   if(!knownTaskTool(task.tool))return null;
   if(task.tool==='studio')return `/creator-studio?${new URLSearchParams({project:projectId,tab:'create',start:'first-content',task:task.id})}`;
   return areaToolPath(task.tool,type,projectId);
+}
+
+export function routeTaskWorkPath(projectId:string,task:{id:string;tool?:string},type:ModuleType):string|null {
+ const destination=taskWorkPath(projectId,task,type);
+ if(!destination)return null;
+ const [path,search]=destination.split('?');
+ if(path==='/dashboard')return destination;
+ const query=new URLSearchParams(search);
+ query.set('task',task.id);
+ return `${path}?${query}`;
 }
 export function toggleToday(doc: WorkspaceFocus, ref: TaskReference): WorkspaceFocus {
   doc = editableFocus(doc);

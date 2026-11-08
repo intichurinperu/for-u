@@ -1,10 +1,13 @@
 import {useRef,useState} from 'react';
-import {Link,useNavigate} from 'react-router-dom';
+import {useNavigate,useSearchParams} from 'react-router-dom';
 import {useToolkit} from '../toolkit/ToolkitContext';
 import {parseDiagnostic,emptyDiagnostic,type Diagnostic} from '../workspace/contracts';
 import {contentPillars} from './brandProfile';
 import {parsePillarDetails,updatePillarDetails,type PillarDetail} from './pillarDetails';
-import {ButtonPrimary,ButtonSecondary,Input,Textarea} from '../components/ui/DesignSystem';
+import PearlButton from '../components/ui/PearlButton';
+import {Input,Textarea} from '../components/ui/DesignSystem';
+import {firstContentReturn} from '../studio/navigation';
+import '../studio/studioTopicPicker.css';
 import {useUnsavedNavigation,confirmWorkspaceNavigation} from '../lib/useUnsavedNavigation';
 export default function PillarWorkshop(){
  const {docs,projectId,business}=useToolkit();let doc:Diagnostic;
@@ -19,5 +22,40 @@ function Session({initial}:{initial:Diagnostic}){
  function open(index:number){if(!confirmWorkspaceNavigation())return;const name=names[index];setCurrent(details.find(row=>row.name===name)||{id:crypto.randomUUID(),name:name||'',notes:''});setPrevious(name);setStep(name?'notes':'name');setDirty(false);setError('');}
  function edit(patch:Partial<PillarDetail>){if(!current||lock.current)return;setCurrent({...current,...patch});setDirty(true);setError('');}
  async function store(){if(!current||lock.current)return;lock.current=true;setBusy(true);setError('');try{if(documentRevision('module-project-diagnostic')!==revision.current)throw new Error('Tus pilares cambiaron en otra ventana. Conservamos estas notas; revisa la versión guardada antes de reintentar.');const next=updatePillarDetails(names,details,previous,current);const updated={...doc,answers:{...doc.answers,pillars:next.names,pillarsCustom:''},pillarDetails:next.details};parseDiagnostic(updated,projectId);await save('module-project-diagnostic',updated);revision.current=documentRevision('module-project-diagnostic');setDoc(updated);setCurrent(next.details.find(row=>row.name===current.name.trim())!);setPrevious(current.name.trim());setDirty(false);}catch(e){setError((e as Error).message);}finally{lock.current=false;setBusy(false);}}
- return <section className="studio-flow first-content-flow pillar-workshop"><header className="studio-flow-trail"><Link to={`/creator-studio?project=${projectId}&tab=create`}>← Crear contenido</Link></header>{!current?<><h1>Tus temas, con tus palabras.</h1><p>Tres espacios para empezar. Abre uno y desarrolla lo que quieres compartir.</p><div className="studio-topic-bars">{[0,1,2].map(index=><button type="button" key={index} onClick={()=>open(index)}><span aria-hidden="true">{String(index+1).padStart(2,'0')}</span><strong>{names[index]||'Dar forma a un tema'}</strong></button>)}</div>{names.length>3&&<details><summary>Mis otros temas</summary>{names.slice(3).map((name,index)=><ButtonSecondary key={name} onClick={()=>open(index+3)}>{name}</ButtonSecondary>)}</details>}</>:<><ButtonSecondary disabled={busy} onClick={()=>{if(confirmWorkspaceNavigation()){setCurrent(null);setDirty(false);}}}>← Mis tres temas</ButtonSecondary><h1>{step==='name'?'¿Cómo llamarías a este tema?':current.name}</h1>{step==='name'?<><Input label="Nombre del tema" maxLength={200} value={current.name} disabled={busy} onChange={e=>edit({name:e.target.value})}/><ButtonPrimary disabled={busy||!current.name.trim()} onClick={()=>setStep('notes')}>Continuar</ButtonPrimary></>:<><Textarea label="¿Qué te gustaría compartir sobre este tema?" value={current.notes} maxLength={2000} disabled={busy} onChange={e=>edit({notes:e.target.value})}/><ButtonPrimary disabled={busy||!dirty||!current.name.trim()} onClick={()=>void store()}>{busy?'Guardando…':'Guardar este tema'}</ButtonPrimary>{!dirty&&previous&&details.some(row=>row.name===previous)&&<ButtonSecondary disabled={busy||!current.notes.trim()} onClick={()=>navigate(`/creator-studio?${new URLSearchParams({project:projectId,tab:'create',start:'first-content',pillar:current.name})}`)}>Crear contenido con estas ideas →</ButtonSecondary>}<details><summary>Cambiar el nombre</summary><ButtonSecondary disabled={busy} onClick={()=>setStep('name')}>Editar nombre del tema</ButtonSecondary></details></>}{error&&<p role="alert">{error}</p>}{!dirty&&previous&&details.some(row=>row.name===previous)&&<p role="status">Tema guardado en tu proyecto. Nada se publica.</p>}</>}</section>;
+ const [params]=useSearchParams();
+ const returnParams=new URLSearchParams(params);
+ returnParams.set('return','first-content');
+ const contentPath=firstContentReturn(returnParams,projectId)!;
+ const back=params.has('task')?contentPath:`/creator-studio?${new URLSearchParams({project:projectId,tab:'create'})}`;
+ const topics=Array.from({length:Math.max(3,names.length)},(_,index)=>names[index]);
+ return <section className="studio-flow first-content-flow pillar-workshop studio-topic-picker">
+  <header className="studio-flow-trail"><PearlButton tone="neutral" compact subtle to={back}>Volver a crear</PearlButton></header>
+  {!current?<>
+   <h1>Tus temas, con tus palabras.</h1>
+   <p>Elige un tema para anotar ideas que quieras compartir en tus publicaciones.</p>
+   <div className="studio-topic-choices">
+    {topics.map((name,index)=><PearlButton tone="neutral" key={index} className="studio-topic-choice" onClick={()=>open(index)}>
+     <strong>{name||`Crear un tema · ${index+1}`}</strong>
+    </PearlButton>)}
+   </div>
+  </>:<>
+   <PearlButton tone="neutral" compact subtle disabled={busy} onClick={()=>{if(confirmWorkspaceNavigation()){setCurrent(null);setDirty(false);}}}>Mis temas</PearlButton>
+   <h1>{step==='name'?'¿Cómo llamarías a este tema?':current.name}</h1>
+   {step==='name'?<>
+    <Input label="Nombre del tema" maxLength={200} value={current.name} disabled={busy} onChange={e=>edit({name:e.target.value})}/>
+    <PearlButton tone="solid" compact disabled={busy||!current.name.trim()} onClick={()=>setStep('notes')}>Continuar</PearlButton>
+   </>:<>
+    <Textarea label="¿Qué te gustaría compartir sobre este tema?" value={current.notes} maxLength={2000} disabled={busy} onChange={e=>edit({notes:e.target.value})}/>
+    <div className="studio-topic-actions">
+     <PearlButton tone="solid" compact disabled={busy||!dirty||!current.name.trim()} onClick={()=>void store()}>{busy?'Guardando…':'Guardar este tema'}</PearlButton>
+     {!dirty&&previous&&details.some(row=>row.name===previous)&&<PearlButton tone="neutral" compact subtle disabled={busy||!current.notes.trim()} onClick={()=>{
+      navigate(`${contentPath}&${new URLSearchParams({pillar:current.name})}`);
+     }}>Crear con este tema</PearlButton>}
+     <PearlButton tone="neutral" compact subtle disabled={busy} onClick={()=>setStep('name')}>Cambiar el nombre</PearlButton>
+    </div>
+   </>}
+   {error&&<p role="alert">{error}</p>}
+   {!dirty&&previous&&details.some(row=>row.name===previous)&&<p role="status">Tema guardado en tu proyecto.</p>}
+  </>}
+ </section>;
 }

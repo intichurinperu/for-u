@@ -7,7 +7,9 @@ import RestaurantOfferEditor from './RestaurantOfferEditor';
 import SectionContentEditor from './SectionContentEditor';
 import {sectionKind} from './sectionComposition';
 import {useSavedNavigation} from '../lib/useSavedNavigation';
-import {Monitor,Smartphone,Undo2,Redo2,MoreHorizontal} from 'lucide-react';
+import {ArrowLeft, Eye, Image, Layers, Monitor, MoreHorizontal, Pencil, Plus, Redo2, Smartphone, Undo2} from 'lucide-react';
+import Logo from '../components/Logo';
+import PearlButton from '../components/ui/PearlButton';
 import {parseLandingWorkspace,workspaceKey} from './landingWorkspace';
 import {prepareRoutePage} from '../experience/routePreparation';
 import {emptyProposal} from '../proposal/model';
@@ -32,11 +34,13 @@ import { privateMediaPath, isPrivateMedia } from '../components/shared/mediaRefe
 import { resolveMediaPath } from '../components/shared/mediaStorage';
 import { moduleLabels, type ModuleType } from '../modules/moduleProjects';
 import { Link, useSearchParams } from 'react-router-dom';
+import { projectStartPath } from '../workspace/navigation';
 import { Select as DSSelect } from '../components/ui/DesignSystem';
 import { useUnsavedNavigation } from "../lib/useUnsavedNavigation";
 import { Textarea, InfoIcon } from "../components/ui/DesignSystem";
 import { addDesignedSection, createEditorSection, editorIndustry, reorderEditorSections, sectionPresets } from "./editorSections";
 import "./professionalEditor.css";
+import "./landingEditorWorkspace.css";
 import { editorHistory, type EditorHistory } from "./editorHistory";
 import { Card as DSCard } from '../components/ui/DesignSystem';
 import { ButtonSecondary as DSButtonSecondary, Input as DSInput, ButtonPrimary as DSButtonPrimary } from '../components/ui/DesignSystem';
@@ -58,6 +62,7 @@ export default function LandingBuilder(props: {wizard?:boolean}) {
 function LandingBuilderSession({ wizard = false }: { wizard?: boolean }) {
   const { business, docs, save, reload, userId, projectId, demo, track, documentRevision } = useToolkit();
   const [routeParams] = useSearchParams();
+  const routeTaskId = routeParams.get('task');
   const [nextStep,setNextStep]=useState<'intro'|null>(()=>{try{return routeParams.get('tour')==='1'&&sessionStorage.getItem(`foru:landing-tour:${userId}:${projectId}`)!=='done'?'intro':null;}catch{return null;}});
   function dismissNext(){setNextStep(null);try{sessionStorage.setItem(`foru:landing-tour:${userId}:${projectId}`,'done');}catch{}}
   async function createFromPage(wholePage=false){if(busy)return;if(dirty||!docs.landing){if(!await saveDraft())return;}dismissNext();const query=new URLSearchParams({project:projectId,start:'first-content',from:'landing',section:wholePage?'hero':selectedId,viewport});if(!wholePage&&selectedOfferId&&draft.offers?.some(offer=>offer.id===selectedOfferId))query.set('offer',selectedOfferId);const pageRevision=documentRevision('landing');if(pageRevision)query.set('pageRevision',pageRevision);navigateAfterSave('/creator-studio?'+query.toString());}
@@ -94,7 +99,6 @@ function LandingBuilderSession({ wizard = false }: { wizard?: boolean }) {
   const navigateAfterSave=useSavedNavigation(!dirty&&!busy);
   const drag = useRef(-1);
   const uploading = useRef(false);
-  const [selectionActive,setSelectionActive]=useState(Boolean(requestedStep||routeParams.get('section')||initialWorkspace.sectionId!=='hero'));
   const [selectedId, setSelectedId] = useState(routeParams.get('section') || (requestedStep === 'offer' ? ((docs.landing as LandingDraft)?.blocks?.[0]?.id ?? 'hero') : initialWorkspace.sectionId));
   const [sectionsOpen, setSectionsOpen] = useState(requestedStep === "offer");
   const [sectionInitial,setSectionInitial]=useState<string|undefined>(requestedStep==='offer'?'add':undefined);
@@ -107,6 +111,8 @@ function LandingBuilderSession({ wizard = false }: { wizard?: boolean }) {
   const [context, setContext] = useState<'text'|'section-content'|'image'|'cta'|'offer'|'catalog'>('text');
   const [insertBefore, setInsertBefore] = useState<string | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [sectionPickerOpen, setSectionPickerOpen] = useState(false);
+  const [previewOnly, setPreviewOnly] = useState(false);
   const [viewport, setViewport] = useState<'desktop' | 'mobile'>(routeParams.get('viewport')==='mobile'?'mobile':routeParams.get('viewport')==='desktop'?'desktop':initialWorkspace.viewport);
   useEffect(()=>{try{sessionStorage.setItem(workspaceKey(userId,projectId),JSON.stringify({sectionId:selectedId,viewport}));}catch{}},[userId,projectId,selectedId,viewport]);
   const moduleType = business.moduleType && business.moduleType in moduleLabels ? business.moduleType as ModuleType : null;
@@ -123,6 +129,7 @@ function LandingBuilderSession({ wizard = false }: { wizard?: boolean }) {
   const selectedRef = useRef(selectedId);
   selectedRef.current = selectedId;
   const pending = useRef<LandingDraft | null>(null);
+  const pendingSectionFocus = useRef<string|undefined>(undefined);
   useEffect(() => {
     draftRef.current = draft;
     let active = true;
@@ -137,11 +144,13 @@ function LandingBuilderSession({ wizard = false }: { wizard?: boolean }) {
         const resolved = { ...draft, heroImage: await previewImage(draft.heroImage || ''), gallery: draft.gallery ? await Promise.all(draft.gallery.map(async image => ({...image, url: await previewImage(image.url)}))) : undefined, offers: draft.offers ? await Promise.all(draft.offers.map(async offer => ({ ...offer, image: await previewImage(offer.image) }))) : undefined };
         if (!active) return;
         previewDraft.current = resolved; setPreviewImageError('');
-        frame.current?.contentWindow?.postMessage({ type: 'foru:render', channel, projectId, draft: resolved, selectedId: selectedRef.current,focusOfferId:pendingOfferFocus.current }, window.location.origin);pendingOfferFocus.current=undefined;
+        frame.current?.contentWindow?.postMessage({ type: 'foru:render', channel, projectId, draft: resolved, selectedId: selectedRef.current, previewOnly, resumeSelection: !previewOnly && pendingSectionFocus.current === selectedRef.current, focusOfferId:pendingOfferFocus.current }, window.location.origin);
+        if (!previewOnly) pendingSectionFocus.current=undefined;
+        pendingOfferFocus.current=undefined;
       } catch (error) { if (active) setPreviewImageError((error as Error).message); }
     })();
     return () => { active = false; };
-  }, [draft, channel, selectedId, userId, projectId]);
+  }, [draft, channel, selectedId, userId, projectId, previewOnly]);
   useEffect(() => {
     if (selectedId !== 'hero' && !draft.blocks.some(block => block.id === selectedId)) {
       setSelectedId('hero');
@@ -157,17 +166,25 @@ function LandingBuilderSession({ wizard = false }: { wizard?: boolean }) {
         return;
       if (event.data.type === "foru:ready") {
         frame.current?.contentWindow?.postMessage(
-          { type: "foru:render", channel, projectId, draft: previewDraft.current, selectedId: selectedRef.current, resumeSelection: routeParams.get('resume')==='1'||initialWorkspace.sectionId!=='hero',focusOfferId:selectedOfferRef.current||undefined },
+          { type: "foru:render", channel, projectId, draft: previewDraft.current, selectedId: selectedRef.current, previewOnly, resumeSelection: !previewOnly&&(routeParams.get('resume')==='1'||initialWorkspace.sectionId!=='hero'),focusOfferId:selectedOfferRef.current||undefined },
           window.location.origin,
         );
         return;
       }
-      if (busy) return;
+      if (busy || previewOnly) return;
+      if (event.data.type === 'foru:edit-section') {
+        const id = event.data.id;
+        if (id !== 'hero' && !draftRef.current.blocks.some(block => block.id === id)) return;
+        setSelectedId(id);
+        setSelectedOfferId('');
+        setContext('text');
+        setPropertiesOpen(true);
+        return;
+      }
       if(event.data.type==='foru:configure'&&['catalog','text'].includes(event.data.kind)&&draftRef.current.blocks.some(b=>b.id===event.data.id)){
-        setSelectedOfferId('');setSelectedId(event.data.id);setSelectionActive(true);setContext(event.data.kind==='text'?'section-content':'catalog');setPropertiesOpen(true);return;
+        setSelectedOfferId('');setSelectedId(event.data.id);setContext(event.data.kind==='text'?'section-content':'catalog');setPropertiesOpen(true);return;
       }
       if (event.data.type === 'foru:context') {
-        setSelectionActive(true);
         if (['image','cta'].includes(event.data.target)) { setSelectedOfferId(''); setImageRole('hero'); setSelectedId('hero'); setContext(event.data.target); setPropertiesOpen(true); }
         else if(event.data.target==='gallery'&&draftRef.current.gallery?.some(photo=>photo.role===event.data.role)){setSelectedOfferId('');setImageRole('gallery:'+event.data.role);setContext('image');setPropertiesOpen(true);}
         else if (event.data.target === 'offer' && draftRef.current.offers?.some(offer => offer.id === event.data.id)) { const catalog=draftRef.current.blocks.find(block=>block.id===event.data.sectionId&&sectionKind(block)==='catalog')||draftRef.current.blocks.find(block=>sectionKind(block)==='catalog');setSelectedId(catalog?.id||'hero');setSelectedOfferId(event.data.id); setContext('offer'); setPropertiesOpen(true); }
@@ -180,7 +197,7 @@ function LandingBuilderSession({ wizard = false }: { wizard?: boolean }) {
       }
       if (event.data.type === 'foru:image-drop' && event.data.target === 'hero' && event.data.file instanceof File) { void uploadPrivateCover(event.data.file); return; }
       if (event.data.type === 'foru:select' && typeof event.data.id === 'string') {
-        if (event.data.id === 'hero' || draftRef.current.blocks.some(block => block.id === event.data.id)) {const offerId=typeof event.data.offerId==='string'&&draftRef.current.offers?.some(offer=>offer.id===event.data.offerId)?event.data.offerId:'';setSelectedOfferId(offerId);if(offerId)setContext('offer');setSelectedId(event.data.id);setSelectionActive(true);}
+        if (event.data.id === 'hero' || draftRef.current.blocks.some(block => block.id === event.data.id)) {const offerId=typeof event.data.offerId==='string'&&draftRef.current.offers?.some(offer=>offer.id===event.data.offerId)?event.data.offerId:'';setSelectedOfferId(offerId);if(offerId)setContext('offer');setSelectedId(event.data.id);}
         return;
       }
       if (event.data.type === 'foru:move' && typeof event.data.from === 'string' && typeof event.data.to === 'string') {
@@ -203,7 +220,7 @@ function LandingBuilderSession({ wizard = false }: { wizard?: boolean }) {
     };
     window.addEventListener("message", receive);
     return () => window.removeEventListener("message", receive);
-  }, [channel, busy, business.industry, business.moduleType, setDraft]);
+  }, [channel, busy, previewOnly, business.industry, business.moduleType, setDraft]);
   useEffect(() => {
     if (!dirty || busy || wizard || saveError) return;
     const snapshot = draft;
@@ -384,16 +401,62 @@ function LandingBuilderSession({ wizard = false }: { wizard?: boolean }) {
     {offerReview && <section className="pe-proposal-notice" aria-label="Revisar ofertas para publicar"><h2>Ofertas guardadas que se publicarán</h2><p>Compara con la página en vivo. Actualizaremos solo las ofertas; conservaremos tus textos, imágenes de portada y dirección.</p><ul>{offerReview.offers.map(offer => <li key={offer.id}><strong>{offer.name}</strong> · {offerPrice(offer)}<p>{offer.description}</p>{offer.conditions && <p>{offer.conditions}</p>}</li>)}</ul><DSButtonPrimary disabled={busy} onClick={() => { update({ offers:offerReview.offers, menuItems:undefined, proposalSource:offerReview.source }); setOfferReview(null); setNotice('Ofertas revisadas en el borrador. Pulsa Publicar para actualizar la página pública.'); }}>Actualizar ofertas y conservar mis textos</DSButtonPrimary><DSButtonSecondary onClick={() => setOfferReview(null)}>Volver sin actualizar</DSButtonSecondary></section>}
   </>;
   if (wizard) return <>{sourcePanel}<LandingWizard draft={draft} update={update} busy={busy} dirty={dirty} demo={demo} notice={notice} publishedUrl={publishedUrl} onSave={async()=>{await saveDraft();}} onPublish={publish} onUpload={uploadCover} onSuggest={suggestStory} /></>;
+  const chooseSection = (id: string) => {
+    setSectionPickerOpen(false);
+    setSelectedOfferId('');
+    setSelectedId(id);
+    setPreviewOnly(false);
+    if (previewOnly) pendingSectionFocus.current = id;
+    else frame.current?.contentWindow?.postMessage({
+      type: 'foru:render', channel, projectId, draft: previewDraft.current,
+      selectedId: id, resumeSelection: true, previewOnly: false,
+    }, window.location.origin);
+  };
+  const openSectionTools = (choice: 'add' | 'order') => {
+    setSectionPickerOpen(false);
+    setInsertBefore(null);
+    setSectionInitial(choice);
+    setSectionsOpen(true);
+  };
+  const editSection = () => {
+    setPreviewOnly(false);
+    setContext(selectedOfferId ? 'offer' : 'text');
+    setPropertiesOpen(true);
+  };
+  const sectionList = <>
+    <ul className="landing-section-list">
+      {[{id:'hero', title:'Portada'}, ...draft.blocks].map(section => (
+        <li key={section.id}>
+          <button type="button" aria-current={selectedId===section.id ? 'true' : undefined} onClick={()=>chooseSection(section.id)}>
+            {section.id==='hero'?<Image size={16} aria-hidden="true"/>:<Layers size={16} aria-hidden="true"/>}
+            <span>{section.title || 'Sección sin título'}</span>
+          </button>
+        </li>
+      ))}
+    </ul>
+    <div className="landing-section-actions">
+      <PearlButton tone="neutral" compact disabled={draft.blocks.length>=8} onClick={()=>openSectionTools('add')}><Plus size={16} aria-hidden="true"/>Añadir sección</PearlButton>
+      {draft.blocks.length>0&&<PearlButton tone="neutral" compact onClick={()=>openSectionTools('order')}>Ordenar secciones</PearlButton>}
+    </div>
+  </>;
   return (
-    <div className={`foru-professional-editor pe-wide-editor tk-visual-editor ${sectionsOpen ? 'pe-sections-open' : ''}`} inert={busy} aria-busy={busy}>
-      <header className="pe-studio-bar">
-        <Link className="pe-action-link" to={`/dashboard?project=${encodeURIComponent(projectId)}&view=map`} aria-label="Volver a mi mapa">← <span>Mapa</span></Link>
-        <div className="pe-studio-title"><strong>{draft.name || 'Tu página'}</strong><small role="status">{busy ? 'Guardando…' : autosaveStatus || (dirty ? 'Cambios pendientes' : 'Borrador cargado')}</small></div>
-        <div className="pe-device-switch" aria-label="Tamaño de vista previa"><DSButtonSecondary aria-label="Vista escritorio" aria-pressed={viewport==='desktop'} onClick={()=>setViewport('desktop')}><Monitor size={18} aria-hidden="true"/></DSButtonSecondary><DSButtonSecondary aria-label="Vista móvil" aria-pressed={viewport==='mobile'} onClick={()=>setViewport('mobile')}><Smartphone size={18} aria-hidden="true"/></DSButtonSecondary></div>
-        <DSButtonSecondary className="pe-history-button" aria-label="Deshacer" disabled={busy||!history.past.length} onClick={()=>{dispatchHistory({type:'undo'});setDirty(true);}}><Undo2 size={18} aria-hidden="true"/></DSButtonSecondary>
-        <DSButtonSecondary className="pe-history-button" aria-label="Rehacer" disabled={busy||!history.future.length} onClick={()=>{dispatchHistory({type:'redo'});setDirty(true);}}><Redo2 size={18} aria-hidden="true"/></DSButtonSecondary>
-        <DSButtonSecondary aria-label="Herramientas de página" aria-expanded={advancedOpen} onClick={()=>setAdvancedOpen(true)}><MoreHorizontal size={20} aria-hidden="true"/></DSButtonSecondary>
-        <DSButtonPrimary disabled={busy||demo} onClick={publish}>Publicar</DSButtonPrimary>
+    <div className="foru-professional-editor pe-wide-editor tk-visual-editor landing-editor-workspace" inert={busy} aria-busy={busy}>
+      <header className="landing-editor-header">
+        <PearlButton className="landing-editor-back" tone="neutral" compact to={projectStartPath(projectId,routeTaskId)}>
+          <ArrowLeft size={17} aria-hidden="true"/><span>Mi ruta</span>
+        </PearlButton>
+        <Logo/>
+        <div className="landing-editor-identity">
+          <h1>Mi página</h1>
+          <small role="status">{busy ? 'Guardando…' : dirty ? 'Cambios pendientes' : autosaveStatus || (docs.landing ? 'Borrador guardado' : 'Nueva página')}</small>
+        </div>
+        <div className="landing-editor-viewport" role="group" aria-label="Tamaño de vista previa">
+          <button type="button" aria-pressed={viewport==='desktop'} onClick={()=>setViewport('desktop')}><Monitor size={16} aria-hidden="true"/>Compu</button>
+          <button type="button" aria-pressed={viewport==='mobile'} onClick={()=>setViewport('mobile')}><Smartphone size={16} aria-hidden="true"/>Celular</button>
+        </div>
+        <PearlButton className="landing-editor-save" tone="neutral" compact disabled={busy} onClick={()=>void saveDraft()}>Guardar borrador</PearlButton>
+        <PearlButton className="landing-editor-more" tone="neutral" compact aria-label="Herramientas de página" aria-expanded={advancedOpen} onClick={()=>setAdvancedOpen(true)}><MoreHorizontal size={20} aria-hidden="true"/></PearlButton>
+        <PearlButton className="landing-editor-publish" compact disabled={busy||demo} onClick={publish}>Publicar</PearlButton>
       </header>
       <EditorSheet open={nextStep!==null} title="Tu página es el comienzo." onClose={dismissNext}>
         <p>Lo que acabas de definir también puede convertirse en tus primeros contenidos. Verás propuestas con tu información y podrás editarlas.</p><DSButtonPrimary disabled={busy} onClick={()=>void createFromPage()}>Crear mis primeros contenidos →</DSButtonPrimary><DSButtonSecondary disabled={busy} onClick={dismissNext}>Seguir editando mi página</DSButtonSecondary>
@@ -401,12 +464,16 @@ function LandingBuilderSession({ wizard = false }: { wizard?: boolean }) {
       {saveError&&<section className="pe-feedback" role="alert"><p>{saveError}</p><DSButtonSecondary disabled={busy||/otra pestaña|otra versión|otra ventana/i.test(saveError)} onClick={()=>void saveDraft()}>Reintentar guardado</DSButtonSecondary><DSButtonSecondary onClick={()=>setRecoverOpen(true)}>Recuperar versión guardada</DSButtonSecondary></section>}
       <EditorSheet open={recoverOpen} title="Recuperar borrador" onClose={()=>setRecoverOpen(false)}><p>Recuperar sustituirá las ediciones pendientes por el borrador guardado. Tu publicación no cambia.</p><DSButtonSecondary onClick={()=>setRecoverOpen(false)}>Conservar mis cambios</DSButtonSecondary><DSButtonPrimary onClick={()=>{pending.current=null;setDirty(false);setRecoverOpen(false);void reload();}}>Descartar pendientes y recuperar</DSButtonPrimary></EditorSheet>
       {(notice || previewImageError) && <p className="pe-feedback" role={previewImageError ? 'alert' : 'status'}>{previewImageError || notice}</p>}
-      {selectionActive?<div className="pe-selection-strip"><span>{selectedOfferId?draft.offers?.find(offer=>offer.id===selectedOfferId)?.name||'Tu oferta':'Toca lo que quieres transformar'}</span><DSButtonSecondary className="pe-selection-edit" onClick={()=>{setContext('text');setPropertiesOpen(true);}}>Editar selección</DSButtonSecondary><DSButtonSecondary disabled={busy} onClick={()=>void createFromPage()}>✦ Crear contenido</DSButtonSecondary></div>:<p className="pe-tap-hint">Toca un texto, una foto o un botón para transformarlo.</p>}
-      <EditorSheet open={advancedOpen} title="Tu página · herramientas" onClose={()=>setAdvancedOpen(false)}>
-        <details className="pe-mobile-view-tools"><summary>Vista e historial</summary><div className="pe-tool-choices"><DSButtonSecondary aria-pressed={viewport==='desktop'} onClick={()=>setViewport('desktop')}>Escritorio</DSButtonSecondary><DSButtonSecondary aria-pressed={viewport==='mobile'} onClick={()=>setViewport('mobile')}>Celular</DSButtonSecondary><DSButtonSecondary disabled={busy||!history.past.length} onClick={()=>{dispatchHistory({type:'undo'});setDirty(true);}}>Deshacer</DSButtonSecondary><DSButtonSecondary disabled={busy||!history.future.length} onClick={()=>{dispatchHistory({type:'redo'});setDirty(true);}}>Rehacer</DSButtonSecondary></div></details>
-        {selectionActive&&<DSButtonSecondary className="pe-mobile-selection-edit" onClick={()=>{setAdvancedOpen(false);setContext('text');setPropertiesOpen(true);}}>Editar esta sección</DSButtonSecondary>}
-
-        <div className="pe-tool-choices"><DSButtonSecondary onClick={()=>{setAdvancedOpen(false);setSectionInitial(undefined);setSectionsOpen(true);setInsertBefore(null);}}>Secciones y orden</DSButtonSecondary><DSButtonSecondary onClick={()=>{setAdvancedOpen(false);setSettingsOpen(true);}}>Configuración y contacto</DSButtonSecondary><DSButtonSecondary disabled={busy} onClick={saveDraft}>Guardar borrador ahora</DSButtonSecondary></div>
+      <EditorSheet open={advancedOpen} title="Herramientas de mi página" onClose={()=>setAdvancedOpen(false)}>
+        <div className="pe-tool-choices">
+          <DSButtonSecondary disabled={busy||!history.past.length} onClick={()=>{dispatchHistory({type:'undo'});setDirty(true);}}><Undo2 size={17} aria-hidden="true"/>Deshacer</DSButtonSecondary>
+          <DSButtonSecondary disabled={busy||!history.future.length} onClick={()=>{dispatchHistory({type:'redo'});setDirty(true);}}><Redo2 size={17} aria-hidden="true"/>Rehacer</DSButtonSecondary>
+          <DSButtonSecondary onClick={()=>{setAdvancedOpen(false);setSettingsOpen(true);}}>Configuración y contacto</DSButtonSecondary>
+          <DSButtonSecondary disabled={busy} onClick={()=>void saveDraft()}>Guardar borrador</DSButtonSecondary>
+          <DSButtonSecondary disabled={busy} onClick={()=>void createFromPage(true)}>Crear contenido de mi página</DSButtonSecondary>
+          {selectedId!=='hero'&&<DSButtonSecondary disabled={busy} onClick={()=>void createFromPage()}>Crear contenido de esta sección</DSButtonSecondary>}
+          {!docs.landing&&<Link className="pe-action-link" to={`/dashboard/tools/proposal?project=${projectId}`}>Usar mi propuesta</Link>}
+        </div>
         {sourcePanel}
         <PageAI draft={draft} disabled={dirty||busy||demo} onApply={update}/>
       {moduleType && draft.catalogSource !== 'proposal' && <details className="pe-catalog-panel"><summary>Oferta de tu negocio {draft.catalogSource === 'module' ? '· vinculada' : ''}</summary><p>{draft.catalogSource === 'module' ? 'Al publicar consultaremos los precios y la disponibilidad guardados. La página pública solo cambia cuando publicas.' : 'Puedes usar el catálogo de tu negocio en esta página. Primero revisa los cambios en la vista previa.'}</p><Link className="pe-action-link" to={`/modules/${moduleType}/editor?project=${encodeURIComponent(projectId)}`}>Editar mi oferta</Link><DSButtonSecondary type="button" onClick={() => {
@@ -441,7 +508,7 @@ function LandingBuilderSession({ wizard = false }: { wizard?: boolean }) {
           {id:'cta',title:'La invitación para continuar',hint:'El texto de la acción principal de tu página.',icon:'↗',content:<DSInput label="Texto del botón" value={draft.cta} maxLength={50} onChange={e=>update({cta:e.target.value})}/>}
         ]}/>}</EditorSheet>
       <EditorSheet open={sectionsOpen} title="Secciones de tu página" onClose={()=>setSectionsOpen(false)}><EditorDecision key={sectionsOpen?'sections-open':'sections-closed'} initialChoice={sectionInitial} choices={[
-        {id:'add',title:'Añadir una sección',hint:'Elige una composición. Se colocará donde pulsaste ＋ Sección.',icon:'＋',content:<div className="pe-section-options">{sectionPresets(business.route||business.moduleType||business.industry).map(preset=><button type="button" key={preset.key} disabled={busy||draft.blocks.length>=8} onClick={()=>{const block=createEditorSection(business.route||business.moduleType||business.industry,preset.key);if(block){try{const next=addDesignedSection(draft,block,insertBefore,business.route||moduleType||business.industry);update(editorCatalog(next,moduleType||undefined,docs['module-'+moduleType],docs['module-proposal']));setSelectedId(block.id);setSectionsOpen(false);}catch(error){setNotice((error as Error).message);}}}}><span className={`pe-preset-sample pe-preset-${preset.key}`} aria-hidden="true"><i/><i/><i/></span><strong>{preset.title}</strong><small>{preset.description}</small></button>)}<DSButtonSecondary disabled={busy||draft.blocks.length>=8} onClick={()=>{const block={id:crypto.randomUUID(),title:'Nueva sección',body:''};update({blocks:insertEditorSection(draft.blocks,block,insertBefore)});setSelectedId(block.id);setSectionsOpen(false);}}>＋ Sección libre</DSButtonSecondary>{draft.blocks.length>=8&&<p>Tu página ya tiene ocho secciones. Puedes editar o quitar una antes de añadir otra.</p>}</div>},
+        {id:'add',title:'Añadir una sección',hint:'Elige una composición. Se colocará donde pulsaste ＋ Sección.',icon:'＋',content:<div className="pe-section-options">{sectionPresets(business.route||business.moduleType||business.industry).map(preset=><button type="button" key={preset.key} disabled={busy||draft.blocks.length>=8} onClick={()=>{const block=createEditorSection(business.route||business.moduleType||business.industry,preset.key);if(block){try{const next=addDesignedSection(draft,block,insertBefore,business.route||moduleType||business.industry);update(editorCatalog(next,moduleType||undefined,docs['module-'+moduleType],docs['module-proposal']));pendingSectionFocus.current=block.id;setSelectedId(block.id);setSectionsOpen(false);}catch(error){setNotice((error as Error).message);}}}}><span className={`pe-preset-sample pe-preset-${preset.key}`} aria-hidden="true"><i/><i/><i/></span><strong>{preset.title}</strong><small>{preset.description}</small></button>)}<DSButtonSecondary disabled={busy||draft.blocks.length>=8} onClick={()=>{const block={id:crypto.randomUUID(),title:'Nueva sección',body:''};update({blocks:insertEditorSection(draft.blocks,block,insertBefore)});pendingSectionFocus.current=block.id;setSelectedId(block.id);setSectionsOpen(false);}}>＋ Sección libre</DSButtonSecondary>{draft.blocks.length>=8&&<p>Tu página ya tiene ocho secciones. Puedes editar o quitar una antes de añadir otra.</p>}</div>},
         {id:'order',title:'Ordenar mis secciones',hint:'Mueve una sección con las flechas o arrástrala. Quitarla del borrador se puede deshacer.',icon:'↕',content:<div className="pe-section-order">        {draft.blocks.map((block, i) => (
           <article
             className="tk-block-editor"
@@ -493,22 +560,32 @@ function LandingBuilderSession({ wizard = false }: { wizard?: boolean }) {
         ))}
 </div>}
       ]}/></EditorSheet>
-      {!docs.landing&&!dirty&&<section className="pe-start-page"><h2>Tu página de {industry.name.toLocaleLowerCase()}, lista para hacerla tuya</h2><p>Toca un texto para cambiarlo. Las fotos y el catálogo pueden venir después.</p><Link className="pe-action-link" to={`/dashboard/tools/proposal?project=${projectId}`}>Usar mi propuesta →</Link><DSButtonSecondary onClick={()=>void saveDraft()}>Guardar esta base</DSButtonSecondary></section>}
-      <section className="tk-editor-preview pe-live-stage">
-
-        {previewImageError && <p role="alert">{previewImageError}</p>}
-        <div className={`pe-canvas pe-canvas-${viewport}`}><iframe
-          ref={frame}
-          title="Vista previa editable de tu página"
-          src={"/site-preview?channel=" + channel}
-          style={{ border: 'none', borderRadius: '8px' }}
-        /></div>
-        <p role="status">
-          {autosaveStatus ||
-            (dirty ? "Cambios pendientes" : "Borrador guardado")}
-        </p>
-      </section>
-      <section className="pe-content-next" aria-label="Después de mi página"><small>Con lo que ya preparaste</small><DSButtonPrimary disabled={busy} onClick={()=>void createFromPage(true)}>Crear mis primeros contenidos →</DSButtonPrimary></section>
+      <EditorSheet open={sectionPickerOpen} title="Secciones de mi página" onClose={()=>setSectionPickerOpen(false)}>
+        {sectionList}
+      </EditorSheet>
+      <div className="landing-editor-main">
+        <aside className="landing-editor-sidebar" aria-label="Secciones de mi página">
+          <h2>Secciones</h2>
+          {sectionList}
+        </aside>
+        <section className="tk-editor-preview pe-live-stage" aria-label="Lienzo de mi página">
+          <div className="landing-editor-canvas-bar">
+            <span>{previewOnly?'Vista previa':selectedBlock?.title || 'Portada'}</span>
+            <PearlButton tone="neutral" compact aria-pressed={previewOnly} onClick={()=>setPreviewOnly(value=>!value)}>
+              {previewOnly?<Pencil size={16} aria-hidden="true"/>:<Eye size={16} aria-hidden="true"/>}
+              {previewOnly?'Volver a editar':'Vista previa'}
+            </PearlButton>
+          </div>
+          <div className={`pe-canvas pe-canvas-${viewport}`}>
+            <iframe ref={frame} title="Vista previa de tu página" src={'/site-preview?channel='+channel}/>
+          </div>
+        </section>
+      </div>
+      <nav className="landing-editor-mobile-bar" aria-label="Edición de mi página">
+        <PearlButton tone="neutral" compact onClick={()=>setSectionPickerOpen(true)}><Layers size={18} aria-hidden="true"/>Secciones</PearlButton>
+        <PearlButton tone="neutral" compact onClick={editSection}><Pencil size={18} aria-hidden="true"/>Editar</PearlButton>
+        <PearlButton tone="neutral" compact aria-pressed={previewOnly} onClick={()=>setPreviewOnly(value=>!value)}><Eye size={18} aria-hidden="true"/>Vista previa</PearlButton>
+      </nav>
       <EditorSheet open={settingsOpen} title="Tu página, a tu manera" onClose={()=>setSettingsOpen(false)}><EditorDecision key={settingsOpen?'settings-open':'settings-closed'} groups={[{id:'identity',title:'Identidad y estilo',hint:'Nombre, portada y estructura de tu página.',icon:'✦',ids:['name','template','photo','image-description']},{id:'contact',title:'Contacto y reservas',hint:'Cómo podrán encontrarte y coordinar contigo.',icon:'◌',ids:['whatsapp','booking','calendly']},{id:'publication',title:'Dirección y publicación',hint:'Tu enlace, guardado y página pública.',icon:'↗',ids:['address','publication']},{id:'message',title:'Ayuda para tu mensaje',hint:'Una sugerencia de IA que podrás revisar.',icon:'✧',ids:['ai']}]} choices={[
         {id:'name',title:'El nombre de tu negocio',hint:'Así aparecerá en la página.',icon:'✎',content:<DSInput label="Nombre" disabled={busy} value={draft.name} maxLength={100} onChange={e=>update({name:e.target.value})}/>},
         {id:'address',title:'La dirección de tu página',hint:'Cambiarla afectará la URL únicamente cuando publiques.',icon:'↗',content:<DSInput label="Dirección de tu página" disabled={busy} value={draft.slug} maxLength={60} onChange={e=>update({slug:e.target.value.toLowerCase()})}/>},

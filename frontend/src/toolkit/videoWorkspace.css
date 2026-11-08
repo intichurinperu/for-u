@@ -461,3 +461,29 @@ body:has(.video-workbench) .workspace-focus-bar>a,body:has(.video-workbench) .wo
  .tk-app .hoy-main>.video-workbench.has-video .workbench-inspector:has(.text-style-picker.is-open) .workbench-tool-panel{overflow:visible}
  .tk-app .hoy-main>.video-workbench.has-video>.workbench-export-progress{position:sticky;inset:auto;bottom:0;grid-column:1;max-width:100%;width:100%}
 }
+
+.tk-app .hoy-main > .video-workbench .workbench-download.foru-pearl-button {
+  background: var(--foru-pearl-finish) !important;
+  color: #29232e !important;
+  border-color: #d4c8b7 !important;
+  border-radius: 999px !important;
+}
+.workbench-download.foru-pearl-button > span { display: inline-flex; align-items: center; gap: 6px; }
+.tk-app .hoy-main > .video-workbench-studio.has-video > .workbench-preview-stage {
+  border-color: transparent;
+  background: linear-gradient(145deg,#faf8fb,#f4f0f6) padding-box, var(--foru-pearl-finish) border-box;
+  border-radius: 17px;
+}
+.tk-app .hoy-main > .video-workbench-studio .video-game-upload {
+  background: radial-gradient(ellipse at 15% 0%,#fff3e8,transparent 65%),#fcf9fd;
+  border-color: #e4d9e9;
+  color: #44384c;
+}
+.tk-app .hoy-main > .video-workbench-studio .video-game-upload > .video-game-file-button {
+  background: var(--foru-pearl-finish);
+  border: 1px solid #d4c8b7;
+  color: #29232e;
+  border-radius: 999px;
+  box-shadow: inset 0 2px 3px #fff;
+}
+.video-template-loading > svg { color: #8c7396; }

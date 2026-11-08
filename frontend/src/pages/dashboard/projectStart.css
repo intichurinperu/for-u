@@ -3,3 +3,26 @@
 @media(max-width:600px){.workspace-project-identity:has(.workspace-project-back) .workspace-project-logo{display:none}.project-start{margin:.75rem 0 3rem;border-radius:22px}.workspace-project-identity{gap:.6rem}}
 
 .project-start-steps{list-style:none;padding:0;margin:32px 0 0;text-align:left}.project-start-steps li{display:flex;gap:16px;position:relative;align-items:flex-start;padding:0 0 24px}.project-start-steps li:not(:last-child)::before{content:'';position:absolute;left:17px;top:35px;bottom:0;width:2px;background:#e8e0f0}.project-start-number{width:36px;height:36px;border-radius:50%;background:#f1ebf8;color:#7d6695;display:grid;place-items:center;flex-shrink:0;font-weight:650}.project-start-steps li.is-current .project-start-number{background:#7751b8;color:#fff}.project-start-steps li.is-done .project-start-number{background:#dcf3e9;color:#315e4c}.project-start-steps button{font:inherit;font-weight:600;color:#332a3f;background:transparent;border:0;text-align:left;padding:0;min-height:44px;cursor:pointer}.project-start-steps strong{display:block;padding-top:8px}.project-start-steps small{display:block;font-size:.8rem;color:#84768e;margin-top:2px}.project-start-goal{text-align:left;padding:18px;border-radius:16px;background:#f5f1e8;font-weight:650;font-size:1rem!important}.project-start-goal small{display:block;font-size:.75rem;font-weight:400;line-height:1.5;margin-top:6px;color:#776954}.project-route-overview{display:inline-flex;min-height:44px;align-items:center;color:#63438f;text-decoration:none;font-size:.9rem;margin:0 0 16px}
+
+.project-start-feature { display: grid; justify-items: center; gap: 10px; padding: clamp(16px, 4vw, 30px); border: 1px solid #e2d8ce; border-radius: 20px; background: #faf6ef; }
+.project-start-feature > small { color: #64574b; font-size: .75rem; letter-spacing: .08em; }
+.project-start-feature h3 { margin: 0; font-size: clamp(1.35rem, 4vw, 1.8rem); line-height: 1.2; }
+.project-start-feature p { margin: 0 0 6px; color: #62574e; line-height: 1.5; }
+.project-start-feature .foru-pearl-button { font-size: clamp(16px, 3vw, 21px); }
+.project-start-missing { text-align: left; border-top: 1px solid #e9dfd4; padding-top: 12px; }
+.project-start-missing h3 { margin: 0; font-size: 1rem; }
+.project-start-links, .project-start-footer { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; }
+.project-start-missing .project-start-links { justify-content: flex-start; }
+.project-start-footer { border-top: 1px solid #e9dfd4; padding-top: 16px; }
+.project-start-tool-label { display: inline-flex; align-items: center; gap: 8px; }
+.project-start-tool-list:not([hidden]) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(min(100%,180px),1fr));
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid #ede5ef;
+  border-radius: 16px;
+  background: #fcfafc;
+}
+.project-start-tool-list .foru-pearl-button { text-decoration: none; }

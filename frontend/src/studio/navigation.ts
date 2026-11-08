@@ -20,8 +20,25 @@ export function firstContentReturn(params:URLSearchParams,project:string):string
 
 const profileViews=['profile','grid','list','calendar'] as const;
 const returnLabels:Record<string,string>={profile:'← Mi perfil',grid:'← Mi cuadrícula',list:'← Mi contenido',calendar:'← Mi calendario',library:'← Mi biblioteca'};
+const designContextKeys=['start','task','topic','pillar','campaign','pin'];
+function copyDesignContext(from:URLSearchParams,to:URLSearchParams){
+ for(const key of designContextKeys){
+  const value=from.get(key);
+  if(value&&value.length<=200&&!/[\x00-\x1f]/.test(value))to.set(key,value);
+ }
+}
+export function studioDesignPath(params:URLSearchParams,project:string,design:string|null):string {
+ const query=new URLSearchParams({project,tab:'create',compose:'idea',creation:'design'});
+ copyDesignContext(params,query);
+ if(design&&/^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(design))query.set('design',design);
+ return '/creator-studio?'+query;
+}
+export function studioDesignReturn(params:URLSearchParams,project:string):string|undefined {
+ if(params.get('return')==='studio-design')return studioDesignPath(params,project,params.get('piece'));
+}
 /** Current entry context takes precedence over historical content lineage. */
 export function studioReturn(params:URLSearchParams,origin:unknown,project:string,fallback:'profile'|'library'='library'):{path:string;label:string}{
+ const design=studioDesignReturn(params,project);if(design)return {path:design,label:'Volver a mi diseño'};
  const value=params.get('return');
  if(value&&[...profileViews,'library'].includes(value as typeof profileViews[number])){
   const query=new URLSearchParams({project,tab:value==='library'?'library':'profile'});
@@ -36,6 +53,7 @@ export function studioReturn(params:URLSearchParams,origin:unknown,project:strin
 /** Forward only a known internal return context, never an arbitrary URL or project. */
 export function linkedPieceQuery(project:string,piece:string,params:URLSearchParams):string{
  const query=new URLSearchParams({project,piece}),value=params.get('return');
+ if(value==='studio-design'){query.set('return',value);copyDesignContext(params,query);return '?'+query;}
  if(value&&Object.prototype.hasOwnProperty.call(returnLabels,value))query.set('return',value);
  if(value==='library'&&['designs','files','materials'].includes(params.get('library')||''))query.set('library',params.get('library')!);
  const campaign=params.get('campaign');if(campaign&&/^[0-9a-f-]{36}$/i.test(campaign))query.set('campaign',campaign);

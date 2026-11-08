@@ -106,14 +106,15 @@ function PrivateWorkspace({ children }: { children: ReactNode }) {
   }
 
   const commonShell = location.pathname.startsWith('/dashboard') || location.pathname === '/creator-studio' || location.pathname === '/content-creator' || location.pathname.startsWith('/modules/');
-  return session ? <>{commonShell ? <WorkspaceShell>{children}</WorkspaceShell> : children}<div className="workspace-utilities"><FloatingPomodoro /><ForUCompanion /></div></> : <Navigate to={`/login?next=${encodeURIComponent(nextPath)}`} replace />;
+  const guiding = location.pathname === '/dashboard' && new URLSearchParams(location.search).get('setup') === '1';
+  return session ? <>{commonShell ? <WorkspaceShell>{children}</WorkspaceShell> : children}{location.pathname!=='/onboarding'&&!guiding&&<div className="workspace-utilities"><FloatingPomodoro /><ForUCompanion /></div>}</> : <Navigate to={`/login?next=${encodeURIComponent(nextPath)}`} replace />;
 }
 
 function ExperienceSurface({children}:{children:ReactNode}) {
-  const {pathname}=useLocation();
+  const {pathname,search}=useLocation();
   // Customer pages opt in through their published snapshot, never through global CSS.
   const customer=/^\/(s|negocio|experiencias|p)\//.test(pathname)||pathname==='/site-preview'||(!['/','/login','/register','/pricing','/ia','/metodologia','/mundo-digital','/aventura','/studio','/onboarding','/workspace','/whatsapp','/content-creator','/creator-studio','/estudio','/registro','/preparacion','/reserva','/exito','/herramientas/demo','/mapa/demo'].includes(pathname)&&!/^\/(dashboard|modules|pedidos|compras|cobros|editor)(\/|$)/.test(pathname));
-  return <div className={customer?'foru-customer-surface':'foru-experience'}>{children}{!customer&&<BrandWelcome/>}</div>;
+  return <div className={customer?'foru-customer-surface':'foru-experience'}>{children}{!customer&&!['/','/register','/onboarding'].includes(pathname)&&new URLSearchParams(search).get('setup')!=='1'&&<BrandWelcome/>}</div>;
 }
 const appRouter=createBrowserRouter([{path:'*',element:<ApplicationRoutes/>,errorElement:<RouteFailure/>}]);
 function App(){return <AppErrorBoundary><MagicTransition/><RouterProvider router={appRouter}/></AppErrorBoundary>;}

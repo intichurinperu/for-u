@@ -72,3 +72,26 @@ test('workspace continuation retains the current editor context without acceptin
  const resumed=new URL(destinationPath(project,current),'http://localhost');assert.equal(resumed.searchParams.get('project'),project);assert.equal(resumed.searchParams.get('panel'),'script');
  assert.equal(locationDestination('/creator-studio','?project=foreign&return=grid',project),null);
 });
+
+test('a video started from a design returns to that topic and design step',async()=>{
+ const {linkedPieceQuery,studioDesignReturn}=await import('../src/studio/navigation.ts');
+ const params=new URLSearchParams({return:'studio-design',start:'first-content',topic:'Café y productos',task:'route:content',project:'other',redirect:'https://evil.example'});
+ const design='32b8d089-1910-4b81-8881-c9955651c3ad';
+ const handoff=new URLSearchParams(linkedPieceQuery(project,design,params));
+ const back=new URL(studioDesignReturn(handoff,project),'http://localhost');
+ assert.equal(back.pathname,'/creator-studio');
+ assert.deepEqual(Object.fromEntries(back.searchParams),{project,tab:'create',compose:'idea',creation:'design',start:'first-content',task:'route:content',topic:'Café y productos',design});
+ const {pendingNavigation}=await import('../src/lib/pendingNavigation.ts');
+ const guard=pendingNavigation();
+ guard.register(Symbol('draft'));
+ const idea=new URL(back);
+ idea.searchParams.delete('creation');
+ idea.searchParams.delete('design');
+ assert.equal(guard.blocks(back,idea),false);
+ const topics=new URL(idea);
+ topics.searchParams.delete('compose');
+ topics.searchParams.delete('topic');
+ assert.equal(guard.blocks(idea,topics),false);
+ idea.searchParams.set('topic','Otro tema');
+ assert.equal(guard.blocks(back,idea),true);
+});

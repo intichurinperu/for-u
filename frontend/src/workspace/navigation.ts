@@ -3,7 +3,7 @@ export const projectViews = ['map','kanban','calendar','world'] as const;
 export type ProjectView = typeof projectViews[number];
 export type ProjectDestination = {path:string; params:Record<string,string>};
 const paths = new Set(['/dashboard','/dashboard/world','/dashboard/settings','/creator-studio','/content-creator',...['profile','proposal','landing','summary','content','teleprompter','video','assistant','automation','orders','calendar','bookings','images','analytics'].map(x=>'/dashboard/tools/'+x),...['restaurant','ecommerce','tourism','hospitality','courses'].flatMap(x=>['','/editor',...(x==='restaurant'?['/orders','/categorias','/estilos']:[])].map(s=>'/modules/'+x+s))]);
-const params = new Set(['from','viewport','compose','pin','panel','library','pillar','view','area','task','piece','design','campaign','section','tab','format','start','return','offer','pageRevision']);
+const params = new Set(['from','viewport','compose','creation','topic','pin','panel','library','pillar','view','area','task','piece','design','campaign','section','tab','format','start','return','offer','pageRevision']);
 export function validDestination(value:unknown):value is ProjectDestination {
  const d=value as ProjectDestination;
  return !!d&&paths.has(d.path)&&!!d.params&&typeof d.params==='object'&&!Array.isArray(d.params)&&Object.entries(d.params).every(([key,val])=>params.has(key)&&typeof val==='string'&&val.length>0&&val.length<=200&&!/[\u0000-\u001f]/.test(val));
@@ -34,4 +34,8 @@ export function workspaceSpaces(projectId:string,type:ModuleType){
 export function destinationMatchesRoute(destination:ProjectDestination,type:ModuleType):boolean{const match=destination.path.match(/^\/modules\/([^/]+)/);return !match||match[1]===type;}
 
 /** Opening a project is predictable; resuming a tool is an explicit separate action. */
-export function projectStartPath(projectId:string){return destinationPath(projectId,{path:'/dashboard',params:{view:'start'}});}
+export function projectStartPath(projectId:string,taskId?:string|null){
+ const params:Record<string,string>={view:'start'};
+ if(taskId&&taskId.length<=200&&!/[\u0000-\u001f]/.test(taskId))params.task=taskId;
+ return destinationPath(projectId,{path:'/dashboard',params});
+}

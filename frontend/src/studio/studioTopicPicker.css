@@ -1,0 +1,111 @@
+.studio-topic-picker {
+  max-width: 680px;
+}
+
+.studio-topic-choices {
+  display: grid;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.studio-topic-choice {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  border-radius: 26px;
+  padding: 16px 24px;
+  min-height: 72px;
+}
+
+.studio-topic-choice > span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.studio-topic-choice strong {
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.studio-topic-choice small {
+  font-size: 14px;
+  line-height: 1.45;
+  color: #4b534b;
+}
+
+.studio-topic-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 650px) {
+  .studio-topic-picker > p { margin-bottom: 16px; }
+  .studio-topic-choices { gap: 10px; margin: 16px 0; }
+  .studio-topic-choice { padding: 14px 19px; }
+}
+
+.studio-topic-picker .studio-topic-choice {
+  border-radius: 16px;
+}
+
+.studio-topic-picker .studio-topic-utility {
+  border-color: #dedbd3;
+  background: #f4f2ed;
+  color: #41443e;
+  text-decoration: none;
+  padding-inline: 16px;
+}
+
+.studio-topic-picker .studio-topic-utility:is(:hover, :focus-visible) {
+  text-decoration: none;
+}
+
+.studio-topic-campaign small {
+  color: #565850;
+}
+
+.studio-topic-colors .studio-topic-choice {
+  background-color: #fffdfa;
+}
+
+.studio-topic-colors .studio-topic-choice > span {
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+}
+
+.studio-topic-number {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #d4c8b7;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #fff9 7%, transparent 34%), var(--foru-pearl-finish);
+  box-shadow: inset 0 2px 3px #fffffff5, inset 0 -2px 3px #a8997d42, 0 1px 2px #86765a26;
+  color: #3b3833;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.studio-topic-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+@media (hover: hover) {
+  .studio-topic-colors .studio-topic-choice.is-neutral:hover {
+    background: #fffdfa;
+  }
+  .studio-topic-choice:hover .studio-topic-number {
+    background: var(--foru-pearl-finish);
+  }
+}
+
+@media (max-width: 650px) {
+  .studio-topic-colors .studio-topic-choice > span { gap: 11px; }
+}

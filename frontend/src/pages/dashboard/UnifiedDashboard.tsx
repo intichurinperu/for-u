@@ -21,8 +21,6 @@ import { useWorkspaceFocus } from './WorkspaceFocus';
 import PizarraAgent from '../../components/PizarraAgent';
 export default function UnifiedDashboard() {
   const { user } = useAuth();
-  const {state:focusState}=useWorkspaceFocus();
-  const preferredName=accountPreferences(focusState.data).preferredName;
   const store = useActiveProjectsStore();
   const [params, setParams] = useSearchParams();
   const owned = store.cloudUserId === user?.id ? Object.values(store.projectsById) : [];
@@ -33,13 +31,13 @@ export default function UnifiedDashboard() {
   useEffect(() => { if (user && store.cloudUserId !== user.id) void store.hydrateFromSupabase(user.id); }, [user?.id, store.cloudUserId]);
   useEffect(() => { if (project && store.activeProjectId !== project.id) store.switchProject(project.id); }, [project?.id, store.activeProjectId]);
   if(project&&params.get('setup')==='1')return <section className="dashboard-guided"><ProjectJourney key={`journey:${project.id}`} projectId={project.id}/></section>;
-  return <section className="dashboard-home"><header className="world-intro"><span>Tu espacio de trabajo</span><h1>{project?project.name:`Hola, ${preferredName || user?.user_metadata?.display_name || 'qué bueno verte'}`}</h1><p>{project?(params.get('view')==='start'?'Este es tu punto de partida.':'¿En qué quieres avanzar hoy?'):'¿Con qué proyecto seguimos hoy?' }</p></header>
+  return <section className="dashboard-home"><header className="world-intro"><span>Tu espacio de trabajo</span><h1>{project?project.name:'Mis proyectos'}</h1><p>{project?(params.get('view')==='start'?'Este es tu punto de partida.':'¿En qué quieres avanzar hoy?'):'¿Con qué proyecto seguimos hoy?' }</p></header>
     {legacy.length > 0 && !project && <details className="local-draft-notice"><summary>{legacy.length===1?'Tienes un borrador en este dispositivo':`Tienes ${legacy.length} borradores en este dispositivo`}</summary><p>Estos borradores aún no están confirmados en la nube. Se conservan en este dispositivo; algunos usan IDs antiguos.</p><ul>{legacy.map(p => <li key={p.id}>{p.name} <DSButtonSecondary onClick={() => { const blob = new Blob([JSON.stringify(p, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `borrador-${p.id}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }}>Descargar respaldo</DSButtonSecondary></li>)}</ul></details>}
     {store.isCloudSyncing && <p role="status">Cargando tus proyectos…</p>}
     {store.projectLoadError && <div className="recovery-notice" role="alert">{store.projectLoadError} <DSButtonSecondary onClick={() => { if (user) void store.hydrateFromSupabase(user.id); }}>Reintentar proyectos</DSButtonSecondary></div>}
     {!requested && <WorkspaceHome projects={projects} />}
     {requested && !project && !store.isCloudSyncing && <p role="alert">No encontramos este proyecto en tu cuenta. <Link to="/dashboard">Volver a mis proyectos</Link></p>}
-    {project&&params.get('view')==='start'?<ProjectStart projectId={project.id} type={projectModuleType(project)!}/>:project ? <><Link className="project-route-overview" to={`/dashboard?project=${project.id}&view=start`}>← Ver mi ruta paso a paso</Link>{params.get('setup')!=='1'&&<ProjectAreas key={project.id} projectId={project.id} type={projectModuleType(project)!} />}</> : !requested && params.get('create')!=='1' && !projects.length && !store.isCloudSyncing && !store.projectLoadError && <Navigate to="/onboarding" replace />}
+    {project&&params.get('view')==='start'?<ProjectStart key={project.id} projectId={project.id} type={projectModuleType(project)!}/>:project ? <>{params.get('setup')!=='1'&&<ProjectAreas key={project.id} projectId={project.id} type={projectModuleType(project)!} />}</> : !requested && params.get('create')!=='1' && !projects.length && !store.isCloudSyncing && !store.projectLoadError && <Navigate to="/onboarding" replace />}
     {params.get('create') === '1' && <ProjectWizard onClose={() => setParams(project ? {project:project.id} : {})} />}
   </section>;
 }

@@ -1,7 +1,20 @@
 import InspirationJourney from './InspirationJourney';
+import {createPortal} from 'react-dom';
+import ProjectStageStep from './ProjectStageStep';
+import ProjectAgeStep from './ProjectAgeStep';
+import ProjectOriginStep from './ProjectOriginStep';
+import ProjectPurposeStep from './ProjectPurposeStep';
+import ProjectVisionStep from './ProjectVisionStep';
+import ProjectAudienceStep from './ProjectAudienceStep';
+import ProjectQuestionStep from './ProjectQuestionStep';
+import StandardJourneyQuestion from './StandardJourneyQuestion';
+import OfferPhotos from './OfferPhotos';
+import PearlButton from '../components/ui/PearlButton';
+import {initialQuestions,missingRouteAnswers,personalizedRouteSuggestions,resumeInitialStep} from './initialJourney';
+import ProjectTeamStep,{ProjectTeamSizeStep} from './ProjectTeamStep';
 import {contentPillars} from './brandProfile';
 import {useEffect,useRef,useState} from 'react';
-import {Link,useNavigate,useSearchParams} from 'react-router-dom';
+import {useLocation,useNavigate,useSearchParams} from 'react-router-dom';
 import {useAuth} from '../contexts/AuthContext';
 import {useActiveProjectsStore} from '../stores/useActiveProjectsStore';
 import {projectModuleType} from '../modules/moduleProjects';
@@ -12,14 +25,17 @@ import {useAreaDocuments} from '../pages/dashboard/AreaDocuments';
 import {usePrivateDocument} from './usePrivateDocument';
 import {emptyJourney,parseJourney} from './journeyModel';
 import {buildQuestions,groupNames,list,selectChoice,choiceValues,normalizePriority,type Answer} from './personalizationModel';
-import {canonicalAnswer,mergeRouteTasks,prepareRoutePage,routeSuggestions,suggestedStage} from './routePreparation';
+import {canonicalAnswer,mergeRouteTasks,prepareRoutePage,suggestedStage} from './routePreparation';
 import {projectRouteType,routeNames} from './GuidedProject';
-import {ButtonPrimary,ButtonSecondary,Textarea} from '../components/ui/DesignSystem';
+import {ButtonPrimary,ButtonSecondary} from '../components/ui/DesignSystem';
 import {useUnsavedNavigation} from '../lib/useUnsavedNavigation';
 import MaterialAttachments from './MaterialAttachments';
 import OrganizeMaterial from './OrganizeMaterial';
 import {blankOffer} from '../proposal/model';
 import './guidedProject.css';
+import './initialJourney.css';
+const multipleQuestionScreens={origin:ProjectOriginStep,purpose:ProjectPurposeStep,vision:ProjectVisionStep,audience:ProjectAudienceStep};
+const projectQuestionScreens={stage:ProjectStageStep,age:ProjectAgeStep,team:ProjectTeamStep,teamSize:ProjectTeamSizeStep};
 export default function GuidedJourney({projectId}:{projectId:string}){
  const {user}=useAuth(),store=useActiveProjectsStore();const project=store.getProjectById(projectId)!;
  const businessRoute=projectRouteType(project),type=projectModuleType(project)!;
@@ -28,77 +44,210 @@ export default function GuidedJourney({projectId}:{projectId:string}){
  const history=usePrivateDocument(user!.id,projectId,'project-journey',emptyJourney,parseJourney);
  const route=usePrivateDocument(user!.id,projectId,'project-route',()=>emptyProjectRoute(projectId),v=>parseProjectRoute(v,projectId));
  const page=usePrivateDocument(user!.id,projectId,'landing',()=>prepareRoutePage(project.name,businessRoute,{},emptyProposal()),v=>{if(!readableStudioDraft(v))throw new Error('Conservamos tu página anterior; su formato necesita recuperación.');return v;});
- const areas=useAreaDocuments(projectId,type),[params,setParams]=useSearchParams(),navigate=useNavigate();
- const [returnToStudio,setReturnToStudio]=useState(false);
- const [custom,setCustom]=useState(false),[materialOpen,setMaterialOpen]=useState(false),[error,setError]=useState(''),[operation,setOperation]=useState(''),[chosen,setChosen]=useState<string[]|null>(null),[returnToSummary,setReturnToSummary]=useState(new URLSearchParams(window.location.search).has('question')),[recovery,setRecovery]=useState(false);
- const questionHeading=useRef<HTMLHeadingElement>(null);
- const lock=useRef(false),alive=useRef(true);useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
+ const areas=useAreaDocuments(projectId,type),[params]=useSearchParams(),navigate=useNavigate(),location=useLocation();
+ const [error,setError]=useState(''),[operation,setOperation]=useState(''),[recovery,setRecovery]=useState(false);
+ const [audioPending,setAudioPending]=useState(false),[materialPending,setMaterialPending]=useState(false);
+ const [materialOpen,setMaterialOpen]=useState(false);
+ const [transition,setTransition]=useState<{to:string;replace?:boolean;previous?:string;pop?:boolean}|null>(null);
+ const attachmentPending=audioPending||materialPending;
+ const lock=useRef(false),alive=useRef(true);
+ useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
  const busy=diagnostic.busy||proposal.busy||history.busy||route.busy||page.busy||!!operation;
- useUnsavedNavigation(diagnostic.dirty||proposal.dirty||history.dirty||!!operation);
+ const dirty=diagnostic.dirty||proposal.dirty||history.dirty||route.dirty||page.dirty;
+ useUnsavedNavigation(dirty||!!operation||attachmentPending);
  const commercial={offering:'offering',audience:'audience',need:'need',difference:'value'} as const;
  const a={...diagnostic.data.answers,difference:proposal.data.value||diagnostic.data.answers.difference||'',offering:proposal.data.offering||diagnostic.data.answers.offering||'',audience:proposal.data.audience||diagnostic.data.answers.audience||'',need:proposal.data.need||diagnostic.data.answers.need||''};
- const [entryConsumed,setEntryConsumed]=useState(false);
- const questions=buildQuestions(businessRoute,a),cursor=!entryConsumed&&params.get('question')&&questions.some(q=>q.key===params.get('question'))?params.get('question'):diagnostic.data.cursor,question=questions.find(q=>q.key===cursor)??questions[0],index=questions.findIndex(q=>q.key===question.key);
- const editingSingle=Boolean(params.get('question')&&questions.some(q=>q.key===params.get('question')));
- const suggestions=routeSuggestions(businessRoute,a),selected=chosen??suggestions.map(s=>s.key);
- const open=params.get('setup')==='1',summary=cursor==='review'||cursor==='prepared';
- useEffect(()=>{if(open){questionHeading.current?.focus({preventScroll:true});window.scrollTo({top:0});}},[open,question.key,summary]);
+ const allQuestions=buildQuestions(businessRoute,a);
+ const questions=initialQuestions(allQuestions,a);
+ const requested=params.get('question');
+ const singleQuestion=allQuestions.find(question=>question.key===requested);
+ const step=params.get('step');
+ const cursor=singleQuestion?.key||(step==='answers'?'answers':resumeInitialStep(step||diagnostic.data.cursor,allQuestions,questions));
+ const question=singleQuestion||questions.find(question=>question.key===cursor)||questions[0];
+ const index=questions.findIndex(item=>item.key===question.key);
+ const suggestions=personalizedRouteSuggestions(businessRoute,a);
  const loaded=diagnostic.loaded&&proposal.loaded&&history.loaded&&route.loaded&&page.loaded&&!!areas.entry?.loaded;
  const problem=error||diagnostic.error||proposal.error||history.error||route.error||page.error||areas.entry?.error;
- useEffect(()=>{if(returnToStudio&&!busy&&!diagnostic.dirty&&!proposal.dirty&&!history.dirty)navigate(`/creator-studio?project=${projectId}`);},[returnToStudio,busy,diagnostic.dirty,proposal.dirty,history.dirty,navigate,projectId]);
- function close(){if(params.get('return')==='studio'){navigate(`/creator-studio?project=${projectId}`);return;}const next=new URLSearchParams(params);next.delete('setup');next.set('view','map');setParams(next);}
+ const projectQuery=new URLSearchParams({project:projectId});
+ const startPath=`/dashboard?${projectQuery}&view=start`;
+ const studioPath=`/creator-studio?${projectQuery}`;
+ const stepPath=(step:string)=>`/dashboard?${projectQuery}&setup=1&step=${encodeURIComponent(step)}`;
+ const editPath=(key:string,source='answers')=>`/dashboard?${projectQuery}&setup=1&question=${encodeURIComponent(key)}&return=${source}`;
+ const singleReturn=params.get('return')==='studio'?studioPath:params.get('return')==='route'?startPath:stepPath('answers');
+ const previousInHistory=(location.state as {previous?:string}|null)?.previous;
+ useEffect(()=>{
+  if(!loaded||busy||dirty||attachmentPending)return;
+  if(transition){
+   setTransition(null);
+   if(transition.pop)navigate(-1);
+   else navigate(transition.to,{replace:transition.replace,state:{previous:transition.previous}});
+  }else if(!singleQuestion&&cursor==='prepared'){
+   navigate(startPath,{replace:true});
+  }else if(!singleQuestion&&cursor&&step!==cursor){
+   navigate(stepPath(cursor),{replace:true});
+  }
+ },[loaded,busy,dirty,attachmentPending,transition,singleQuestion?.key,cursor,step,location.key]);
+ useEffect(()=>{setMaterialOpen(false);setRecovery(false);setError('');},[location.key]);
+ async function saveInputs(){
+  if(proposal.dirty&&!await proposal.save())throw new Error('No se guardó la respuesta. Vuelve a intentarlo.');
+  if(history.dirty&&!await history.save())throw new Error('No se guardó el material. Vuelve a intentarlo.');
+ }
+ async function close(){
+  if(lock.current||busy||attachmentPending)return;
+  lock.current=true;setError('');setOperation('Guardando…');
+  try{
+   await saveInputs();
+   if(diagnostic.dirty&&!await diagnostic.save())throw new Error('No se guardó este paso. Vuelve a intentarlo.');
+   if(alive.current)setTransition({to:singleQuestion?singleReturn:startPath,replace:true});
+  }catch(error){if(alive.current)setError((error as Error).message);}
+  finally{lock.current=false;if(alive.current)setOperation('');}
+ }
  function changeAnswer(key:string,value:Answer){
   setError('');const field=commercial[key as keyof typeof commercial];
-  if(field)proposal.change({...proposal.data,[field]:Array.isArray(value)?value.join(' · '):value});
+  if(field){
+   const text=Array.isArray(value)?value.join(' · '):value;
+   if(text.length>2000){setError('La respuesta admite hasta 2000 caracteres. Acorta el texto e inténtalo de nuevo.');return;}
+   proposal.change({...proposal.data,[field]:text});
+  }
   else diagnostic.change({...diagnostic.data,answers:normalizePriority({...diagnostic.data.answers,[key]:value})});
  }
- async function go(cursor:string,skip=false){
-  if(lock.current)return;lock.current=true;setError('');const previous=diagnostic.data;let moved=false;
+ async function go(next:string,{skip=false,back=false}:{skip?:boolean;back?:boolean}={}){
+  if(lock.current||busy||attachmentPending)return;
+  lock.current=true;setError('');setOperation('Guardando…');
+  const previous=diagnostic.data;
+  let moved=false;
   try{
-   if(question.key==='pillars'&&!skip)contentPillars(diagnostic.data.answers);
-   if(proposal.dirty&&!await proposal.save())throw new Error('No se guardó la respuesta comercial. Sigue en pantalla; vuelve a intentarlo.');
-   if(history.dirty&&!await history.save())throw new Error('El material sigue pendiente de guardar. Conservamos tu respuesta.');
-   const answers=normalizePriority({...diagnostic.data.answers});if(skip&&question.key==='marketingStart')answers.marketingStart='Más adelante';if(skip&&question.key==='pillars')answers.pillars=['Lo definiré después'];
-   diagnostic.change({...diagnostic.data,answers,cursor});moved=true;
-   if(!await diagnostic.save())throw new Error('No se guardó este paso. Puedes reintentar sin volver a escribir.');
-   if(alive.current){setEntryConsumed(true);if(editingSingle&&params.get('return')==='studio')setReturnToStudio(true);setCustom(false);setMaterialOpen(false);setChosen(null);}
-  }catch(e){if(alive.current){if(moved)diagnostic.change(previous);setError((e as Error).message);}}finally{lock.current=false;}
+   const answers=normalizePriority({...diagnostic.data.answers});
+   if(question.key==='pillars'&&!skip&&!back)contentPillars(answers);
+   if(skip&&question.key==='marketingStart')answers.marketingStart='Más adelante';
+   if(skip&&question.key==='pillars')answers.pillars=['Lo definiré después'];
+   await saveInputs();
+   const nextCursor=singleQuestion?previous.cursor:next;
+   if(diagnostic.dirty||nextCursor!==previous.cursor||skip){
+    diagnostic.change({...previous,answers,cursor:nextCursor});moved=true;
+    if(!await diagnostic.save())throw new Error('No se guardó este paso. Vuelve a intentarlo.');
+   }
+   if(alive.current)setTransition(singleQuestion
+    ?{to:singleReturn,replace:true}
+    :{to:stepPath(next),replace:back,previous:cursor||undefined,pop:back&&previousInHistory===next});
+  }catch(error){
+   if(alive.current){if(moved)diagnostic.change(previous);setError((error as Error).message);}
+  }finally{lock.current=false;if(alive.current)setOperation('');}
  }
  async function prepare(){
-  if(lock.current||!loaded||!areas.entry)return;lock.current=true;setError('');setOperation('Guardando tus elecciones…');
+  if(lock.current||busy||attachmentPending||!loaded||!areas.entry)return;lock.current=true;setError('');setOperation('Guardando tus elecciones…');
   try{
    if([diagnostic,proposal,history,route,page].some(d=>d.conflict)||areas.entry.taskStatus==='conflict')throw new Error('Hay una versión guardada en otra ventana. Revisa el conflicto antes de preparar; tus cambios se conservan.');
    if(proposal.dirty&&!await proposal.save())throw new Error('Tu propuesta necesita reintento. No se modificó tu página.');
    if(history.dirty&&!await history.save())throw new Error('Tu material necesita reintento. No se modificó tu página.');
    if(diagnostic.dirty&&!await diagnostic.save())throw new Error('Tus respuestas necesitan reintento.');
-   const merged=mergeRouteTasks(areas.entry.tasks,projectId,suggestions,selected);
-   if(JSON.stringify(merged.tasks)!==JSON.stringify(areas.entry.tasks)){setOperation('Guardando los pasos que elegiste…');areas.change({tasks:merged.tasks});if(!await areas.save())throw new Error('No se guardaron tus pasos. Siguen pendientes; reintenta para continuar.');}
+   const merged=mergeRouteTasks(areas.entry.tasks,projectId,suggestions,suggestions.map(step=>step.key));
+   const tasksChanged=JSON.stringify(merged.tasks)!==JSON.stringify(areas.entry.tasks);
+   if(tasksChanged||areas.entry.taskDirty){
+    setOperation('Guardando los pasos de tu ruta…');
+    if(tasksChanged)areas.change({tasks:merged.tasks});
+    if(!await areas.save())throw new Error('No se guardaron tus pasos. Vuelve a intentarlo.');
+   }
    if(!page.revision){setOperation('Preparando la estructura de tu página…');page.change(prepareRoutePage(project.name,businessRoute,a,proposal.data));if(!await page.save())throw new Error('Tus pasos están guardados. Falta guardar la página; reintenta para continuar.');}
    setOperation('Conectando tu ruta y tu mapa…');route.change({...route.data,stage:suggestedStage(a),diagnosticRevision:diagnostic.revision,taskIds:merged.ids,reasons:merged.reasons});if(!await route.save())throw new Error('Tu página y tus pasos están guardados. Falta conectar la ruta; el reintento no los duplicará.');
    diagnostic.change({...diagnostic.data,cursor:'prepared'});if(!await diagnostic.save())throw new Error('Tu espacio está preparado. Falta guardar el punto donde retomarás.');
+   if(alive.current)setTransition({to:startPath,replace:true});
   }catch(e){if(alive.current)setError((e as Error).message);}finally{lock.current=false;if(alive.current)setOperation('');}
  }
- if(!open)return <div className="guide-resume"><span aria-hidden="true">⛵</span><div><strong>{route.revision?'Tu ruta, a tu manera':'Antes de hacer, encontraremos tu rumbo.'}</strong><p>{route.revision?'Puedes ajustar tus elecciones sin borrar lo que ya creaste.':'Una pregunta a la vez. Puedes explorar o crear directamente.'}</p></div><Link to={`/dashboard?project=${projectId}&setup=1`}>{route.revision?'Ajustar mi ruta':'Preparar mi ruta'} →</Link></div>;
- if(!loaded)return <section className="guided-session" role={problem?'alert':'status'}><p>{problem||'Abriendo tu ruta guardada…'}</p>{problem&&<ButtonSecondary onClick={()=>{void diagnostic.reload();void proposal.reload();void history.reload();void route.reload();void page.reload();void areas.reload();}}>Reintentar lectura</ButtonSecondary>}<ButtonSecondary onClick={close}>Volver a mi mapa</ButtonSecondary></section>;
- const current=canonicalAnswer(diagnostic.data,proposal.data,question.key),values=choiceValues(question,current);
- const answered=questions.filter(q=>list(a[q.key]).length);
- const essentials=new Set(['stage','offering','audience','needs','goal']);
- const factLabels:Record<string,string>={stage:'Tu punto de partida',offering:'Lo que ofreces',audience:'Tus personas',needs:'Lo que necesitas',difference:'Tu diferencia',brandFeeling:'Lo que quieres transmitir',voice:'Tu voz',brandAvoid:'Lo que prefieres evitar',pillars:'Tus pilares de contenido',inspiration:'Tus referencias de inspiración',goal:'Por dónde empezamos',origin:'El origen',purpose:'Tu propósito',vision:'Tu horizonte',team:'Tu equipo',age:'Tu recorrido',need:'La necesidad de tus clientes',web:'Tus espacios digitales',intent:'Tus objetivos de contenido',comfort:'Cómo prefieres crear',avoid:'Lo que prefieres evitar',resources:'Tus recursos',tools:'Tus herramientas',sections:'Secciones elegidas'};
- const facts=(items:typeof questions)=><div className="guide-facts">{items.map(q=><button key={q.key} onClick={()=>edit(q.key)} disabled={busy}><small>{factLabels[q.key]||groupNames[q.group]}</small>{list(a[q.key]).join(' · ')} <span aria-hidden="true">✎</span></button>)}</div>;
- const edit=(key:string)=>{diagnostic.change({...diagnostic.data,cursor:key});setReturnToSummary(true);setCustom(false);};
- return <section className="guided-session" aria-label="Preparar mi ruta"><header className="guide-session-top"><ButtonSecondary disabled={busy} onClick={close}>← Continuar después</ButtonSecondary><Link to={`/dashboard/tools/landing?project=${projectId}`}>Crear manualmente ↗</Link></header>
- {summary?<div className="guide-summary"><small>{routeNames[businessRoute]} · {project.name}</small><h1>{cursor==='prepared'?'Tu espacio ya tiene un rumbo.':'Esto entendimos de ti.'}</h1><p>{cursor==='prepared'?'Lo que elegiste ya está guardado. Ahora puedes tocar, cambiar y hacer tuyo el resultado.':'Revisa tus elecciones. Ninguna te obliga a seguir un camino ni publica algo en tu nombre.'}</p>
- {facts(answered.filter(q=>essentials.has(q.key)))}{answered.some(q=>!essentials.has(q.key))&&<details><summary>Revisar mis otras elecciones</summary>{facts(answered.filter(q=>!essentials.has(q.key)))}</details>}{cursor!=='prepared'&&questions.some(q=>!list(a[q.key]).length)&&<ButtonSecondary disabled={busy} onClick={()=>void go(questions.find(q=>!list(a[q.key]).length)!.key)}>Seguir explorando mis opciones →</ButtonSecondary>}
- {cursor==='prepared'?<div className="guide-prepared"><strong>{project.name}</strong><ul><li>{page.revision?'Tu página tiene un borrador editable.':'Tu página está pendiente de guardar.'}</li><li>{route.data.taskIds.length} pasos elegidos, con su motivo.</li><li>Mapa, Kanban y Calendario comparten el mismo trabajo.</li></ul><div className="guide-summary-actions"><Link to={`/dashboard/tools/landing?project=${projectId}&tour=1`}>Hacer mía mi página ↗</Link><Link to={`/dashboard?project=${projectId}&view=map`}>Ver mi mapa →</Link></div></div>:<><h2>Un comienzo que tiene sentido para ti</h2><p>{page.revision?'Tu página existente se conservará. No reemplazaremos sus textos, fotos ni secciones.':'Prepararemos una estructura de '+routeNames[businessRoute].toLocaleLowerCase()+', sin inventar productos, precios ni historias.'}</p><div className="guide-result-list" role="group" aria-label="Pasos que quiero preparar">{suggestions.map(s=><label key={s.key}><input type="checkbox" checked={selected.includes(s.key)} disabled={busy} onChange={e=>setChosen(e.target.checked?[...selected,s.key]:selected.filter(k=>k!==s.key))}/><span><strong>{s.title}</strong><p>{s.reason}</p></span></label>)}</div><ButtonPrimary disabled={busy} onClick={()=>void prepare()}>{operation||'Preparar mi espacio →'}</ButtonPrimary><p className="guide-save-note">La composición se prepara con reglas. No consume IA ni publica tu página.</p></>}
- </div>:<>{!editingSingle&&<div className="guide-steps" aria-label={`Paso ${index+1} de ${questions.length}`}><span style={{width:`${(index+1)/questions.length*100}%`}}/></div>}<p className="guide-group-name">{groupNames[question.group]} {question.multi?'· Puedes elegir varias':''}</p>{question.key==='inspiration'?<InspirationJourney data={diagnostic.data} user={user!.id} project={projectId} busy={busy} change={diagnostic.change} save={diagnostic.save} finishLabel={editingSingle&&params.get('return')==='studio'?'Guardar y volver a Studio':undefined} finish={()=>void go(returnToSummary?'review':questions[index+1]?.key||'review')}/>:<div className="guided-question"><span className="guide-question-symbol" aria-hidden="true">{question.group==='marketing'?'✦':question.group==='other'?'⌁':'⛵'}</span><h1 ref={questionHeading} tabIndex={-1} id="guide-question-title">{question.title}</h1><p>{question.why}</p>
- {question.options?<div className="guide-options" aria-labelledby="guide-question-title">{question.options.map((value,i)=><button type="button" key={value} disabled={busy||Boolean(question.maxSelections&&values.length>=question.maxSelections&&!values.includes(value)&&value!=='Lo definiré después')} className={values.includes(value)?'is-selected':''} aria-pressed={values.includes(value)} onClick={()=>changeAnswer(question.key,selectChoice(question,values,value))}><span aria-hidden="true">{values.includes(value)?'✓':['◌','✧','⌁','◇'][i%4]}</span>{value}</button>)}</div>:<Textarea label={question.text||'Tu respuesta'} value={typeof current==='string'?current:''} maxLength={2000} disabled={busy} onChange={e=>changeAnswer(question.key,e.target.value)}/>}
- {question.custom&&<div className="guide-custom"><ButtonSecondary disabled={busy} aria-expanded={custom} onClick={()=>setCustom(!custom)}>{custom?'Cerrar texto libre':'✎ '+question.custom}</ButtonSecondary>{custom&&<Textarea label="Tu respuesta, con tus palabras" maxLength={2000} disabled={busy} value={commercial[question.key as keyof typeof commercial]?proposal.data[commercial[question.key as keyof typeof commercial]]:String(diagnostic.data.answers[question.customKey||question.key+'Custom']||'')} onChange={e=>changeAnswer(commercial[question.key as keyof typeof commercial]?question.key:question.customKey||question.key+'Custom',e.target.value)}/>}</div>}
- <p className="guide-answer-note">{values.length?'Tu elección se guarda al continuar. Siempre puedes cambiarla.':'Puedes elegir, responder con tus palabras o dejarlo para después.'}</p>
- <div className="guide-question-actions">{index>0&&!editingSingle&&<ButtonSecondary disabled={busy} onClick={()=>void go(questions[index-1].key)}>← Atrás</ButtonSecondary>}<ButtonPrimary disabled={busy} onClick={()=>{const next=returnToSummary?'review':questions[index+1]?.key||'review';setReturnToSummary(false);void go(next);}}>{busy?'Guardando…':returnToSummary?params.get('return')==='studio'?'Guardar y volver a Studio':'Guardar y volver al resumen':index===questions.length-1?'Revisar mi ruta →':'Continuar →'}</ButtonPrimary><ButtonSecondary disabled={busy} onClick={()=>void go(question.key==='marketingStart'?buildQuestions(businessRoute,{...a,marketingStart:'Más adelante'}).find(q=>q.key==='sections')!.key:questions[index+1]?.key||'review',true)}>Omitir</ButtonSecondary></div>
- {!editingSingle&&<ButtonSecondary disabled={busy} onClick={()=>void go('review')}>Revisar lo que ya elegí</ButtonSecondary>}
- <div className="guide-custom"><ButtonSecondary disabled={busy} aria-expanded={materialOpen} onClick={()=>setMaterialOpen(!materialOpen)}>◉ Prefiero contar mi respuesta</ButtonSecondary>{materialOpen&&<><MaterialAttachments user={user!.id} project={projectId} files={history.data.files||[]} disabled={busy} onChange={files=>history.change({...history.data,files})}/><OrganizeMaterial project={projectId} files={history.data.files||[]} revision={history.revision} proposalRevision={proposal.revision} disabled={busy||history.dirty||proposal.dirty} onAccept={value=>{if(proposal.data.offers.length+value.offers.length>30){setError('Puedes conservar hasta 30 ofertas. Revisa las actuales antes de añadir otras.');return;}proposal.change({...proposal.data,...Object.fromEntries((['offering','audience','message','cta'] as const).filter(k=>value[k]).map(k=>[k,value[k]])),offers:[...proposal.data.offers,...value.offers.filter(o=>!proposal.data.offers.some(x=>x.name.trim().toLowerCase()===o.name.trim().toLowerCase())).map(o=>({...blankOffer(),name:o.name,description:o.description}))]});history.change({...history.data,transcript:value.transcript});}}/></>}</div>
- </div>}</>}
- {problem&&<p role="alert" className="guide-error">{problem}</p>}{!problem&&busy&&<p role="status" className="guide-save-note">{operation||'Guardando tu paso…'}</p>}
- {problem&&<ButtonSecondary disabled={busy} onClick={()=>setRecovery(true)}>Revisar recuperación</ButtonSecondary>}{recovery&&<section className="guide-error"><p>¿Recuperar la versión guardada? Sustituirá los cambios pendientes de esta ruta y propuesta.</p><ButtonSecondary onClick={()=>setRecovery(false)}>Conservar mis cambios</ButtonSecondary><ButtonPrimary disabled={busy} onClick={()=>void Promise.all([diagnostic.recover(),proposal.recover(),history.recover(),route.recover(),page.recover(),areas.recover()]).then(()=>{setRecovery(false);setError('');})}>Recuperar versión guardada</ButtonPrimary></section>}
- </section>;
+ if(!loaded||(!singleQuestion&&cursor==='prepared')){
+  return <section className="journey-loading" aria-busy={!problem}>
+   <p role={problem?'alert':'status'}>{problem||'Abriendo tu ruta…'}</p>
+   {problem&&<PearlButton compact onClick={()=>{void diagnostic.reload();void proposal.reload();void history.reload();void route.reload();void page.reload();void areas.reload();}}>Reintentar</PearlButton>}
+   <PearlButton compact subtle to={startPath}>Volver a mi proyecto</PearlButton>
+  </section>;
+ }
+ const files=history.data.files||[];
+ const updateFiles=(files:typeof history.data.files)=>history.change({...history.data,files});
+ const generalFiles=files.filter(file=>!file.question&&!file.offerOption);
+ const audioQuestions=new Set(files.flatMap(file=>file.question?[file.question]:[]));
+ const missing=missingRouteAnswers(a,audioQuestions);
+ const audioResponse=<MaterialAttachments key={question.key} user={user!.id} project={projectId} question={question.key}
+  files={files} disabled={busy||materialPending} onPendingChange={setAudioPending} onChange={updateFiles}/>;
+ const feedback=<>
+  {problem&&<p role="alert" className="guide-error">{problem}</p>}
+  {problem&&!recovery&&<ButtonSecondary type="button" disabled={busy||attachmentPending} onClick={()=>setRecovery(true)}>Opciones de recuperación</ButtonSecondary>}
+  {recovery&&<section className="guide-error">
+   <p>¿Recuperar la versión guardada? Se sustituirán los cambios pendientes.</p>
+   <ButtonSecondary type="button" onClick={()=>setRecovery(false)}>Conservar mis cambios</ButtonSecondary>
+   <ButtonPrimary type="button" disabled={busy||attachmentPending} onClick={()=>void Promise.all([diagnostic.recover(),proposal.recover(),history.recover(),route.recover(),page.recover(),areas.recover()]).then(()=>{setRecovery(false);setError('');})}>Recuperar versión guardada</ButtonPrimary>
+  </section>}
+ </>;
+ const routeLabel=routeNames[businessRoute];
+ if(cursor==='answers'||cursor==='review'){
+  const isAnswers=cursor==='answers';
+  const presentation={
+   key:cursor,label:routeLabel,title:isAnswers?'Tus respuestas':'Ya podemos armar tu ruta',
+   intro:isAnswers?'Abre la pregunta que quieras completar o cambiar.':'Con tus respuestas elegimos por dónde puedes empezar.',
+   fieldLabel:'',placeholder:'',hint:'',choices:[],
+  };
+  const answerContent=isAnswers?<div className="journey-response-list">
+   {allQuestions.map(item=>{
+    const hasAnswer=list(a[item.key]).some(Boolean)||list(a[item.customKey||item.key+'Custom']).some(Boolean)||audioQuestions.has(item.key);
+    return <PearlButton key={item.key} compact subtle to={editPath(item.key)}>{item.title}<span className="journey-response-status">{hasAnswer?'✓':'Opcional'}</span></PearlButton>;
+   })}
+   <PearlButton compact subtle aria-expanded={materialOpen} disabled={busy||attachmentPending} onClick={()=>setMaterialOpen(!materialOpen)}>Material del proyecto</PearlButton>
+   {materialOpen&&<div>
+    <MaterialAttachments user={user!.id} project={projectId} files={files} disabled={busy} onChange={updateFiles} onPendingChange={setMaterialPending}/>
+    <OrganizeMaterial project={projectId} files={generalFiles} revision={history.revision} proposalRevision={proposal.revision}
+     disabled={busy||attachmentPending||history.dirty||proposal.dirty} onAccept={value=>{
+      const names=new Set(proposal.data.offers.map(offer=>offer.name.trim().toLowerCase()));
+      const additions=value.offers.filter(offer=>!names.has(offer.name.trim().toLowerCase()));
+      if(proposal.data.offers.length+additions.length>30){setError('Puedes conservar hasta 30 ofertas.');return;}
+      proposal.change({...proposal.data,...Object.fromEntries((['offering','audience','message','cta'] as const).filter(key=>value[key]).map(key=>[key,value[key]])),offers:[...proposal.data.offers,...additions.map(offer=>({...blankOffer(),name:offer.name,description:offer.description}))]});
+      history.change({...history.data,transcript:value.transcript});
+     }}/>
+   </div>}
+  </div>:<div className="journey-review-preview">
+   <p className="journey-review-kicker">Primer paso</p>
+   <strong>{suggestions[0].title}</strong>
+   <p>{suggestions[0].reason}</p>
+   {missing.length>0&&<small>Podrás completar tus respuestas desde tu ruta.</small>}
+  </div>;
+  const reviewBack=previousInHistory==='answers'?'answers':questions.at(-1)?.key;
+  return createPortal(<ProjectQuestionStep key={cursor} name={project.name} presentation={presentation} busy={busy} audioPending={attachmentPending}
+   value="" onChange={()=>{}} feedback={feedback} answerContent={answerContent} saveHint={null}
+   continueLabel={isAnswers?'Revisar mi ruta':'Crear mi ruta digital'}
+   onContinue={isAnswers?()=>void go('review'):()=>void prepare()}
+   onBack={isAnswers?()=>void close():reviewBack?()=>void go(reviewBack,{back:true}):undefined}
+   onClose={()=>void close()}/>,document.body);
+ }
+ const current=canonicalAnswer(diagnostic.data,proposal.data,question.key);
+ const values=choiceValues(question,current);
+ const isCommercial=Object.hasOwn(commercial,question.key);
+ const nextQuestion=questions[index+1]?.key||'review';
+ const previousQuestion=index>0?questions[index-1].key:undefined;
+ const commonProps={
+  name:project.name,route:businessRoute,busy,feedback,audioResponse,audioPending:attachmentPending,saveHint:null,
+  progress:singleQuestion?undefined:{current:index+1,total:questions.length},
+  continueLabel:singleQuestion?(params.get('return')==='studio'?'Guardar y volver a Studio':'Guardar respuesta'):(nextQuestion==='review'?'Ver mi ruta':'Continuar'),
+  onBack:singleQuestion?()=>void close():previousQuestion?()=>void go(previousQuestion,{back:true}):undefined,
+  onContinue:()=>void go(nextQuestion),
+  onSkip:singleQuestion?undefined:()=>void go(nextQuestion,{skip:true}),
+  onClose:()=>void close(),
+ };
+ const Screen=projectQuestionScreens[question.key as keyof typeof projectQuestionScreens];
+ const MultipleScreen=multipleQuestionScreens[question.key as keyof typeof multipleQuestionScreens];
+ const customKey=isCommercial||!question.options?question.key:question.customKey||question.key+'Custom';
+ const customAnswer=isCommercial?list(current).join(' · '):diagnostic.data.answers[customKey];
+ const selectedOffers=(question.options||[]).filter(option=>values.includes(option));
+ const extra=question.key==='offering'?<OfferPhotos user={user!.id} project={projectId} options={selectedOffers} files={files}
+  disabled={busy||audioPending} onChange={updateFiles} onPending={setMaterialPending}/>:
+  question.key==='inspiration'?<InspirationJourney embedded data={diagnostic.data} user={user!.id} project={projectId}
+   busy={busy} audioPending={attachmentPending} change={diagnostic.change} save={diagnostic.save} finish={()=>void go(nextQuestion)}/>:undefined;
+ const choiceProps={
+  values,customText:typeof customAnswer==='string'?customAnswer:'',
+  onSelect:(value:string)=>{if(!materialPending)changeAnswer(question.key,selectChoice(question,values,value));},
+  onCustom:(value:string)=>changeAnswer(customKey,value),
+ };
+ return createPortal(
+  MultipleScreen?<MultipleScreen key={question.key} {...commonProps} {...choiceProps} options={question.options??[]}/>:
+  Screen?<Screen key={question.key} {...commonProps} value={typeof current==='string'?current:''} onChange={value=>changeAnswer(question.key,value)}/>:
+  <StandardJourneyQuestion key={question.key} {...commonProps} {...choiceProps} question={question} group={question.key==='offering'?routeLabel:groupNames[question.group]} commercial={isCommercial} extra={extra}/>,
+  document.body,
+ );
 }

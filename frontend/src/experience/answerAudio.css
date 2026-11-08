@@ -1,0 +1,6 @@
+.answer-audio-slot, .answer-audio { display: grid; justify-items: start; gap: 4px; min-width: 0; }
+.answer-audio-button > span { display: inline-flex; gap: 6px; align-items: center; }
+.answer-audio-slot small { color: #665d55; font-size: .8rem; }
+.answer-audio-slot [role="alert"] { color: #843821; }
+.offer-audio audio { display: block; width: 100%; max-width: 100%; }
+.audio-capture-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
