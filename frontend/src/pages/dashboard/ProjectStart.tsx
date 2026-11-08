@@ -174,18 +174,16 @@ export default function ProjectStart({ projectId, type }: { projectId: string; t
           {selectedOfferIds.length} {selectedOfferIds.length === 1 ? 'oferta elegida' : 'ofertas elegidas'}
         </p>
 
-        <PearlButton
-          className="sell-offer-action"
-          disabled={selectedOfferIds.length === 0}
-          to={`/creator-studio?${new URLSearchParams({
+        {selectedOfferIds.length > 0 ? (
+          <PearlButton className="sell-offer-action" to={`/creator-studio?${new URLSearchParams({
             project: projectId,
             tab: 'posts',
             offers: selectedOfferIds.join(','),
             from: 'start',
-          })}`}
-        >
-          Empezar a crear
-        </PearlButton>
+          })}`}>
+            Empezar a crear
+          </PearlButton>
+        ) : <PearlButton className="sell-offer-action" disabled>Empezar a crear</PearlButton>}
       </div> : <div className="sell-offer-card sell-offer-empty">
         <p>Aún no tienes ofertas guardadas en este proyecto.</p>
         <div className="sell-offer-empty-actions">

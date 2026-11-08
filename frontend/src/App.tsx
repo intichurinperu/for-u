@@ -93,17 +93,7 @@ function PrivateWorkspace({ children }: { children: ReactNode }) {
   }, [session?.user.id, store.cloudUserId, selected?.id, selected?.cloudPending, store.activeProjectId]);
   const nextPath = `${window.location.pathname}${window.location.search}`;
 
-  if (loading) {
-    return (
-      <main className="foru-auth-page">
-        <DSCard as="section" className="foru-auth-card">
-          <span className="foru-auth-kicker">FOR U</span>
-          <h1>Cargando tu espacio...</h1>
-          <p>Un segundo, estamos buscando tus proyectos.</p>
-        </DSCard>
-      </main>
-    );
-  }
+  if (loading) return <RouteLoader />;
 
   const commonShell = location.pathname.startsWith('/dashboard') || location.pathname === '/creator-studio' || location.pathname === '/content-creator' || location.pathname.startsWith('/modules/');
   const guiding = location.pathname === '/dashboard' && new URLSearchParams(location.search).get('setup') === '1';
@@ -185,16 +175,15 @@ function ApplicationRoutes() {
 }
 
 function RouteFailure() {
-  const error = useRouteError() as any;
-  console.error('For U route error:', error);
-  const detail = error instanceof Error ? error.message : (error?.message || error?.statusText || (typeof error === 'string' ? error : (error ? JSON.stringify(error) : '')));
+  const error = useRouteError();
+  useEffect(() => { console.error('For U route error:', error); }, [error]);
   return (
     <main className="foru-auth-page">
       <DSCard as="section" className="foru-auth-card">
         <span className="foru-auth-kicker">FOR U</span>
         <h1>No pudimos abrir esta pantalla.</h1>
         <p>Tu información guardada se conserva. Puedes recargar o volver al inicio.</p>
-        {detail ? <small style={{ color: '#8b263e', background: '#fff0f3', padding: '6px 10px', borderRadius: '8px', display: 'block', margin: '8px 0', wordBreak: 'break-word' }}>{detail}</small> : null}
+        <button type="button" className="pe-action-link" onClick={() => window.location.reload()}>Reintentar esta pantalla</button>
         <a className="pe-action-link" href="/dashboard">Volver a mis proyectos</a>
       </DSCard>
     </main>
@@ -230,14 +219,10 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: bo
 }
 
 function RouteLoader() {
-  return (
-    <main className="foru-auth-page">
-      <DSCard as="section" className="foru-auth-card">
-        <span className="foru-auth-kicker">FOR U</span>
-        <h1>Cargando...</h1>
-      </DSCard>
-    </main>
-  );
+  return <main className="foru-loading" role="status">
+    <span aria-hidden="true">FOR U</span>
+    <p>Cargando FOR U…</p>
+  </main>;
 }
 
 export default App;

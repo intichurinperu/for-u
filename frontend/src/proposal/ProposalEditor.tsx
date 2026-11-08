@@ -49,33 +49,23 @@ function ProposalSession({ initial }: { initial: Proposal }) {
   const [notice, setNotice] = useState('');
   const [offer, setOffer] = useState<Offer | null>(()=>initial.offers.find(o=>o.id===routeParams.get('offer'))??null);
   const [offerPanel,setOfferPanel]=useState(true);
-  const editOffer=(item:Offer)=>{setOffer(item);setOfferPanel(true);};
-  const [viewingCosts, setViewingCosts] = useState<Offer | null>(null);
-  const [costIngredients, setCostIngredients] = useState([
-    { name: 'Chocolate', quantity: 0.25, unit: 'kg', subtotal: 10.00 },
-    { name: 'Mantequilla', quantity: 0.10, unit: 'kg', subtotal: 3.20 },
-    { name: 'Azúcar', quantity: 0.20, unit: 'kg', subtotal: 0.80 },
-  ]);
-  const updateCostItem = (index: number, key: 'quantity' | 'unit', val: string | number) => {
-    setCostIngredients(prev => prev.map((item, i) => {
-      if (i !== index) return item;
-      const next = { ...item, [key]: val };
-      if (key === 'quantity') {
-        const unitPrice = item.subtotal / (item.quantity || 1);
-        next.subtotal = Number((unitPrice * (Number(val) || 0)).toFixed(2));
-      }
-      return next;
-    }));
+  const [nativePriceId, setNativePriceId] = useState<string | null>(null);
+  const editOffer = (item: Offer, fromCatalog = false) => {
+    setNativePriceId(fromCatalog ? item.id : null);
+    setError('');
+    setOffer(item);
+    setOfferPanel(true);
   };
-  const totalCost = costIngredients.reduce((sum, item) => sum + item.subtotal, 0);
-  const salePrice = (viewingCosts?.price ?? (offer?.price || 12)) || 12;
-  const marginPercent = salePrice > 0 ? (((salePrice - totalCost) / salePrice) * 100).toFixed(2) : '0';
   const [prices, setPrices] = useState<Record<string, string>>({});
   const [free, setFree] = useState<Record<string, boolean>>({});
   const [preparing, setPreparing] = useState(false);
   const [confirmRecovery, setConfirmRecovery] = useState(false);
   const [chosen, setChosen] = useState<PreparationField[]>([]);
   const native = nativeOffers(type, docs[catalogKey]);
+  const editingNativeOffer = offer?.id === nativePriceId;
+  const restaurantInventory = type === 'restaurant' && business.route !== 'services'
+    ? '/modules/restaurant' + query + (routeParams.get('return') === 'island' ? '&return=island&area=finance' : '')
+    : null;
   const uncommitted = Object.keys(prices).length > 0 || offer !== null;
   useUnsavedNavigation(dirty || uncommitted || busy);
   const patch = (value: Partial<Proposal>) => { setProposal(current => ({ ...current, ...value })); setDirty(true); setError(''); setNotice(''); };
@@ -103,6 +93,13 @@ function ProposalSession({ initial }: { initial: Proposal }) {
     if (!offer) return;
     await run(async () => {
       validateOffer(offer, true);
+      if (editingNativeOffer) {
+        if (offer.price === null) throw new Error('Escribe un precio para esta oferta del catálogo.');
+        await save(catalogKey, updateNativePrice(type, docs[catalogKey], offer.id, offer.price));
+        setNotice('Precio actualizado en el catálogo.');
+        setOffer(null);
+        return;
+      }
       const exists = proposal.offers.some(item => item.id === offer.id);
       if (!exists && proposal.nativeIds.length + proposal.offers.length >= 30) {
         throw new Error('Puedes guardar hasta 30 ofertas en tu propuesta.');
@@ -147,9 +144,6 @@ function ProposalSession({ initial }: { initial: Proposal }) {
     return (
       <section className="proposal-offers-container">
         <header className="proposal-offers-top">
-          <Link className="workspace-project-back" to={`/dashboard?project=${encodeURIComponent(projectId)}&view=start`}>
-            ← Mi ruta digital | {business.name}
-          </Link>
           <span className="proposal-kicker">MI PROPUESTA · {business.name}</span>
           <h1>Define tu oferta y tus precios</h1>
           <p>Reúne aquí las ofertas que quieres vender.</p>
@@ -164,28 +158,22 @@ function ProposalSession({ initial }: { initial: Proposal }) {
 
           {allOffers.length === 0 ? (
             <div className="proposal-offers-empty">
-              <p>Aún no hay ofertas creadas. Añade la primera cuando estés lista.</p>
-              <PearlButton compact onClick={() => editOffer(blankOffer())}>＋ Añadir oferta</PearlButton>
+              <p>Aún no hay ofertas guardadas.</p>
             </div>
           ) : (
             <div className="proposal-offers-list">
               {allOffers.map(item => (
                 <div className="proposal-offer-row-card" key={item.id}>
                   <div className="proposal-offer-thumb-container">
-                    {item.image ? <img src={item.image} alt={item.name} /> : <span>🏷️</span>}
+                    {item.image ? <ProjectImage value={item.image} alt="" /> : <span>🏷️</span>}
                   </div>
                   <div className="proposal-offer-info">
                     <span className="proposal-offer-name-title">{item.name}</span>
                     <span className="proposal-offer-price-tag">{offerPrice(item)}</span>
                   </div>
                   <div className="proposal-offer-row-actions">
-                    {type === 'restaurant' && (
-                      <button type="button" className="proposal-action-pill-btn" onClick={() => setViewingCosts(item)}>
-                        Ver costos
-                      </button>
-                    )}
-                    <button type="button" className="proposal-action-pill-btn" onClick={() => editOffer(item)}>
-                      Ajustar oferta
+                    <button type="button" className="proposal-action-pill-btn" onClick={() => editOffer(item, native.includes(item))}>
+                      {native.includes(item) ? 'Editar precio' : 'Ajustar oferta'}
                     </button>
                   </div>
                 </div>
@@ -194,13 +182,13 @@ function ProposalSession({ initial }: { initial: Proposal }) {
           )}
 
           <div className="proposal-offers-footer-actions">
-            {type === 'restaurant' && business.route !== 'services' && (
+            {restaurantInventory && (
               <PearlButton
                 compact
                 tone="neutral"
-                to={'/modules/restaurant' + query + (routeParams.get('return') === 'island' ? '&return=island&area=finance' : '')}
+                to={restaurantInventory}
               >
-                Ver costos e inventario
+                Ver recetas e inventario
               </PearlButton>
             )}
             <PearlButton
@@ -211,15 +199,15 @@ function ProposalSession({ initial }: { initial: Proposal }) {
           </div>
         </div>
 
-        {/* Modal flotante Añadir oferta (Referencia oficial) */}
-        {offer && !viewingCosts && (
-          <div className="proposal-modal-backdrop" onClick={e => { if (e.target === e.currentTarget) setOffer(null); }}>
+        {!offer && (error || notice) && <p role={error ? 'alert' : 'status'}>{error || notice}</p>}
+        {offer && (
+          <div className="proposal-modal-backdrop" onClick={e => { if (e.target === e.currentTarget && !busy) setOffer(null); }}>
             <div className="proposal-modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-offer-title">
-              <button type="button" className="proposal-modal-close-btn" aria-label="Cerrar" onClick={() => setOffer(null)}>
+              <button type="button" className="proposal-modal-close-btn" aria-label="Cerrar" disabled={busy} onClick={() => setOffer(null)}>
                 ✕
               </button>
               <div className="proposal-modal-header">
-                <h2 id="modal-offer-title">{offer.name ? 'Editar oferta' : 'Añadir oferta'}</h2>
+                <h2 id="modal-offer-title">{editingNativeOffer ? 'Editar precio' : offer.name ? 'Editar oferta' : 'Añadir oferta'}</h2>
               </div>
 
               <div className="proposal-modal-showcase" aria-hidden="true">
@@ -239,7 +227,8 @@ function ProposalSession({ initial }: { initial: Proposal }) {
                   <input
                     id="offer-name-input"
                     required
-                    autoFocus
+                    autoFocus={!editingNativeOffer}
+                    readOnly={editingNativeOffer}
                     disabled={busy}
                     maxLength={120}
                     placeholder="Ej. Brownie de chocolate"
@@ -254,7 +243,9 @@ function ProposalSession({ initial }: { initial: Proposal }) {
                     <span className="proposal-price-prefix">S/</span>
                     <input
                       id="offer-price-input"
+                      autoFocus={editingNativeOffer}
                       disabled={busy}
+                      required={editingNativeOffer}
                       type="number"
                       min="0"
                       max="1000000"
@@ -269,14 +260,6 @@ function ProposalSession({ initial }: { initial: Proposal }) {
                   </div>
                 </div>
 
-                {type === 'restaurant' && (
-                  <div className="proposal-center-cost-link">
-                    <button type="button" onClick={() => setViewingCosts(offer)}>
-                      Ver costos
-                    </button>
-                  </div>
-                )}
-
                 {error && <p role="alert" style={{ color: '#a11b35', margin: '4px 0', fontSize: '0.88rem' }}>{error}</p>}
 
                 <PearlButton className="proposal-modal-submit-btn" type="submit" disabled={busy}>
@@ -286,92 +269,13 @@ function ProposalSession({ initial }: { initial: Proposal }) {
             </div>
           </div>
         )}
-
-        {/* Modal flotante Costos (Referencia: Costos del brownie) */}
-        {viewingCosts && (
-          <div className="proposal-modal-backdrop" onClick={e => { if (e.target === e.currentTarget) setViewingCosts(null); }}>
-            <div className="proposal-modal-card" style={{ maxWidth: 480 }} role="dialog" aria-modal="true">
-              <button type="button" className="proposal-modal-close-btn" aria-label="Cerrar" onClick={() => setViewingCosts(null)}>
-                ✕
-              </button>
-              <div className="proposal-modal-header">
-                <h2>Costos de {viewingCosts.name || 'tu oferta'}</h2>
-              </div>
-
-              <div className="proposal-costs-hero" aria-hidden="true">
-                <div className="proposal-costs-measuring-cup">
-                  <span>🥣</span>
-                </div>
-              </div>
-
-              <table className="proposal-costs-table">
-                <thead>
-                  <tr>
-                    <th>Ingrediente</th>
-                    <th>Cantidad</th>
-                    <th>Unidad</th>
-                    <th>Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {costIngredients.map((item, idx) => (
-                    <tr key={idx}>
-                      <td>{item.name}</td>
-                      <td>
-                        <input
-                          className="proposal-cost-input-num"
-                          type="number"
-                          step="0.01"
-                          value={item.quantity}
-                          onChange={e => updateCostItem(idx, 'quantity', e.target.value)}
-                        />
-                      </td>
-                      <td>
-                        <select
-                          className="proposal-cost-unit-select"
-                          value={item.unit}
-                          onChange={e => updateCostItem(idx, 'unit', e.target.value)}
-                        >
-                          <option value="kg">kg</option>
-                          <option value="g">g</option>
-                          <option value="unidad">unid</option>
-                          <option value="litro">L</option>
-                        </select>
-                      </td>
-                      <td>S/ {item.subtotal.toFixed(2)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              <div className="proposal-costs-summary">
-                <div className="proposal-costs-summary-row">
-                  <span>Costo por porción</span>
-                  <strong>S/ {totalCost.toFixed(2)}</strong>
-                </div>
-                <div className="proposal-costs-summary-row">
-                  <span>Precio de venta</span>
-                  <strong>S/ {salePrice.toFixed(2)}</strong>
-                </div>
-                <div className="proposal-costs-summary-row is-margin">
-                  <span>Margen estimado</span>
-                  <strong>{marginPercent}%</strong>
-                </div>
-              </div>
-
-              <PearlButton className="proposal-modal-submit-btn" onClick={() => setViewingCosts(null)}>
-                Guardar costos
-              </PearlButton>
-            </div>
-          </div>
-        )}
       </section>
     );
   }
 
   return <section className="proposal-page">
-    <header><span className="proposal-kicker">MI PROPUESTA · {business.name}</span><h1>{compactOffers ? 'Define tu oferta y tus precios' : 'Mi propuesta'}</h1><p>{compactOffers ? 'Reúne aquí las ofertas que quieres vender.' : 'Lo que ya definiste, listo para seguir tomando forma.'}</p></header>
-    {!compactOffers && <><JourneyImport proposal={proposal} onApply={patch}/><details className="proposal-switch" key={step}><summary>{['Tu idea','Tus ofertas','Mensaje y contacto'][step]} <span aria-hidden="true">⌄</span></summary><nav aria-label="Pasos de mi propuesta">{type&&business.route!=='services'&&<Link className="pe-action-link" to={'/modules/'+type+'/editor'+query}>Catálogo original →</Link>}{['Tu idea','Tus ofertas','Mensaje y contacto'].map((title,i)=><button type="button" key={title} aria-current={i===step?'step':undefined} onClick={()=>setStep(i)}>{title}</button>)}<Link className="pe-action-link" to={'/dashboard/tools/landing'+query}>Abrir mi página →</Link></nav></details></>}
+    <header><span className="proposal-kicker">MI PROPUESTA · {business.name}</span><h1>Mi propuesta</h1><p>Lo que ya definiste, listo para seguir tomando forma.</p></header>
+    <JourneyImport proposal={proposal} onApply={patch}/><details className="proposal-switch" key={step}><summary>{['Tu idea','Tus ofertas','Mensaje y contacto'][step]} <span aria-hidden="true">⌄</span></summary><nav aria-label="Pasos de mi propuesta">{type&&business.route!=='services'&&<Link className="pe-action-link" to={'/modules/'+type+'/editor'+query}>Catálogo original →</Link>}{['Tu idea','Tus ofertas','Mensaje y contacto'].map((title,i)=><button type="button" key={title} aria-current={i===step?'step':undefined} onClick={()=>setStep(i)}>{title}</button>)}<Link className="pe-action-link" to={'/dashboard/tools/landing'+query}>Abrir mi página →</Link></nav></details>
     <fieldset disabled={busy} className="proposal-fields">
       {step === 0 && <><h2 className="sr-only">Tu idea</h2><div className="proposal-definition-cards">{(['offering','audience','need','value'] as const).map((key,i)=><button type="button" className={`proposal-definition-card proposal-card-${i}`} key={key} onClick={()=>setField(key)}><span aria-hidden="true">{['✦','◉','♡','✧'][i]}</span><h3>{cardTitles[key]}</h3><p>{proposal[key]||'Toca para darle forma'}</p><small>{proposal[key]?'Editar →':'Comenzar →'}</small></button>)}</div></>}
       {step === 1 && <><div className="proposal-section-title"><h2>Mis ofertas</h2><PearlButton compact onClick={() => editOffer(blankOffer())}>＋ Añadir oferta</PearlButton></div>
@@ -383,35 +287,15 @@ function ProposalSession({ initial }: { initial: Proposal }) {
           <details className="proposal-offer-controls"><summary>Ajustar esta oferta</summary><label><input type="checkbox" checked={proposal.nativeIds.includes(item.id)} onChange={e => patch({ nativeIds:e.target.checked ? [...proposal.nativeIds,item.id] : proposal.nativeIds.filter(id => id !== item.id) })} /> Incluir {item.name} en mi propuesta</label>
           <details><summary>Editar precio en el catálogo</summary><Input label={'Precio de ' + item.name} type="number" min="0" step="0.01" value={prices[item.id] ?? item.price ?? ''} onChange={e => setPrices(current => ({ ...current,[item.id]:e.target.value }))} /><label><input type="checkbox" checked={!!free[item.id]} onChange={e => setFree(current => ({ ...current,[item.id]:e.target.checked }))} /> Confirmar Gratis si el precio es cero</label><ButtonSecondary disabled={prices[item.id] === undefined} onClick={() => void storePrice(item)}>Guardar precio de {item.name}</ButtonSecondary></details></details>
         </article>)}{proposal.offers.map(item => <article className="proposal-offer" key={item.id}>{item.image&&<ProjectImage value={item.image} alt={item.name} />}<h3>{item.name}</h3><p>{item.description}</p><strong>{offerPrice(item)}</strong><small>{item.kind === 'package' ? 'Paquete' : item.kind === 'service' ? 'Servicio' : 'Producto'} · oferta complementaria</small><ButtonSecondary onClick={() => editOffer(item)}>Editar {item.name}</ButtonSecondary><ButtonSecondary onClick={() => patch({ offers:proposal.offers.filter(o => o.id !== item.id) })}>Quitar de la propuesta {item.name}</ButtonSecondary></article>)}</div>
-        {compactOffers && type === 'restaurant' && business.route !== 'services' &&
-          <PearlButton compact tone="neutral" to={'/modules/restaurant' + query + (routeParams.get('return') === 'island' ? '&return=island&area=finance' : '')}>Ver costos e inventario</PearlButton>}
-        {offer && <EditorSheet open={offerPanel} title={compactOffers ? 'Tu oferta' : 'Editar oferta'} onClose={() => setOfferPanel(false)}>
-          {compactOffers ? <form className="proposal-quick-offer" onSubmit={event => { event.preventDefault(); void applyOffer(); }}>
-            <Input required autoFocus disabled={busy} label="Nombre de la oferta" maxLength={120} value={offer.name} onChange={event => setOffer({ ...offer, name: event.target.value })} />
-            <label>Tipo de oferta
-              <select disabled={busy || offer.experience !== undefined} value={offer.kind} onChange={event => setOffer({ ...offer, kind: event.target.value as Offer['kind'] })}>
-                <option value="product">Producto</option><option value="service">Servicio</option><option value="package">Paquete</option>
-                <option value="experience">Experiencia</option><option value="stay">Estadía</option><option value="course">Curso</option>
-              </select>
-            </label>
-            <Input disabled={busy} label="Precio de venta (S/)" type="number" min="0" max="1000000" step="0.01" placeholder="Por consultar" value={offer.price ?? ''} onChange={event => {
-              const price = event.target.value ? event.target.valueAsNumber : null;
-              setOffer({ ...offer, price, pricing: price === null ? 'quote' : price === 0 ? 'free' : 'fixed' });
-            }} />
-            {offer.pricing === 'free' && <p>Esta oferta se mostrará como Gratis.</p>}
-            {error && <p role="alert">{error}</p>}
-            <div className="proposal-quick-actions">
-              <PearlButton compact type="submit" disabled={busy}>{busy ? 'Guardando…' : 'Guardar oferta'}</PearlButton>
-              <PearlButton compact tone="neutral" disabled={busy} onClick={() => { setOffer(null); setError(''); }}>Cancelar</PearlButton>
-            </div>
-          </form> : <OfferComposer key={offer.id} offer={offer} onChange={setOffer} onApply={() => void applyOffer()} onCancel={() => setOffer(null)} busy={busy} />}
+        {offer && <EditorSheet open={offerPanel} title="Editar oferta" onClose={() => setOfferPanel(false)}>
+          <OfferComposer key={offer.id} offer={offer} onChange={setOffer} onApply={() => void applyOffer()} onCancel={() => setOffer(null)} busy={busy} />
         </EditorSheet>}
         {offer && !offerPanel && <ButtonSecondary onClick={() => setOfferPanel(true)}>Retomar mi oferta pendiente</ButtonSecondary>}
       </>}
       {step === 2 && <><h2>Invita a dar el siguiente paso</h2><div className="proposal-definition-cards">{(['message','cta','whatsapp','conditions'] as const).map((key,i)=><button type="button" className={`proposal-definition-card proposal-card-${i}`} key={key} onClick={()=>setField(key)}><h3>{cardTitles[key]}</h3><p>{proposal[key]||'Lo puedes definir después'}</p><small>Editar →</small></button>)}</div></>}
     </fieldset>
     <EditorSheet open={field!==null} title={field?cardLabels[field]:''} onClose={()=>setField(null)}>{field&&<><Textarea disabled={busy} label={cardLabels[field]} autoFocus value={proposal[field]} maxLength={field==='cta'?50:field==='message'?180:field==='whatsapp'?30:2000} onChange={e=>patch({[field]:e.target.value})}/><p>Escribe con tus palabras. Podrás volver a cambiarlo.</p><ButtonPrimary disabled={busy} onClick={()=>void storeProposal()}>Guardar esta parte</ButtonPrimary></>}</EditorSheet>
-    <footer className="proposal-actions">{step===1&&!dirty?!compactOffers && native.length+proposal.offers.length>0?<Link className="pe-action-link pe-action-primary" to={'/dashboard/tools/landing'+query}>Ver mi página →</Link>:null:dirty?<ButtonPrimary disabled={busy||uncommitted} onClick={()=>void storeProposal()}>{busy?'Guardando…':'Guardar mis cambios'}</ButtonPrimary>:step<2?<ButtonPrimary disabled={busy} onClick={()=>setStep(step+1)}>Continuar →</ButtonPrimary>:<ButtonPrimary disabled={!canPrepare} onClick={openPreparation}>Ver mi página →</ButtonPrimary>}</footer>
+    <footer className="proposal-actions">{step===1&&!dirty?native.length+proposal.offers.length>0?<Link className="pe-action-link pe-action-primary" to={'/dashboard/tools/landing'+query}>Ver mi página →</Link>:null:dirty?<ButtonPrimary disabled={busy||uncommitted} onClick={()=>void storeProposal()}>{busy?'Guardando…':'Guardar mis cambios'}</ButtonPrimary>:step<2?<ButtonPrimary disabled={busy} onClick={()=>setStep(step+1)}>Continuar →</ButtonPrimary>:<ButtonPrimary disabled={!canPrepare} onClick={openPreparation}>Ver mi página →</ButtonPrimary>}</footer>
     <p role={error ? 'alert' : 'status'}>{error || (busy ? 'Guardando…' : uncommitted ? 'Aplica o cancela las ediciones de ofertas pendientes.' : dirty ? 'Propuesta pendiente de guardar.' : notice || (documentRevision('module-proposal') ? 'Propuesta guardada en tu cuenta.' : 'Aún no guardaste tu propuesta.'))}</p>
     {error && <ButtonSecondary disabled={busy} onClick={() => { if (dirty || uncommitted) setConfirmRecovery(true); else void reload(); }}>Recuperar datos guardados</ButtonSecondary>}
     {confirmRecovery && <section className="proposal-preparation" aria-label="Confirmar recuperación"><h2>¿Recuperar la versión guardada?</h2><p>Se descartarán las ediciones pendientes de esta propuesta. Puedes cancelar para conservarlas en pantalla.</p><ButtonSecondary onClick={() => setConfirmRecovery(false)}>Conservar mis cambios pendientes</ButtonSecondary><ButtonPrimary disabled={busy} onClick={() => void reload()}>Descartar pendientes y recuperar</ButtonPrimary></section>}

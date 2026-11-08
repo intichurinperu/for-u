@@ -193,7 +193,7 @@ function StudioHome({type}:{type:ModuleType}){
    <summary>Otras formas de crear y continuar</summary>
    <nav>
     <Link to={`/dashboard/tools/landing?project=${projectId}`}>Editar mi página</Link>
-    <Link to={`/dashboard/tools/proposal?project=${projectId}`}>Revisar mis ofertas</Link>
+    <Link to={`/dashboard/tools/proposal?project=${projectId}&section=offers`}>Revisar mis ofertas</Link>
     <Link to={`/dashboard/tools/content?project=${projectId}`}>Preparar texto con IA</Link>
     <Link to={`/dashboard/tools/teleprompter?project=${projectId}`}>Abrir teleprompter</Link>
     <Link to={`/content-creator?project=${projectId}`}>Biblioteca de plantillas y editor manual</Link>
