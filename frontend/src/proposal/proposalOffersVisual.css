@@ -1,0 +1,562 @@
+/* 02 · Mi ruta digital - Define tu oferta y tus precios (Referencia oficial 2026-11-08) */
+
+.proposal-offers-container {
+  max-width: 620px;
+  margin: 0 auto 48px;
+  padding: 0 16px;
+}
+
+.proposal-offers-top {
+  margin-bottom: 24px;
+}
+
+.proposal-offers-top .workspace-project-back {
+  display: inline-flex;
+  align-items: center;
+  color: #5c4276;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.proposal-offers-top .proposal-kicker {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #71558d;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.proposal-offers-top h1 {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 650;
+  color: #1a1523;
+  letter-spacing: -0.035em;
+  margin: 6px 0;
+  line-height: 1.1;
+}
+
+.proposal-offers-top p {
+  margin: 0;
+  font-size: 0.98rem;
+  color: #615570;
+  line-height: 1.5;
+}
+
+/* Tarjeta principal de ofertas */
+.proposal-offers-card {
+  background: #ffffffeb;
+  border: 1px solid #ebdfee;
+  border-radius: 28px;
+  padding: 26px 24px;
+  box-shadow: 0 16px 40px rgba(90, 50, 120, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.proposal-offers-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.proposal-offers-card-header h2 {
+  font-size: 1.35rem;
+  font-weight: 650;
+  color: #1c1527;
+  margin: 0;
+}
+
+.proposal-offers-hint {
+  font-size: 0.88rem;
+  color: #665675;
+  margin: -4px 0 6px;
+  line-height: 1.4;
+}
+
+/* Lista de ofertas */
+.proposal-offers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.proposal-offer-row-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  background: #fff;
+  border: 1px solid #ede3f2;
+  border-radius: 20px;
+  box-shadow: 0 4px 14px rgba(70, 40, 90, 0.03);
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+}
+
+.proposal-offer-row-card:hover {
+  border-color: #d8c2e8;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(80, 40, 110, 0.06);
+}
+
+.proposal-offer-thumb-container {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: radial-gradient(circle at 50% 40%, #fff 20%, #f7effd 100%);
+  border: 1px solid #ebdbee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.proposal-offer-thumb-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.proposal-offer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.proposal-offer-name-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1d1628;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.proposal-offer-price-tag {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #67468a;
+}
+
+.proposal-offer-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.proposal-action-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #5d4179;
+  background: #f6edf9;
+  border: 1px solid #ebdcee;
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 120ms ease;
+  font-family: inherit;
+}
+
+.proposal-action-pill-btn:hover {
+  background: #ede0f4;
+  color: #432560;
+}
+
+.proposal-offers-empty {
+  text-align: center;
+  padding: 32px 16px;
+  background: #faf6fd;
+  border-radius: 20px;
+  border: 1px dashed #d9c8e4;
+  color: #675677;
+}
+
+.proposal-offers-footer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.proposal-offers-footer-actions .foru-pearl-button {
+  width: 100%;
+}
+
+/* ---------- MODAL FLOTANTE: AÑADIR / EDITAR OFERTA ---------- */
+.proposal-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 18, 38, 0.48);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: modalFadeIn 180ms ease-out;
+}
+
+.proposal-modal-card {
+  background: #ffffff;
+  border: 1px solid #ede3f2;
+  border-radius: 32px;
+  width: 100%;
+  max-width: 440px;
+  padding: 28px 24px 30px;
+  box-shadow: 0 24px 64px rgba(60, 30, 85, 0.22);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  animation: modalCardScale 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.proposal-modal-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #ebdcee;
+  background: #f7effb;
+  color: #4b3662;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 120ms ease;
+  line-height: 1;
+}
+
+.proposal-modal-close-btn:hover {
+  background: #ebd8f3;
+  color: #271439;
+  transform: rotate(90deg);
+}
+
+.proposal-modal-header {
+  text-align: left;
+  margin-bottom: 12px;
+}
+
+.proposal-modal-header h2 {
+  font-size: 1.6rem;
+  font-weight: 650;
+  color: #1c1527;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+/* Showcase visual con plato y etiqueta iridiscente */
+.proposal-modal-showcase {
+  margin: 12px 0 20px;
+  min-height: 140px;
+  border-radius: 22px;
+  background: radial-gradient(circle at 50% 30%, #fff 25%, #fbf5fe 70%, #f0f6fd 100%);
+  border: 1px solid #ede1f2;
+  box-shadow: inset 0 1px 2px #fff, 0 10px 26px rgba(110, 70, 140, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 16px;
+}
+
+.proposal-showcase-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.proposal-showcase-plate {
+  width: 90px;
+  height: 72px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #ebdbee;
+  box-shadow: 0 10px 24px rgba(60, 30, 80, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 38px;
+}
+
+.proposal-showcase-plate img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.proposal-showcase-tag {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 64px;
+  background: linear-gradient(135deg, #fff7fb, #fdf3ff 50%, #e6f6f9);
+  border: 1.5px solid #dfcce8;
+  border-radius: 12px;
+  box-shadow: 0 8px 18px rgba(90, 50, 110, 0.12);
+  position: relative;
+  font-size: 22px;
+  transform: rotate(-6deg);
+}
+
+.proposal-showcase-tag::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #d4bcde;
+}
+
+/* Formulario */
+.proposal-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.proposal-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.proposal-modal-field label {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #352945;
+}
+
+.proposal-modal-field input,
+.proposal-modal-field select {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  border: 1px solid #decde7;
+  background: #fff;
+  color: #20182c;
+  font: inherit;
+  font-size: 1rem;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.proposal-modal-field input:focus,
+.proposal-modal-field select:focus {
+  border-color: #7b4ea3;
+  box-shadow: 0 0 0 3px rgba(123, 78, 163, 0.12);
+}
+
+.proposal-price-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.proposal-price-prefix {
+  position: absolute;
+  left: 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #68577a;
+  pointer-events: none;
+}
+
+.proposal-price-input-wrap input {
+  padding-left: 44px;
+}
+
+.proposal-center-cost-link {
+  display: flex;
+  justify-content: center;
+  margin: 2px 0;
+}
+
+.proposal-center-cost-link button {
+  background: #f7eefb;
+  border: 1px solid #ebd9f2;
+  color: #5c3e7b;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 120ms ease;
+  font-family: inherit;
+}
+
+.proposal-center-cost-link button:hover {
+  background: #ede0f4;
+}
+
+.proposal-modal-submit-btn {
+  width: 100%;
+  margin-top: 6px;
+}
+
+/* ---------- VISTA DE COSTOS (REFERENCIA: COSTOS DEL BROWNIE) ---------- */
+.proposal-costs-card {
+  background: #ffffffeb;
+  border: 1px solid #ebdfee;
+  border-radius: 28px;
+  padding: 26px 24px;
+  box-shadow: 0 16px 40px rgba(90, 50, 120, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.proposal-costs-hero {
+  border-radius: 22px;
+  background: radial-gradient(circle at 50% 40%, #fff 20%, #fbf5fe 70%, #f0f7fd 100%);
+  border: 1px solid #ede1f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  min-height: 130px;
+}
+
+.proposal-costs-measuring-cup {
+  width: 90px;
+  height: 90px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #ffffff, #f7effc 70%, #ebf8fc);
+  border: 1px solid #ded0e6;
+  box-shadow: 0 10px 24px rgba(70, 40, 90, 0.08);
+  display: grid;
+  place-items: center;
+  font-size: 44px;
+}
+
+.proposal-costs-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #ebdfee;
+  background: #fff;
+  font-size: 0.94rem;
+}
+
+.proposal-costs-table th {
+  background: #fbf6fd;
+  color: #4f3b64;
+  font-weight: 650;
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid #ebdfee;
+}
+
+.proposal-costs-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f4ecf7;
+  color: #2a2037;
+}
+
+.proposal-costs-table tr:last-child td {
+  border-bottom: none;
+}
+
+.proposal-cost-input-num {
+  width: 70px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid #decde7;
+  font: inherit;
+  text-align: right;
+}
+
+.proposal-cost-unit-select {
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid #decde7;
+  font: inherit;
+  background: #fff;
+}
+
+.proposal-costs-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #fbf7fd;
+  border: 1px solid #ebddee;
+  border-radius: 18px;
+  padding: 16px 18px;
+}
+
+.proposal-costs-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  color: #4b3d5c;
+}
+
+.proposal-costs-summary-row strong {
+  color: #1d1529;
+  font-size: 1.05rem;
+}
+
+.proposal-costs-summary-row.is-margin {
+  padding-top: 8px;
+  border-top: 1px dashed #e5d7eb;
+}
+
+.proposal-costs-summary-row.is-margin strong {
+  color: #1d7350;
+  font-size: 1.15rem;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalCardScale {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .proposal-offer-row-card {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    gap: 12px;
+  }
+  .proposal-offer-row-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+  .proposal-modal-card {
+    padding: 22px 18px;
+    border-radius: 26px;
+  }
+}
+
