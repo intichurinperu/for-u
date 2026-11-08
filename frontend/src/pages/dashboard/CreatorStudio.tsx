@@ -37,8 +37,6 @@ export default function CreatorStudio() {
   if (params.get('create') === '1' || params.get('view') === 'management') return <UnifiedDashboard />;
   if (!project) return <section className="cs-empty"><h1>{requested ? 'No encontramos este proyecto' : 'Tu próxima idea empieza aquí'}</h1><Link to={requested ? '/creator-studio' : '/dashboard?create=1'}>{requested ? 'Ver mis proyectos' : '＋ Crear mi proyecto'}</Link></section>;
   return <ToolkitProvider key={`${user.id}:${project.id}`} userId={user.id} projectId={project.id} business={businessFromProject(project)}><StudioHome type={projectModuleType(project)!} /></ToolkitProvider>;
-
-
 }
 function StudioHome({type}:{type:NonNullable<ReturnType<typeof projectModuleType>>}){
  const {business,docs,loading,loadError,reload,projectId,documentRevision}=useToolkit();
@@ -48,8 +46,7 @@ function StudioHome({type}:{type:NonNullable<ReturnType<typeof projectModuleType
  const focusedPiece=params.get('tab')==='profile'&&Boolean(params.get('piece'));
  const inCanvasEditor=params.get('compose')==='idea'||params.get('creation')==='design';
 
- // loading timeout handling removed - rely on existing loading state
-if(loading)return <p role="status" className="studio-loading">Abriendo tu estudio…</p>;;
+ if(loading)return <p role="status" className="studio-loading">Abriendo tu estudio…</p>;
  if(loadError)return <section role="alert"><h1>No pudimos abrir tu estudio</h1><ButtonSecondary onClick={()=>void reload()}>Reintentar</ButtonSecondary></section>;
 
  let sources:CreativeSource[],brand:BrandProfile|undefined;
@@ -69,26 +66,7 @@ if(loading)return <p role="status" className="studio-loading">Abriendo tu estudi
   return requestedOfferIds.includes(id)||requestedOfferIds.includes(s.key)||requestedOfferIds.includes(keyNoPrefix);
  });
 
-   // ---------- Selección interactiva de ofertas ----------
-  const [selectedIds, setSelectedIds] = useState<string[]>(requestedOfferIds);
-
-  const toggleOffer = (id:string) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(v=>v!==id) : [...prev, id]);
-  };
-
-  const startStudio = () => {
-    const next = new URLSearchParams(params);
-    if (selectedIds.length>0) {
-      next.set('offers', selectedIds.join(','));
-    } else {
-      next.delete('offers');
-    }
-    // Quitar el flag que muestra la pantalla de selección
-    next.delete('start');
-    setParams(next);
-  };
-
-  function removeOffer(source:CreativeSource){
+ function removeOffer(source:CreativeSource){
   const idToRemove=source.reference?.id||source.key;
   const keyNoPrefix=source.key.replace(/^(proposal|catalog):/,'');
   const nextIds=requestedOfferIds.filter(id=>id!==idToRemove&&id!==source.key&&id!==keyNoPrefix);
@@ -129,32 +107,7 @@ if(loading)return <p role="status" className="studio-loading">Abriendo tu estudi
  const page=readableStudioDraft(docs.landing)?(docs.landing as LandingDraft):null;
 
  return <section className={`studio-integrated${firstContent?' studio-first-content':''}`}>
-  {firstContent && !focusedPiece && (
-  <div className="studio-offer-selection">
-    <h2>Selecciona una o varias ofertas</h2>
-    {offerSources.length===0 ? (
-      <p>No hay ofertas creadas.</p>
-    ) : (
-      <div className="studio-offer-list">
-        {offerSources.map(source=> {
-          const id = source.reference?.id||source.key;
-          const selected = selectedIds.includes(id);
-          return (
-            <label key={source.key} className="studio-offer-item">
-              {source.image ? <img src={source.image} alt={source.title} className="studio-offer-thumb"/> : <span className="studio-chip-icon" aria-hidden="true">🏷️</span>}
-              <span className="studio-offer-title">{source.title}</span>
-              <input type="checkbox" checked={selected} onChange={()=>toggleOffer(id)} />
-            </label>
-          );
-        })}
-      </div>
-    )}
-    <PearlButton className="studio-start-button foru-pearl-button" onClick={startStudio} disabled={selectedIds.length===0 && offerSources.length>0}>
-      <Play size={16} style={{marginRight:4}}/> Empezar a crear
-    </PearlButton>
-  </div>
-)}
-{!firstContent && !focusedPiece && <header className="studio-unified-header">
+  {!firstContent&&!focusedPiece&&<header className="studio-unified-header">
    <div className="studio-title-row">
     <div className="studio-brand-badge">
      <small>{business.name}</small>

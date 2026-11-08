@@ -5,7 +5,7 @@ import BrandWelcome from './experience/BrandWelcome';
 import { Card as DSCard } from './components/ui/DesignSystem';
 import { Toaster } from 'react-hot-toast';
 import { Component, lazy, Suspense, useEffect, type ErrorInfo, type ReactNode } from 'react';
-import { createBrowserRouter, RouterProvider, Navigate, Routes, Route, useLocation } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate, Routes, Route, useLocation, useRouteError } from 'react-router-dom';
 import WorkspaceShell from './pages/dashboard/WorkspaceShell';
 import { useActiveProjectsStore } from './stores/useActiveProjectsStore';
 import { projectModuleType } from './modules/moduleProjects';
@@ -184,7 +184,21 @@ function ApplicationRoutes() {
   );
 }
 
-function RouteFailure(){return <main className="foru-auth-page"><DSCard as="section" className="foru-auth-card"><span className="foru-auth-kicker">FOR U</span><h1>No pudimos abrir esta pantalla.</h1><p>Tu información guardada se conserva. Puedes recargar o volver al inicio.</p><a className="pe-action-link" href="/dashboard">Volver a mis proyectos</a></DSCard></main>;}
+function RouteFailure() {
+  const error = useRouteError() as { message?: string; statusText?: string } | null;
+  console.error('For U route error:', error);
+  return (
+    <main className="foru-auth-page">
+      <DSCard as="section" className="foru-auth-card">
+        <span className="foru-auth-kicker">FOR U</span>
+        <h1>No pudimos abrir esta pantalla.</h1>
+        <p>Tu información guardada se conserva. Puedes recargar o volver al inicio.</p>
+        {error?.message ? <small style={{ color: '#8b263e', background: '#fff0f3', padding: '6px 10px', borderRadius: '8px', display: 'block', margin: '8px 0' }}>{error.message}</small> : null}
+        <a className="pe-action-link" href="/dashboard">Volver a mis proyectos</a>
+      </DSCard>
+    </main>
+  );
+}
 
 class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; message?: string }> {
   state = { hasError: false, message: undefined };
