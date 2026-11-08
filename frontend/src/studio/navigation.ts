@@ -20,11 +20,11 @@ export function firstContentReturn(params:URLSearchParams,project:string):string
 
 const profileViews=['profile','grid','list','calendar'] as const;
 const returnLabels:Record<string,string>={profile:'← Mi perfil',grid:'← Mi cuadrícula',list:'← Mi contenido',calendar:'← Mi calendario',library:'← Mi biblioteca'};
-const designContextKeys=['start','task','topic','pillar','campaign','pin'];
-function copyDesignContext(from:URLSearchParams,to:URLSearchParams){
+export const designContextKeys=['start','task','topic','pillar','campaign','pin','offers'];
+export function copyDesignContext(from:URLSearchParams,to:URLSearchParams){
  for(const key of designContextKeys){
   const value=from.get(key);
-  if(value&&value.length<=200&&!/[\x00-\x1f]/.test(value))to.set(key,value);
+  if(value&&value.length<=500&&!/[\x00-\x1f]/.test(value))to.set(key,value);
  }
 }
 export function studioDesignPath(params:URLSearchParams,project:string,design:string|null):string {
@@ -44,15 +44,19 @@ export function studioReturn(params:URLSearchParams,origin:unknown,project:strin
   const query=new URLSearchParams({project,tab:value==='library'?'library':'profile'});
   if(value!=='library')query.set('view',value);else if(['designs','files','materials'].includes(params.get('library')||''))query.set('library',params.get('library')!);
   const campaign=params.get('campaign');if(value==='library'&&campaign&&/^[0-9a-f-]{36}$/i.test(campaign))query.set('campaign',campaign);
+  const offers=params.get('offers');if(offers&&offers.length<=500&&!/[\x00-\x1f]/.test(offers))query.set('offers',offers);
   return {path:'/creator-studio?'+query,label:returnLabels[value]};
  }
  const page=landingReturn(origin,project);if(page)return {path:page,label:'← Volver a mi página'};
  const first=firstContentReturn(params,project);if(first)return {path:first,label:'← Elegir contenido'};
- return {path:'/creator-studio?'+new URLSearchParams({project,tab:fallback}),label:returnLabels[fallback]};
+ const fallbackQuery=new URLSearchParams({project,tab:fallback});
+ const offers=params.get('offers');if(offers&&offers.length<=500&&!/[\x00-\x1f]/.test(offers))fallbackQuery.set('offers',offers);
+ return {path:'/creator-studio?'+fallbackQuery,label:returnLabels[fallback]};
 }
 /** Forward only a known internal return context, never an arbitrary URL or project. */
 export function linkedPieceQuery(project:string,piece:string,params:URLSearchParams):string{
  const query=new URLSearchParams({project,piece}),value=params.get('return');
+ const offers=params.get('offers');if(offers&&offers.length<=500&&!/[\x00-\x1f]/.test(offers))query.set('offers',offers);
  if(value==='studio-design'){query.set('return',value);copyDesignContext(params,query);return '?'+query;}
  if(value&&Object.prototype.hasOwnProperty.call(returnLabels,value))query.set('return',value);
  if(value==='library'&&['designs','files','materials'].includes(params.get('library')||''))query.set('library',params.get('library')!);

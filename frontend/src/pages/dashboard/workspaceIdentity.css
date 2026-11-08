@@ -135,3 +135,6 @@
 
 body:has(.is-tool-focused) .foru-companion-launch{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;padding:0!important;right:72px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important}body:has(.is-tool-focused) .foru-companion-launch small{display:none!important}body:has(.is-tool-focused) .floating-pomodoro:not(.is-open){width:48px!important;height:48px!important;right:14px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important}body:has(.is-tool-focused) .floating-pomodoro:not(.is-open) .floating-pomodoro-toggle{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;padding:0!important}body:has(.is-tool-focused) .floating-pomodoro:not(.is-open) .pomodoro-orbit-time{font-size:11px!important}body:has(.is-tool-focused) .floating-pomodoro:not(.is-open) .pomodoro-orbit-label{display:none!important}
 .workspace-shell.is-tool-focused .workspace-focus-bar{position:sticky;top:0}
+.workspace-focus-bar.is-studio-focus-bar { position: relative; }
+.workspace-focus-center-logo { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; pointer-events: none; }
+@media (max-width: 600px) { .workspace-focus-center-logo { display: none; } }

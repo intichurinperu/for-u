@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Compass, MapPin, Sparkles, Tags } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import PearlButton from '../../components/ui/PearlButton';
 import { useAuth } from '../../contexts/AuthContext';
 import { projectRouteType } from '../../experience/GuidedProject';
@@ -11,7 +11,7 @@ import { canonicalAnswer } from '../../experience/routePreparation';
 import { usePrivateDocument } from '../../experience/usePrivateDocument';
 import { useUnsavedNavigation } from '../../lib/useUnsavedNavigation';
 import type { ModuleType } from '../../modules/moduleProjects';
-import { emptyProposal, parseProposal } from '../../proposal/model';
+import { emptyProposal, nativeOffers, offerPrice, parseProposal, type Offer } from '../../proposal/model';
 import { useActiveProjectsStore } from '../../stores/useActiveProjectsStore';
 import { emptyDiagnostic, emptyProjectRoute, parseDiagnostic, parseProjectRoute } from '../../workspace/contracts';
 import { useAreaDocuments } from './AreaDocuments';
@@ -28,6 +28,7 @@ export default function ProjectStart({ projectId, type }: { projectId: string; t
   const route = usePrivateDocument(userId, projectId, 'project-route', () => emptyProjectRoute(projectId), value => parseProjectRoute(value, projectId));
   const diagnostic = usePrivateDocument(userId, projectId, 'project-diagnostic', () => emptyDiagnostic(projectId, businessRoute), value => parseDiagnostic(value, projectId));
   const proposal = usePrivateDocument(userId, projectId, 'proposal', emptyProposal, parseProposal);
+  const catalog = usePrivateDocument(userId, projectId, type, () => null, value => value);
   const history = usePrivateDocument(userId, projectId, 'project-journey', emptyJourney, parseJourney);
   const { entry, reload, change, save } = useAreaDocuments(projectId, type);
   const [completion, setCompletion] = useState<{id: string; state: 'saving' | 'failed'} | null>(null);
@@ -35,6 +36,38 @@ export default function ProjectStart({ projectId, type }: { projectId: string; t
   const query = new URLSearchParams({ project: projectId });
   const setup = `/dashboard?${query}&setup=1`;
   useUnsavedNavigation(!!completion && (completion.state === 'saving' || !!entry?.dirty));
+
+  let native: Offer[] = [];
+  try {
+    if (catalog.loaded && catalog.data) {
+      native = nativeOffers(type, catalog.data);
+    }
+  } catch {
+    native = [];
+  }
+  const availableOffers = [...proposal.data.offers, ...native];
+  const [selectedOfferIds, setSelectedOfferIds] = useState<string[]>(() => {
+    const raw = params.get('offers');
+    return raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : [];
+  });
+  const initializedOffers = useRef(false);
+  useEffect(() => {
+    if (!initializedOffers.current && availableOffers.length > 0) {
+      initializedOffers.current = true;
+      const raw = params.get('offers');
+      if (raw) {
+        const ids = raw.split(',').map(s => s.trim()).filter(Boolean);
+        const matched = ids.filter(id => availableOffers.some(o => o.id === id));
+        setSelectedOfferIds(matched.length > 0 ? matched : availableOffers.map(o => o.id));
+      } else {
+        setSelectedOfferIds(availableOffers.map(o => o.id));
+      }
+    }
+  }, [availableOffers, params]);
+
+  const toggleOffer = (id: string) => {
+    setSelectedOfferIds(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
+  };
 
   if (route.error || (entry?.error && !completion)) return <section className="project-start" role="alert">
     <h2>No pudimos abrir tu ruta</h2>
@@ -78,12 +111,12 @@ export default function ProjectStart({ projectId, type }: { projectId: string; t
   const answered = questions.filter(({ key, customKey }) => list(answers[key]).some(meaningful) ||
     list(answers[customKey || key + 'Custom']).some(meaningful) || answeredByAudio.has(key)).length;
   const hasRoute = Boolean(route.revision);
-  const hasOffer = proposal.data.offers.length > 0 || proposal.data.nativeIds.length > 0;
+  const hasOffer = availableOffers.length > 0;
   const answersReady = diagnostic.loaded && proposal.loaded && history.loaded &&
     !diagnostic.error && !proposal.error && !history.error;
   const island = `/dashboard?${query}&view=island`;
   const offers = `/dashboard/tools/proposal?${query}&section=offers`;
-  const studio = `/creator-studio?${query}&tab=create`;
+  const sellStep = `/dashboard?${query}&view=start&step=sell`;
   const stages = [
     {
       title: 'Cuéntame sobre tu proyecto', icon: Compass,
@@ -99,10 +132,71 @@ export default function ProjectStart({ projectId, type }: { projectId: string; t
     {
       title: 'Cómo vender tu oferta', icon: Sparkles,
       detail: 'Tu página, publicaciones y videos',
-      action: 'Abrir Creator Studio', path: studio,
+      action: hasOffer ? 'Elegir qué vender' : 'Definir oferta', path: hasOffer ? sellStep : offers,
     },
   ];
   const current = !hasRoute ? 0 : !hasOffer ? 1 : 2;
+
+  if (params.get('step') === 'sell') {
+    return <section className="digital-route digital-route-sell" aria-labelledby="sell-offer-title">
+      <header className="sell-offer-top">
+        <Link className="workspace-project-back" to={`/dashboard?${query}&view=start`}>
+          ← Mi ruta digital{project ? ` | ${project.name}` : ''}
+        </Link>
+        <h1 id="sell-offer-title">Cómo vender tu oferta</h1>
+      </header>
+
+      <div className="sell-offer-hero" aria-hidden="true">
+        <div className="sell-offer-showcase">
+          <img src={availableOffers.find(o => o.image)?.image || `/brand/island-areas/${type}-marketing.jpg`} alt="" />
+        </div>
+      </div>
+
+      {availableOffers.length > 0 ? <div className="sell-offer-card">
+        <fieldset className="sell-offer-checklist">
+          <legend className="sr-only">Selecciona las ofertas que deseas crear o promocionar</legend>
+          {availableOffers.map(offer => {
+            const isChecked = selectedOfferIds.includes(offer.id);
+            return <label key={offer.id} className={`sell-offer-row${isChecked ? ' is-checked' : ''}`}>
+              <input
+                type="checkbox"
+                checked={isChecked}
+                onChange={() => toggleOffer(offer.id)}
+              />
+              <span className="sell-offer-checkbox-visual" aria-hidden="true" />
+              <span className="sell-offer-name">{offer.name}</span>
+              {offer.price !== null && offer.price !== undefined && <span className="sell-offer-price">{offerPrice(offer)}</span>}
+            </label>;
+          })}
+        </fieldset>
+
+        <p className="sell-offer-counter" role="status">
+          {selectedOfferIds.length} {selectedOfferIds.length === 1 ? 'oferta elegida' : 'ofertas elegidas'}
+        </p>
+
+        <PearlButton
+          className="sell-offer-action"
+          disabled={selectedOfferIds.length === 0}
+          to={`/creator-studio?${new URLSearchParams({
+            project: projectId,
+            tab: 'posts',
+            offers: selectedOfferIds.join(','),
+            from: 'start',
+          })}`}
+        >
+          Empezar a crear
+        </PearlButton>
+      </div> : <div className="sell-offer-card sell-offer-empty">
+        <p>Aún no tienes ofertas guardadas en este proyecto.</p>
+        <div className="sell-offer-empty-actions">
+          <PearlButton to={offers}>Definir oferta</PearlButton>
+          <PearlButton tone="neutral" to={`/creator-studio?${new URLSearchParams({ project: projectId, tab: 'posts', compose: 'idea', from: 'start' })}`}>
+            Crear idea libre
+          </PearlButton>
+        </div>
+      </div>}
+    </section>;
+  }
 
   return <section className="digital-route" aria-labelledby="digital-route-title">
     <header className="digital-route-hero">

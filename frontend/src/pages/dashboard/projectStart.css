@@ -115,3 +115,140 @@
     display: none;
   }
 }
+
+/* 04 · Creator Studio - Entrada Cómo vender tu oferta */
+.digital-route-sell {
+  max-width: 620px;
+  margin: 0 auto 40px;
+  padding: 0 16px;
+}
+.sell-offer-top {
+  margin-bottom: 20px;
+}
+.sell-offer-top h1 {
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  font-weight: 650;
+  color: #1a1523;
+  letter-spacing: -.03em;
+  margin: 12px 0 0;
+}
+.sell-offer-hero {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  background: radial-gradient(circle at 50% 30%, #fff 30%, #fbf6ff 70%, #f2f7fc 100%);
+  border: 1px solid #ede3f2;
+  box-shadow: 0 14px 34px rgba(110, 80, 140, 0.08), inset 0 1px 2px #fff;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sell-offer-showcase {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px;
+}
+.sell-offer-showcase img {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 18px;
+  filter: drop-shadow(0 10px 20px rgba(70, 40, 90, 0.12));
+}
+.sell-offer-card {
+  background: #ffffffeb;
+  border: 1px solid #ebdfee;
+  border-radius: 26px;
+  padding: 24px 22px;
+  box-shadow: 0 16px 40px rgba(90, 50, 120, 0.07);
+  display: flex;
+  flex-direction: column;
+}
+.sell-offer-checklist {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.sell-offer-row {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 14px;
+  border-bottom: 1px solid #f2ecf6;
+  cursor: pointer;
+  border-radius: 14px;
+  transition: background 140ms ease;
+}
+.sell-offer-row:last-child {
+  border-bottom: none;
+}
+.sell-offer-row:hover {
+  background: #faf6fd;
+}
+.sell-offer-row input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.sell-offer-checkbox-visual {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid #282133;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  transition: background 140ms ease, border-color 140ms ease;
+  box-sizing: border-box;
+}
+.sell-offer-row.is-checked .sell-offer-checkbox-visual {
+  background: #251d30;
+  border-color: #251d30;
+}
+.sell-offer-row.is-checked .sell-offer-checkbox-visual::after {
+  content: '';
+  width: 6px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+.sell-offer-name {
+  font-size: 1.05rem;
+  font-weight: 550;
+  color: #1f1a29;
+}
+.sell-offer-price {
+  font-size: .95rem;
+  font-weight: 600;
+  color: #634f78;
+}
+.sell-offer-counter {
+  margin: 20px 0 16px;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #4b3d5c;
+}
+.sell-offer-action {
+  width: 100%;
+}
+.sell-offer-empty {
+  text-align: center;
+  gap: 16px;
+  padding: 36px 20px;
+}
+.sell-offer-empty-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
