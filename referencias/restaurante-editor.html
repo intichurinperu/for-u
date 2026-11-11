@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For U · Editor Profesional</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root {
+  --primary: #10B981;
+  --primary-gradient: linear-gradient(135deg, #FDE68A, #10B981, #F9A8D4, #93C5FD);
+  --bg-app: #F8FAFC;
+  --bg-panel: #FFFFFF;
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --border: #E2E8F0;
+  --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: var(--bg-app); color: var(--text-main); height: 100vh; overflow: hidden; }
+
+.editor-layout { display: flex; height: 100vh; }
+.sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+.sidebar-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.sidebar-logo { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: var(--text-muted); font-weight: 500; font-size: 14px; cursor: pointer; margin-bottom: 4px; }
+.nav-item:hover { background: #F1F5F9; color: var(--text-main); }
+.nav-item.active { background: #ECFDF5; color: #059669; font-weight: 600; }
+.sidebar-footer { padding: 16px; border-top: 1px solid var(--border); }
+.user-profile { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; cursor: pointer; }
+.user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary-gradient); display: grid; place-items: center; color: white; font-weight: 700; font-size: 14px; }
+
+.canvas-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.canvas-header { height: 64px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+.btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; }
+.btn-primary { background: var(--text-main); color: white; }
+.btn-secondary { background: white; border: 1px solid var(--border); }
+
+.canvas-content { flex: 1; overflow-y: auto; padding: 32px; background: var(--bg-app); }
+.component-card { background: white; border-radius: 16px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; }
+.component-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.component-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; }
+
+/* SECTIONS TAGS */
+.section-tag { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #F1F5F9; border-radius: 20px; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 16px; }
+.section-tag.active { background: #ECFDF5; color: #059669; }
+
+/* HERO */
+.hero-editor { position: relative; border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+.hero-editor img { width: 100%; height: 400px; object-fit: cover; }
+.hero-editor-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 32px; color: white; }
+.hero-editor-title { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; margin-bottom: 8px; }
+.hero-editor-tagline { font-size: 16px; opacity: 0.9; margin-bottom: 20px; }
+.hero-editor-actions { position: absolute; top: 16px; right: 16px; display: flex; gap: 8px; }
+.hero-editor-btn { padding: 8px 16px; background: rgba(255,255,255,0.9); border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+/* MENU GRID */
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-bottom: 24px; }
+.dish-card { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.2s; }
+.dish-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+.dish-card img { width: 100%; height: 160px; object-fit: cover; }
+.dish-card-body { padding: 16px; }
+.dish-card-name { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
+.dish-card-price { font-weight: 700; color: var(--primary); font-size: 18px; }
+.add-dish { border: 2px dashed var(--border); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; cursor: pointer; background: #F8FAFC; }
+.add-dish:hover { border-color: var(--primary); background: #ECFDF5; }
+
+/* SECTIONS LIST */
+.sections-list { display: flex; flex-direction: column; gap: 12px; }
+.section-item { display: flex; align-items: center; gap: 16px; padding: 16px; background: #F8FAFC; border-radius: 12px; border: 2px solid transparent; cursor: pointer; }
+.section-item:hover { border-color: var(--border); }
+.section-item-icon { font-size: 24px; }
+.section-item-info { flex: 1; }
+.section-item-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.section-item-desc { font-size: 12px; color: var(--text-muted); }
+.section-item-actions { display: flex; gap: 8px; }
+.section-toggle { width: 44px; height: 24px; background: var(--border); border-radius: 12px; position: relative; cursor: pointer; }
+.section-toggle.active { background: var(--primary); }
+.section-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: all 0.2s; }
+.section-toggle.active::after { left: 22px; }
+
+/* MODALS */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+.modal-overlay.active { display: flex; }
+.modal { background: white; border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+.modal-header { padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.modal-body { padding: 32px; }
+.modal-footer { padding: 24px 32px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; }
+
+/* FORMS */
+.form-group { margin-bottom: 20px; }
+.form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-input, .form-textarea, .form-select { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; }
+.form-input:focus, .form-textarea:focus { outline: none; border-color: var(--primary); }
+
+/* UPLOAD AREA */
+.upload-area { border: 2px dashed var(--border); border-radius: 12px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.2s; }
+.upload-area:hover { border-color: var(--primary); background: rgba(16,185,129,0.02); }
+.upload-icon { font-size: 48px; margin-bottom: 12px; }
+
+/* MEDIA LIBRARY */
+.media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-top: 16px; }
+.media-item { aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 2px solid transparent; cursor: pointer; position: relative; }
+.media-item:hover { border-color: var(--primary); }
+.media-item img { width: 100%; height: 100%; object-fit: cover; }
+.media-item.selected { border-color: var(--primary); }
+
+/* RECIPE CALCULATOR */
+.recipe-calc-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+.recipe-calc-table th { text-align: left; padding: 12px; font-size: 12px; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+.recipe-calc-table td { padding: 12px; border-bottom: 1px solid var(--border); }
+.recipe-calc-table tr.danger td { color: #EF4444; font-weight: 600; }
+
+/* CONTENT CREATOR */
+.stage-selector { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+.stage-btn { padding: 10px 16px; border: 2px solid var(--border); border-radius: 8px; background: white; cursor: pointer; font-weight: 600; font-size: 13px; }
+.stage-btn.active { background: var(--primary-gradient); color: white; border-color: transparent; }
+.template-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+.template-card { border: 2px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; }
+.template-card:hover { border-color: var(--primary); }
+.template-card.selected { border-color: var(--primary); border-width: 3px; }
+.template-preview { width: 100%; aspect-ratio: 1; position: relative; }
+.template-preview-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 12px; color: white; }
+
+.toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(100px); background: #0F172A; color: white; padding: 14px 24px; border-radius: 12px; font-weight: 500; z-index: 2000; opacity: 0; transition: all 0.3s; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media(max-width: 768px) {
+  .sidebar { position: fixed; left: -280px; height: 100%; transition: left 0.3s; }
+  .sidebar.open { left: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="editor-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="user-avatar">F</div>
+      <span class="sidebar-logo">For U Pro</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="switchView('menu')">🍽️ Menú & Secciones</div>
+      <div class="nav-item" onclick="switchView('logistics')">📊 Logística & Recetas</div>
+      <div class="nav-item" onclick="switchView('content')">🎨 Creador de Contenido</div>
+      <div class="nav-item" onclick="switchView('media')">️ Biblioteca de Medios</div>
+      <div class="nav-item" onclick="switchView('settings')">⚙️ Configuración</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="user-avatar">N</div>
+        <div style="flex: 1;">
+          <div style="font-weight: 600; font-size: 14px;">nicoiriartemarketing</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Plan Pro Activo</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="canvas-area">
+    <header class="canvas-header">
+      <div style="font-weight: 600; font-size: 16px;" id="canvasTitle">Menú & Secciones</div>
+      <div style="display: flex; gap: 12px;">
+        <button class="btn btn-secondary" onclick="copyLink()">🔗 Copiar Link</button>
+        <button class="btn btn-primary" onclick="openPublicView()">👁️ Ver Publicado</button>
+      </div>
+    </header>
+    <div class="canvas-content" id="canvasContent"></div>
+  </main>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="sectionModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="component-title" id="sectionModalTitle">Editar Sección</h3>
+      <button class="btn btn-secondary" onclick="closeModal('sectionModal')">✕</button>
+    </div>
+    <div class="modal-body" id="sectionModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('sectionModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveSection()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="recipeModal">
+  <div class="modal" style="max-width: 700px;">
+    <div class="modal-header">
+      <h3 class="component-title">👨‍🍳 Preparar Receta</h3>
+      <button class="btn btn-secondary" onclick="closeModal('recipeModal')">✕</button>
+    </div>
+    <div class="modal-body" id="recipeModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('recipeModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmRecipe()">✅ Confirmar y Descontar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="dishModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="component-title" id="dishModalTitle">Agregar Plato</h3>
+      <button class="btn btn-secondary" onclick="closeModal('dishModal')">✕</button>
+    </div>
+    <div class="modal-body" id="dishModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('dishModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveDish()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="ctaModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="component-title">Editar Botones</h3>
+      <button class="btn btn-secondary" onclick="closeModal('ctaModal')">✕</button>
+    </div>
+    <div class="modal-body" id="ctaModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('ctaModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCta()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ Listo</div>
+
+<script>
+// ===== STATE COMPLETO =====
+let state = {
+  restaurant: { name: 'Pizzería Machay', slug: 'pizzeria-machay' },
+  menuData: [
+    { id: 1, name: 'Pizza Margherita', desc: 'Tomate San Marzano, mozzarella fresca y albahaca.', price: 28, category: 'Pizzas', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=600' },
+    { id: 2, name: 'Spaghetti Carbonara', desc: 'Pasta con huevo, panceta y parmesano.', price: 38, category: 'Pastas', image: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?w=600' }
+  ],
+  inventory: [
+    { id: 1, name: 'Tomate', emoji: '🍅', amount: 12, unit: 'unidades', max: 20 },
+    { id: 2, name: 'Queso Mozzarella', emoji: '🧀', amount: 3, unit: 'kg', max: 10 },
+    { id: 3, name: 'Masa de Pizza', emoji: '🫓', amount: 8, unit: 'unidades', max: 15 }
+  ],
+  recipes: [
+    { id: 1, name: 'Pizza Margherita', ingredients: [
+      { invId: 3, name: 'Masa de Pizza', qty: 1, unit: 'unidad' },
+      { invId: 1, name: 'Tomate', qty: 2, unit: 'unidades' },
+      { invId: 2, name: 'Queso Mozzarella', qty: 0.15, unit: 'kg' }
+    ]}
+  ],
+  sections: [
+    { id: 'hero', name: 'Portada Principal', icon: '🖼️', active: true, order: 1 },
+    { id: 'menu', name: 'Carta de Platos', icon: '🍽️', active: true, order: 2 },
+    { id: 'about', name: 'Conócenos', icon: '👥', active: true, order: 3, data: { title: 'Nuestra Historia', text: 'Somos un restaurante apasionado por la buena comida.', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800' } },
+    { id: 'faq', name: 'Preguntas Frecuentes', icon: '❓', active: true, order: 4, data: [{ q: '¿Horario?', a: '12pm - 11pm' }] },
+    { id: 'location', name: 'Ubicación', icon: '', active: true, order: 5, data: { address: 'Av. Principal 123', hours: '12pm - 11pm', phone: '+51 987 654 321' } },
+    { id: 'loyalty', name: 'Fidelización', icon: '⭐', active: true, order: 6 }
+  ],
+  settings: {
+    coverImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200',
+    coverTitle: 'Pizzería Machay',
+    coverTagline: 'Auténtica pizza artesanal',
+    ctaButtons: [
+      { text: '📱 Pedir por WhatsApp', type: 'whatsapp', target: '' },
+      { text: '📍 Ver Ubicación', type: 'section', target: 'location' }
+    ]
+  },
+  mediaLibrary: [],
+  currentView: 'menu',
+  currentRecipe: null,
+  prepQty: 1,
+  currentSection: null,
+  contentEditor: { stage: 'recognition', template: null, size: 'post', title: '', subtitle: '', style: 'warm' }
+};
+
+const TEMPLATES = [
+  { id: 'r1', stage: 'recognition', name: 'Nuestra Historia', title: 'Conoce nuestra historia', subtitle: 'Desde 2020', style: 'warm', caption: '📖 Nuestra historia\n\n#restaurante' },
+  { id: 's1', stage: 'sale', name: '2x1', title: '2x1 en Pizzas', subtitle: 'Solo hoy', style: 'vibrant', caption: '🔥 ¡PROMO 2x1!\n\n#promo' },
+  { id: 'c1', stage: 'conversion', name: 'Testimonios', title: '⭐⭐⭐⭐⭐', subtitle: 'Clientes felices', style: 'elegant', caption: '💬 "La mejor pizza"\n\n#testimonios' }
+];
+const STAGES = { recognition: '️ Reconocimiento', sale: '💰 Venta', conversion: '🎯 Conversión' };
+const STYLES = { warm: 'linear-gradient(135deg, #fa709a, #fee140)', elegant: 'linear-gradient(135deg, #0A0A0A, #333)', vibrant: 'linear-gradient(135deg, #4facfe, #00f2fe)' };
+
+// ===== NAVIGATION =====
+function switchView(view) {
+  state.currentView = view;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  const titles = { menu: 'Menú & Secciones', logistics: 'Logística & Recetas', content: 'Creador de Contenido', media: 'Biblioteca de Medios', settings: 'Configuración' };
+  document.getElementById('canvasTitle').textContent = titles[view];
+  
+  if(view === 'menu') renderMenu();
+  else if(view === 'logistics') renderLogistics();
+  else if(view === 'content') renderContent();
+  else if(view === 'media') renderMedia();
+  else if(view === 'settings') renderSettings();
+}
+
+// ===== MENU VIEW =====
+function renderMenu() {
+  const container = document.getElementById('canvasContent');
+  
+  // Hero Editor
+  let html = `<div class="component-card">
+    <div class="component-header">
+      <div class="component-title">🖼️ Portada Principal</div>
+      <button class="btn btn-secondary" onclick="editHero()">✏️ Editar</button>
+    </div>
+    <div class="hero-editor">
+      <img src="${state.settings.coverImage}" id="heroImg">
+      <div class="hero-editor-overlay">
+        <div class="hero-editor-title">${state.settings.coverTitle}</div>
+        <div class="hero-editor-tagline">${state.settings.coverTagline}</div>
+        <div style="display: flex; gap: 8px;">
+          ${state.settings.ctaButtons.map((btn, i) => `<button class="hero-editor-btn" onclick="event.stopPropagation(); editCta(${i})">${btn.text} ✏️</button>`).join('')}
+          <button class="hero-editor-btn" onclick="event.stopPropagation(); addCta()">+ Agregar</button>
+        </div>
+      </div>
+      <div class="hero-editor-actions">
+        <button class="hero-editor-btn" onclick="uploadHeroImage()">📸 Cambiar Foto</button>
+      </div>
+    </div>
+  </div>`;
+  
+  // Sections Manager
+  html += `<div class="component-card">
+    <div class="component-header">
+      <div class="component-title">📑 Secciones del Menú</div>
+      <button class="btn btn-secondary" onclick="manageSections()">⚙️ Administrar</button>
+    </div>
+    <div class="sections-list">`;
+  
+  state.sections.sort((a,b) => a.order - b.order).forEach(sec => {
+    html += `<div class="section-item" onclick="editSection('${sec.id}')">
+      <div class="section-item-icon">${sec.icon}</div>
+      <div class="section-item-info">
+        <div class="section-item-title">${sec.name}</div>
+        <div class="section-item-desc">${sec.active ? 'Activa - Visible' : 'Inactiva - Oculta'}</div>
+      </div>
+      <div class="section-item-actions">
+        <div class="section-toggle ${sec.active ? 'active' : ''}" onclick="event.stopPropagation(); toggleSection('${sec.id}')"></div>
+      </div>
+    </div>`;
+  });
+  
+  html += `</div></div>`;
+  
+  // Menu Items
+  html += `<div class="component-card">
+    <div class="component-header">
+      <div class="component-title">🍽️ Carta de Platos</div>
+      <button class="btn btn-primary" onclick="openDishModal()">+ Nuevo Plato</button>
+    </div>
+    <div class="menu-grid">`;
+  
+  state.menuData.forEach(dish => {
+    html += `<div class="dish-card" onclick="editDish(${dish.id})">
+      <img src="${dish.image}" onerror="this.src='https://via.placeholder.com/300x200'">
+      <div class="dish-card-body">
+        <div class="dish-card-name">${dish.name}</div>
+        <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">${dish.category}</div>
+        <div class="dish-card-price">S/ ${dish.price.toFixed(2)}</div>
+      </div>
+    </div>`;
+  });
+  
+  html += `<div class="add-dish" onclick="openDishModal()">
+    <div style="font-size: 32px; margin-bottom: 8px;">+</div>
+    <div style="font-weight: 600; color: var(--text-muted);">Agregar Plato</div>
+  </div></div></div>`;
+  
+  container.innerHTML = html;
+}
+
+// ===== HERO EDITOR =====
+function editHero() {
+  const title = prompt('Nombre del restaurante:', state.settings.coverTitle);
+  if(title) {
+    state.settings.coverTitle = title;
+    renderMenu();
+    showToast('✅ Portada actualizada');
+  }
+}
+
+function uploadHeroImage() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = (e) => {
+    if(e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        state.settings.coverImage = event.target.result;
+        renderMenu();
+        showToast('✅ Imagen actualizada');
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+  input.click();
+}
+
+// ===== CTA BUTTONS =====
+function editCta(index) {
+  const btn = state.settings.ctaButtons[index];
+  const text = prompt('Texto del botón:', btn.text);
+  if(text) {
+    btn.text = text;
+    renderMenu();
+  }
+}
+
+function addCta() {
+  if(state.settings.ctaButtons.length >= 3) {
+    showToast('⚠️ Máximo 3 botones');
+    return;
+  }
+  state.settings.ctaButtons.push({ text: 'Nuevo Botón', type: 'whatsapp', target: '' });
+  renderMenu();
+}
+
+// ===== SECTIONS MANAGER =====
+function manageSections() {
+  const modal = document.getElementById('sectionModal');
+  document.getElementById('sectionModalTitle').textContent = 'Administrar Secciones';
+  
+  let html = '<p style="color: var(--text-muted); margin-bottom: 20px;">Reordena y activa/desactiva las secciones de tu menú.</p><div class="sections-list">';
+  
+  state.sections.sort((a,b) => a.order - b.order).forEach((sec, idx) => {
+    html += `<div class="section-item">
+      <div class="section-item-icon">${sec.icon}</div>
+      <div class="section-item-info">
+        <div class="section-item-title">${sec.name}</div>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button class="btn btn-secondary" style="padding: 6px 10px;" onclick="moveSection('${sec.id}', -1)" ${idx === 0 ? 'disabled' : ''}>↑</button>
+        <button class="btn btn-secondary" style="padding: 6px 10px;" onclick="moveSection('${sec.id}', 1)" ${idx === state.sections.length - 1 ? 'disabled' : ''}>↓</button>
+        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+          <input type="checkbox" ${sec.active ? 'checked' : ''} onchange="toggleSection('${sec.id}')">
+          <span style="font-size: 13px; font-weight: 500;">Activa</span>
+        </label>
+      </div>
+    </div>`;
+  });
+  
+  html += '</div>';
+  document.getElementById('sectionModalBody').innerHTML = html;
+  modal.classList.add('active');
+}
+
+function moveSection(id, dir) {
+  const sorted = [...state.sections].sort((a,b) => a.order - b.order);
+  const idx = sorted.findIndex(s => s.id === id);
+  if(idx + dir >= 0 && idx + dir < sorted.length) {
+    const temp = sorted[idx].order;
+    sorted[idx].order = sorted[idx+dir].order;
+    sorted[idx+dir].order = temp;
+    manageSections();
+  }
+}
+
+function toggleSection(id) {
+  const sec = state.sections.find(s => s.id === id);
+  if(sec) {
+    sec.active = !sec.active;
+    renderMenu();
+  }
+}
+
+function editSection(id) {
+  state.currentSection = state.sections.find(s => s.id === id);
+  if(!state.currentSection) return;
+  
+  const modal = document.getElementById('sectionModal');
+  document.getElementById('sectionModalTitle').textContent = `Editar: ${state.currentSection.name}`;
+  
+  let html = '';
+  
+  if(id === 'about') {
+    html = `
+      <div class="form-group">
+        <label class="form-label">Título</label>
+        <input class="form-input" id="secAboutTitle" value="${state.currentSection.data.title}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Texto</label>
+        <textarea class="form-textarea" id="secAboutText" rows="6">${state.currentSection.data.text}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Imagen URL</label>
+        <input class="form-input" id="secAboutImage" value="${state.currentSection.data.image}">
+      </div>
+    `;
+  } else if(id === 'faq') {
+    html = '<div id="faqList">';
+    state.currentSection.data.forEach((faq, i) => {
+      html += `<div style="margin-bottom: 16px; padding: 16px; background: #F8FAFC; border-radius: 8px;">
+        <label class="form-label">Pregunta ${i+1}</label>
+        <input class="form-input" value="${faq.q}" onchange="state.sections.find(s=>s.id==='faq').data[${i}].q = this.value" style="margin-bottom: 8px;">
+        <label class="form-label">Respuesta</label>
+        <textarea class="form-textarea" rows="3" onchange="state.sections.find(s=>s.id==='faq').data[${i}].a = this.value">${faq.a}</textarea>
+      </div>`;
+    });
+    html += '</div><button class="btn btn-secondary" onclick="addFaq()">+ Agregar Pregunta</button>';
+  } else if(id === 'location') {
+    html = `
+      <div class="form-group">
+        <label class="form-label">Dirección</label>
+        <input class="form-input" id="secLocAddress" value="${state.currentSection.data.address}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Horario</label>
+        <input class="form-input" id="secLocHours" value="${state.currentSection.data.hours}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Teléfono</label>
+        <input class="form-input" id="secLocPhone" value="${state.currentSection.data.phone}">
+      </div>
+    `;
+  }
+  
+  document.getElementById('sectionModalBody').innerHTML = html;
+  modal.classList.add('active');
+}
+
+function addFaq() {
+  state.sections.find(s => s.id === 'faq').data.push({ q: 'Nueva pregunta', a: 'Respuesta' });
+  editSection('faq');
+}
+
+function saveSection() {
+  if(state.currentSection.id === 'about') {
+    state.currentSection.data.title = document.getElementById('secAboutTitle').value;
+    state.currentSection.data.text = document.getElementById('secAboutText').value;
+    state.currentSection.data.image = document.getElementById('secAboutImage').value;
+  } else if(state.currentSection.id === 'location') {
+    state.currentSection.data.address = document.getElementById('secLocAddress').value;
+    state.currentSection.data.hours = document.getElementById('secLocHours').value;
+    state.currentSection.data.phone = document.getElementById('secLocPhone').value;
+  }
+  closeModal('sectionModal');
+  renderMenu();
+  showToast('✅ Sección guardada');
+}
+
+// ===== DISH MANAGER =====
+function openDishModal() {
+  const modal = document.getElementById('dishModal');
+  document.getElementById('dishModalTitle').textContent = 'Agregar Plato';
+  
+  document.getElementById('dishModalBody').innerHTML = `
+    <div class="form-group">
+      <label class="form-label">Nombre del plato *</label>
+      <input class="form-input" id="dishName" placeholder="Ej: Pizza Margherita">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Precio (S/) *</label>
+      <input class="form-input" type="number" step="0.01" id="dishPrice" placeholder="28">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Categoría</label>
+      <select class="form-select" id="dishCategory">
+        <option value="Entradas">Entradas</option>
+        <option value="Pizzas">Pizzas</option>
+        <option value="Pastas">Pastas</option>
+        <option value="Postres">Postres</option>
+        <option value="Bebidas">Bebidas</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción</label>
+      <textarea class="form-textarea" id="dishDesc" rows="3"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Imagen</label>
+      <div class="upload-area" onclick="document.getElementById('dishFile').click()">
+        <div class="upload-icon">📸</div>
+        <div>Click para subir foto</div>
+        <input type="file" id="dishFile" hidden accept="image/*" onchange="handleDishFile(this)">
+      </div>
+      <img id="dishPreview" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-top: 12px; display: none;">
+    </div>
+  `;
+  
+  modal.classList.add('active');
+}
+
+let currentDishImage = '';
+function handleDishFile(input) {
+  if(input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      currentDishImage = e.target.result;
+      document.getElementById('dishPreview').src = e.target.result;
+      document.getElementById('dishPreview').style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function saveDish() {
+  const name = document.getElementById('dishName').value;
+  const price = parseFloat(document.getElementById('dishPrice').value);
+  const category = document.getElementById('dishCategory').value;
+  const desc = document.getElementById('dishDesc').value;
+  
+  if(!name || !price) {
+    showToast('⚠️ Completa nombre y precio');
+    return;
+  }
+  
+  state.menuData.push({
+    id: Date.now(),
+    name,
+    price,
+    category,
+    desc,
+    image: currentDishImage || 'https://via.placeholder.com/300x200'
+  });
+  
+  closeModal('dishModal');
+  renderMenu();
+  showToast('✅ Plato agregado');
+}
+
+function editDish(id) {
+  showToast('✏️ Editor de plato (próximamente)');
+}
+
+// ===== LOGISTICS VIEW =====
+function renderLogistics() {
+  const container = document.getElementById('canvasContent');
+  
+  let html = `<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+    <div class="component-card" style="margin-bottom: 0;">
+      <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Pedidos Hoy</div>
+      <div style="font-size: 32px; font-weight: 700;">12</div>
+    </div>
+    <div class="component-card" style="margin-bottom: 0;">
+      <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Ingresos Hoy</div>
+      <div style="font-size: 32px; font-weight: 700;">S/ 340</div>
+    </div>
+    <div class="component-card" style="margin-bottom: 0;">
+      <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Recetas Activas</div>
+      <div style="font-size: 32px; font-weight: 700;">${state.recipes.length}</div>
+    </div>
+  </div>`;
+  
+  // Recipe Calculator
+  html += `<div class="component-card">
+    <div class="component-header">
+      <div class="component-title">👨‍🍳 Hoy quiero preparar...</div>
+    </div>
+    <p style="color: var(--text-muted); margin-bottom: 20px;">Selecciona una receta para ver el impacto en inventario.</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">`;
+  
+  state.recipes.forEach(rec => {
+    html += `<div class="dish-card" style="cursor: pointer;" onclick="openRecipe('${rec.id}')">
+      <div style="padding: 24px; text-align: center;">
+        <div style="font-size: 32px; margin-bottom: 12px;">🍳</div>
+        <div style="font-weight: 600;">${rec.name}</div>
+        <div style="font-size: 13px; color: var(--text-muted);">${rec.ingredients.length} ingredientes</div>
+      </div>
+    </div>`;
+  });
+  
+  html += `</div></div>`;
+  
+  // Add Recipe Button
+  html += `<div class="component-card">
+    <div class="component-header">
+      <div class="component-title">📖 Agregar Nueva Receta</div>
+      <button class="btn btn-primary" onclick="addRecipe()">+ Nueva Receta</button>
+    </div>
+  </div>`;
+  
+  // Inventory
+  html += `<div class="component-card">
+    <div class="component-header">
+      <div class="component-title">📦 Inventario Actual</div>
+      <button class="btn btn-secondary" onclick="addInventoryItem()">+ Agregar Ingrediente</button>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">`;
+  
+  state.inventory.forEach(inv => {
+    const pct = (inv.amount / inv.max) * 100;
+    const status = pct <= 20 ? 'critical' : (pct <= 50 ? 'low' : '');
+    html += `<div style="padding: 16px; background: white; border: 1px solid var(--border); border-radius: 12px; text-align: center;">
+      <div style="font-size: 32px; margin-bottom: 8px;">${inv.emoji}</div>
+      <div style="font-weight: 600; margin-bottom: 4px;">${inv.name}</div>
+      <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">${inv.amount} / ${inv.max} ${inv.unit}</div>
+      <div style="height: 6px; background: #E2E8F0; border-radius: 3px; overflow: hidden;">
+        <div style="height: 100%; width: ${pct}%; background: ${pct <= 20 ? '#EF4444' : (pct <= 50 ? '#F59E0B' : '#10B981')}; border-radius: 3px;"></div>
+      </div>
+    </div>`;
+  });
+  
+  html += `</div></div>`;
+  container.innerHTML = html;
+}
+
+function openRecipe(id) {
+  state.currentRecipe = state.recipes.find(r => r.id == id);
+  state.prepQty = 1;
+  renderRecipeCalc();
+  document.getElementById('recipeModal').classList.add('active');
+}
+
+function renderRecipeCalc() {
+  const rec = state.currentRecipe;
+  let html = `<div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; padding: 16px; background: #F8FAFC; border-radius: 12px;">
+    <div style="flex: 1;">
+      <div style="font-weight: 700; font-size: 18px;">${rec.name}</div>
+      <div style="font-size: 13px; color: var(--text-muted);">Cantidad a preparar</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button class="btn btn-secondary" onclick="changePrepQty(-1)">−</button>
+      <span style="font-weight: 700; font-size: 18px; min-width: 40px; text-align: center;" id="prepQty">${state.prepQty}</span>
+      <button class="btn btn-secondary" onclick="changePrepQty(1)">+</button>
+    </div>
+  </div>
+  
+  <table class="recipe-calc-table">
+    <thead><tr><th>Ingrediente</th><th>Requerido</th><th>Stock Actual</th><th>Stock Final</th><th>Estado</th></tr></thead>
+    <tbody>`;
+  
+  let allOk = true;
+  rec.ingredients.forEach(ing => {
+    const inv = state.inventory.find(i => i.id == ing.invId) || { name: ing.name, amount: 0, unit: ing.unit };
+    const required = ing.qty * state.prepQty;
+    const final = inv.amount - required;
+    const danger = final < 0;
+    if(danger) allOk = false;
+    
+    html += `<tr class="${danger ? 'danger' : ''}">
+      <td>${inv.name}</td>
+      <td>${required.toFixed(2)} ${ing.unit}</td>
+      <td>${inv.amount} ${inv.unit}</td>
+      <td style="font-weight: 600;">${final.toFixed(2)} ${inv.unit}</td>
+      <td>${danger ? '⚠️ Insuficiente' : '✅ OK'}</td>
+    </tr>`;
+  });
+  
+  html += `</tbody></table>`;
+  if(!allOk) {
+    html += `<div style="margin-top: 16px; padding: 12px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; color: #991B1B; font-size: 14px;">️ No tienes suficiente inventario</div>`;
+  }
+  
+  document.getElementById('recipeModalBody').innerHTML = html;
+}
+
+function changePrepQty(delta) {
+  state.prepQty = Math.max(1, state.prepQty + delta);
+  document.getElementById('prepQty').textContent = state.prepQty;
+  renderRecipeCalc();
+}
+
+function confirmRecipe() {
+  const rec = state.currentRecipe;
+  for(let ing of rec.ingredients) {
+    const inv = state.inventory.find(i => i.id == ing.invId);
+    if(inv) {
+      inv.amount = parseFloat((inv.amount - (ing.qty * state.prepQty)).toFixed(2));
+    }
+  }
+  closeModal('recipeModal');
+  renderLogistics();
+  showToast('✅ Receta preparada - Inventario actualizado');
+}
+
+function addRecipe() {
+  const name = prompt('Nombre de la receta:');
+  if(name) {
+    state.recipes.push({ id: Date.now(), name, ingredients: [] });
+    renderLogistics();
+    showToast('✅ Receta creada. Ahora agrega ingredientes.');
+  }
+}
+
+function addInventoryItem() {
+  const name = prompt('Nombre del ingrediente:');
+  if(name) {
+    state.inventory.push({ id: Date.now(), name, emoji: '', amount: 0, unit: 'unidades', max: 10 });
+    renderLogistics();
+  }
+}
+
+// ===== CONTENT CREATOR =====
+function renderContent() {
+  const container = document.getElementById('canvasContent');
+  
+  let html = `<div class="component-card">
+    <div class="component-header">
+      <div class="component-title">🎨 Creador de Contenido</div>
+    </div>
+    <div class="stage-selector">`;
+  
+  Object.keys(STAGES).forEach(stage => {
+    html += `<button class="stage-btn ${state.contentEditor.stage === stage ? 'active' : ''}" onclick="selectStage('${stage}')">${STAGES[stage]}</button>`;
+  });
+  
+  html += `</div><div class="template-grid">`;
+  
+  TEMPLATES.filter(t => t.stage === state.contentEditor.stage).forEach(t => {
+    const selected = state.contentEditor.template && state.contentEditor.template.id === t.id;
+    html += `<div class="template-card ${selected ? 'selected' : ''}" onclick="selectTemplate('${t.id}')">
+      <div class="template-preview" style="background: ${STYLES[t.style]};">
+        <div class="template-preview-overlay"><div style="font-size: 12px; font-weight: 700;">${t.title}</div></div>
+      </div>
+      <div style="padding: 10px; font-size: 12px; font-weight: 600;">${t.name}</div>
+    </div>`;
+  });
+  
+  html += `</div></div>`;
+  
+  if(state.contentEditor.template) {
+    html += `<div class="component-card">
+      <div class="component-header"><div class="component-title">Editor</div></div>
+      <div style="display: grid; grid-template-columns: 1fr 300px; gap: 24px;">
+        <div style="background: #F1F5F9; padding: 32px; border-radius: 12px; display: flex; align-items: center; justify-content: center; min-height: 400px;">
+          <div id="contentPreview" style="width: 100%; max-width: 300px; aspect-ratio: 1; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.1);"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div>
+            <label class="form-label">Título</label>
+            <input class="form-input" id="contentTitle" value="${state.contentEditor.title}" oninput="updateContentPreview()">
+          </div>
+          <div>
+            <label class="form-label">Subtítulo</label>
+            <input class="form-input" id="contentSubtitle" value="${state.contentEditor.subtitle}" oninput="updateContentPreview()">
+          </div>
+          <div>
+            <label class="form-label">Estilo</label>
+            <select class="form-select" id="contentStyle" onchange="updateContentPreview()">
+              ${Object.keys(STYLES).map(s => `<option value="${s}" ${state.contentEditor.style === s ? 'selected' : ''}>${s}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Caption</label>
+            <textarea class="form-textarea" id="contentCaption" rows="4" readonly>${state.contentEditor.template.caption}</textarea>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 8px;" onclick="copyCaption()">📋 Copiar Caption</button>
+          </div>
+          <button class="btn btn-primary" onclick="downloadContent()">📥 Descargar Imagen</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  
+  container.innerHTML = html;
+  if(state.contentEditor.template) updateContentPreview();
+}
+
+function selectStage(stage) {
+  state.contentEditor.stage = stage;
+  state.contentEditor.template = null;
+  renderContent();
+}
+
+function selectTemplate(id) {
+  const t = TEMPLATES.find(x => x.id === id);
+  state.contentEditor.template = t;
+  state.contentEditor.title = t.title;
+  state.contentEditor.subtitle = t.subtitle;
+  state.contentEditor.style = t.style;
+  renderContent();
+}
+
+function updateContentPreview() {
+  state.contentEditor.title = document.getElementById('contentTitle').value;
+  state.contentEditor.subtitle = document.getElementById('contentSubtitle').value;
+  state.contentEditor.style = document.getElementById('contentStyle').value;
+  
+  const canvas = document.getElementById('contentPreview');
+  const style = STYLES[state.contentEditor.style];
+  const img = state.menuData[0]?.image || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800';
+  
+  canvas.innerHTML = `<div style="width: 100%; height: 100%; position: relative; background: ${style};">
+    <img src="${img}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.5; position: absolute;">
+    <div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; color: white; text-align: center;">
+      <div style="font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; margin-bottom: 12px; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">${state.contentEditor.title}</div>
+      <div style="font-size: 16px; text-shadow: 0 1px 4px rgba(0,0,0,0.5);">${state.contentEditor.subtitle}</div>
+      <div style="position: absolute; bottom: 20px; font-size: 10px; opacity: 0.8;">For U · ${state.settings.coverTitle}</div>
+    </div>
+  </div>`;
+}
+
+function copyCaption() {
+  navigator.clipboard.writeText(document.getElementById('contentCaption').value);
+  showToast('📋 Caption copiado');
+}
+
+async function downloadContent() {
+  const canvas = document.getElementById('contentPreview');
+  const result = await html2canvas(canvas, { scale: 2 });
+  const link = document.createElement('a');
+  link.download = 'foru-content.png';
+  link.href = result.toDataURL();
+  link.click();
+  showToast('✅ Imagen descargada');
+}
+
+// ===== MEDIA LIBRARY =====
+function renderMedia() {
+  const container = document.getElementById('canvasContent');
+  
+  let html = `<div class="component-card">
+    <div class="component-header">
+      <div class="component-title">🖼️ Biblioteca de Medios</div>
+      <button class="btn btn-primary" onclick="uploadMedia()">📤 Subir Imagen</button>
+    </div>
+    <p style="color: var(--text-muted); margin-bottom: 20px;">Todas tus imágenes en un solo lugar. Haz clic para usar en platos o portadas.</p>
+    <div class="media-grid">`;
+  
+  state.mediaLibrary.forEach((media, idx) => {
+    html += `<div class="media-item" onclick="selectMedia(${idx})">
+      <img src="${media}">
+    </div>`;
+  });
+  
+  html += `<div class="media-item" style="display: grid; place-items: center; background: #F8FAFC; border: 2px dashed var(--border);" onclick="uploadMedia()">
+    <div style="font-size: 32px; color: var(--text-muted);">+</div>
+  </div></div></div>`;
+  
+  container.innerHTML = html;
+}
+
+function uploadMedia() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = (e) => {
+    if(e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        state.mediaLibrary.push(event.target.result);
+        renderMedia();
+        showToast('✅ Imagen subida');
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+  input.click();
+}
+
+function selectMedia(idx) {
+  showToast('📸 Imagen seleccionada. Úsala en platos o portadas.');
+}
+
+// ===== SETTINGS =====
+function renderSettings() {
+  const container = document.getElementById('canvasContent');
+  
+  container.innerHTML = `<div class="component-card">
+    <div class="component-header"><div class="component-title">⚙️ Configuración del Restaurante</div></div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      <div class="form-group">
+        <label class="form-label">Nombre del Restaurante</label>
+        <input class="form-input" value="${state.restaurant.name}" onchange="state.restaurant.name = this.value; state.settings.coverTitle = this.value;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL Personalizada</label>
+        <input class="form-input" value="${state.restaurant.slug}" readonly style="background: #F8FAFC;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Título SEO (Google)</label>
+        <input class="form-input" value="${state.settings.seoTitle || ''}" placeholder="Ej: Pizzería Machay - La mejor pizza">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descripción SEO</label>
+        <input class="form-input" value="${state.settings.seoDesc || ''}" placeholder="Descripción para Google">
+      </div>
+    </div>
+    <button class="btn btn-primary" style="margin-top: 20px;" onclick="showToast('✅ Configuración guardada')">💾 Guardar Cambios</button>
+  </div>
+  
+  <div class="component-card">
+    <div class="component-header"><div class="component-title">💎 Plan Pro Activo</div></div>
+    <p style="color: var(--text-muted); margin-bottom: 16px;">Tienes acceso a todas las funciones premium.</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div style="padding: 16px; background: #ECFDF5; border-radius: 8px; border: 1px solid #10B981;">
+        <div style="font-weight: 700; color: #059669;">✅ Dominio Propio</div>
+        <div style="font-size: 13px; color: var(--text-muted);">Conecta tu dominio</div>
+      </div>
+      <div style="padding: 16px; background: #ECFDF5; border-radius: 8px; border: 1px solid #10B981;">
+        <div style="font-weight: 700; color: #059669;">✅ Sin marca For U</div>
+        <div style="font-size: 13px; color: var(--text-muted);">Experiencia blanca</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ===== PUBLIC VIEW =====
+function copyLink() {
+  const url = `${window.location.origin}${window.location.pathname}?rest=${state.restaurant.slug}&view=public`;
+  navigator.clipboard.writeText(url);
+  showToast('🔗 Link copiado');
+}
+
+function openPublicView() {
+  const win = window.open('', '_blank');
+  const activeSections = state.sections.filter(s => s.active).sort((a,b) => a.order - b.order);
+  
+  let html = `<div style="max-width: 600px; margin: 0 auto; font-family: 'Inter', sans-serif; background: white; min-height: 100vh;">`;
+  
+  activeSections.forEach(sec => {
+    if(sec.id === 'hero') {
+      html += `<div style="position: relative; height: 300px;">
+        <img src="${state.settings.coverImage}" style="width: 100%; height: 100%; object-fit: cover;">
+        <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.3), rgba(0,0,0,0.7)); display: flex; flex-direction: column; justify-content: flex-end; padding: 32px; color: white;">
+          <h1 style="font-family: 'Playfair Display', serif; font-size: 36px; margin-bottom: 8px;">${state.settings.coverTitle}</h1>
+          <p>${state.settings.coverTagline}</p>
+        </div>
+      </div>`;
+    } else if(sec.id === 'menu') {
+      html += `<div style="padding: 24px;">`;
+      const cats = [...new Set(state.menuData.map(d => d.category))];
+      cats.forEach(cat => {
+        html += `<h2 style="font-family: 'Playfair Display', serif; font-size: 24px; margin: 32px 0 16px; border-bottom: 2px solid #F1F5F9; padding-bottom: 8px;">${cat}</h2>`;
+        state.menuData.filter(d => d.category === cat).forEach(d => {
+          html += `<div style="display: flex; gap: 16px; padding: 16px; background: #F8FAFC; border-radius: 12px; margin-bottom: 16px;">
+            <img src="${d.image}" style="width: 100px; height: 100px; border-radius: 8px; object-fit: cover;">
+            <div style="flex: 1;">
+              <div style="font-weight: 700; font-size: 16px;">${d.name}</div>
+              <div style="font-size: 14px; color: #64748B; margin: 4px 0;">${d.desc}</div>
+              <div style="font-weight: 800; color: #10B981; font-size: 18px;">S/ ${d.price.toFixed(2)}</div>
+            </div>
+          </div>`;
+        });
+      });
+      html += `</div>`;
+    } else if(sec.id === 'about' && sec.data) {
+      html += `<div style="padding: 32px 24px; background: #F8FAFC;">
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 16px;">${sec.data.title}</h2>
+        <p style="line-height: 1.7;">${sec.data.text}</p>
+      </div>`;
+    } else if(sec.id === 'faq' && sec.data) {
+      html += `<div style="padding: 32px 24px;"><h2 style="font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 24px;">Preguntas Frecuentes</h2>`;
+      sec.data.forEach(faq => {
+        html += `<div style="padding: 16px; background: #F8FAFC; border-radius: 12px; margin-bottom: 12px;">
+          <div style="font-weight: 700; margin-bottom: 8px;">${faq.q}</div>
+          <div style="color: #64748B;">${faq.a}</div>
+        </div>`;
+      });
+      html += `</div>`;
+    } else if(sec.id === 'location' && sec.data) {
+      html += `<div style="padding: 32px 24px; background: #F8FAFC;">
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 24px;">Ubicación</h2>
+        <div><strong></strong> ${sec.data.address}</div>
+        <div><strong></strong> ${sec.data.hours}</div>
+        <div><strong>📞</strong> ${sec.data.phone}</div>
+      </div>`;
+    }
+  });
+  
+  html += `<div style="text-align: center; padding: 32px; background: #0F172A; color: white;">
+    <div style="font-family: 'Playfair Display', serif; font-size: 20px;">${state.settings.coverTitle}</div>
+    <div style="font-size: 14px; opacity: 0.7; margin-top: 8px;">Powered by For U</div>
+  </div></div>`;
+  
+  win.document.write(html);
+  win.document.close();
+}
+
+// ===== UTILS =====
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => renderMenu());
+</script>
+</body>
+</html>

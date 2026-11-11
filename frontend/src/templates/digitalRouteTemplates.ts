@@ -1,4 +1,6 @@
-import type { ForUBranchKey, ForUIndustryKey, ForUNodePriority } from '../stores/useActiveProjectsStore';
+import { getBusinessTemplate } from '../data/templates';
+import type { ForUIndustryKey } from './industryTemplates';
+import type { ForUBranchKey, ForUNodePriority } from '../stores/useActiveProjectsStore';
 
 export type ForUDigitalRouteStepStatus = 'pending' | 'in_progress' | 'ready';
 
@@ -17,6 +19,8 @@ export type ForUDigitalRouteResourceTemplate = {
   icon: string;
   text: string;
   description: string;
+  filename?: string;
+  content?: string;
 };
 
 export type ForUDigitalRouteStepTemplate = {
@@ -645,7 +649,16 @@ export const genericDigitalRouteTemplate: ForUDigitalRouteTemplate = {
 
 export function getDigitalRouteTemplate(industryKey?: ForUIndustryKey): ForUDigitalRouteTemplate {
   if (industryKey === 'tourism') return tourismDigitalRouteTemplate;
-  if (industryKey === 'gastronomy') return gastronomyDigitalRouteTemplate;
+  const template = getBusinessTemplate(industryKey);
+  if (template && industryKey) return {
+    industryKey, title: 'Ruta de ' + template.name, description: template.entry,
+    steps: template.steps.map(step => ({
+      id: step.id, title: step.title, shortTitle: step.title, badge: template.name, outcome: step.tasks[2], why: step.tip,
+      primaryAction: 'Preparar ' + step.title.toLowerCase(), outputKey: step.id, artifactLabel: 'Hoja de ' + step.title.toLowerCase(), priority: 'high', guidePhase: step.title,
+      resources: [{icon:'↓',text:'Descargar hoja de trabajo',description:step.tip,filename:step.resource.name,content:step.resource.content}],
+      tasks: step.tasks.map(title=>({title,description:title,branchKey:'actions',priority:'high',time:'15 min',tools:step.tools,tip:step.tip,example:step.example})),defaultOutputs:{evidence:'',decision:''},
+    })),
+  };
   return genericDigitalRouteTemplate;
 }
 

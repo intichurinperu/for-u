@@ -1,0 +1,108 @@
+{
+  "buckets": [
+    {
+      "id": "user-uploads",
+      "public": false,
+      "file_size_limit": 20971520,
+      "allowed_mime_types": [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "audio/mpeg",
+        "audio/mp3",
+        "audio/wav",
+        "audio/mp4",
+        "audio/webm"
+      ]
+    }
+  ],
+  "policies": [
+    {
+      "cmd": "UPDATE",
+      "qual": "(bucket_id = 'creator-media'::text)",
+      "roles": [
+        "authenticated"
+      ],
+      "policyname": "Enable Update/Delete 59k4xv_0",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(bucket_id = 'creator-media'::text)",
+      "roles": [
+        "authenticated"
+      ],
+      "policyname": "Enable Update/Delete 59k4xv_1",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "policyname": "Enable Uploads 59k4xv_0",
+      "with_check": "(bucket_id = 'creator-media'::text)"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(bucket_id = 'creator-media'::text)",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "policyname": "Public Read Access 59k4xv_0",
+      "with_check": null
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(bucket_id = 'foru-studio-content'::text)",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "policyname": "Studio can delete content files",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(bucket_id = 'foru-studio-content'::text)",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "policyname": "Studio can read content files",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(bucket_id = 'foru-studio-content'::text)",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "policyname": "Studio can update content files",
+      "with_check": "(bucket_id = 'foru-studio-content'::text)"
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "policyname": "Studio can upload content files",
+      "with_check": "(bucket_id = 'foru-studio-content'::text)"
+    },
+    {
+      "cmd": "ALL",
+      "qual": "((bucket_id = 'user-uploads'::text) AND ((storage.foldername(name))[1] = (( SELECT auth.uid() AS uid))::text))",
+      "roles": [
+        "authenticated"
+      ],
+      "policyname": "toolkit_upload_owner",
+      "with_check": "((bucket_id = 'user-uploads'::text) AND ((storage.foldername(name))[1] = (( SELECT auth.uid() AS uid))::text))"
+    }
+  ]
+}

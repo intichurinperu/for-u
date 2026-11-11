@@ -1,4 +1,6 @@
-import { FormEvent, useState } from 'react';
+import Logo from '../components/Logo';
+import { Input as DSInput } from '../components/ui/DesignSystem';
+import { type FormEvent, useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import MagicButton from '../components/ui/MagicButton';
@@ -12,7 +14,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const next = searchParams.get('next') || '/workspace';
+  const requestedNext = searchParams.get('next');
+  const next = requestedNext?.startsWith('/') && !requestedNext.startsWith('//') ? requestedNext : '/dashboard';
 
   if (!loading && session) return <Navigate to={next} replace />;
 
@@ -28,7 +31,7 @@ export default function LoginPage() {
       const message = error instanceof Error ? error.message : 'No pudimos iniciar sesion. Intenta otra vez.';
       setErrorMessage(
         message.toLowerCase().includes('invalid login credentials')
-          ? 'Supabase no acepto esas credenciales. Si acabas de registrarte, probablemente falta confirmar el email o desactivar Confirm email en Supabase para pruebas.'
+          ? 'Revisa tu email y contraseña. Si acabas de registrarte, confirma primero el enlace que recibiste por correo.'
           : message,
       );
     } finally {
@@ -40,7 +43,7 @@ export default function LoginPage() {
     <main className="foru-auth-page">
       <MagicCard as="section" className="foru-auth-card">
         <Link to="/" className="foru-auth-wordmark" aria-label="FOR U">
-          FOR <span>U</span>
+          <Logo />
         </Link>
         <h1>Entra a For U</h1>
         <p>Vuelve a tu Ruta Digital y continua desde la proxima accion clara.</p>
@@ -48,7 +51,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="foru-auth-form">
           <label>
             Email
-            <input
+            <DSInput
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
@@ -59,7 +62,7 @@ export default function LoginPage() {
           </label>
           <label>
             Password
-            <input
+            <DSInput
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}

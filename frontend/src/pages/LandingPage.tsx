@@ -1,306 +1,69 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
+import { Globe2, Images, Compass, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
 import Logo from '../components/Logo';
+import PearlButton from '../components/ui/PearlButton';
+import './publicLanding.css';
 
-const steps = [
-  {
-    icon: '🫙',
-    title: 'Captura',
-    text: 'Echa tus ideas sin orden. For U las guarda como perlitas y las ordena cuando estes lista.',
-    className: 'is-jar',
-  },
-  {
-    icon: '✅',
-    title: 'Ejecuta',
-    text: 'Te dice exactamente que hacer hoy. Una accion concreta, un bloque corto, cero drama.',
-    className: 'is-check',
-  },
-  {
-    icon: '🌍',
-    title: 'Explora',
-    text: 'Tus proyectos viven como casitas e islas. Avanzas y el mundo se vuelve mas tuyo.',
-    className: 'is-world',
-  },
+const previews = [
+  { label: 'Tu página', icon: Globe2, title: 'Una página que se sienta tuya.', text: 'Edita textos, fotos y lo que ofreces en el mismo lugar.', action: 'Crear mi página' },
+  { label: 'Tu contenido', icon: Images, title: 'De una idea a tu publicación.', text: 'Combina tu idea y tus imágenes para preparar una imagen, un carrusel o un video.', action: 'Empezar a crear' },
+  { label: 'Tu negocio', icon: Compass, title: 'Elige una isla y empieza.', text: 'Marketing, Finanzas, Operaciones y Logística, cada área en su lugar.', action: 'Organizar mi negocio' },
 ];
-
-const audiences = [
-  { icon: '🧠', text: 'Mentes creativas con demasiadas pestanas abiertas en la cabeza.' },
-  { icon: '☕', text: 'Emprendedoras que necesitan una jefa amable, no otro panel frio.' },
-  { icon: '🏝️', text: 'Soniadoras que quieren ver sus proyectos cobrar vida.' },
-];
-
-const plans = [
-  {
-    name: 'Gratis',
-    price: '$0',
-    text: 'Para sentarte y saber que hacer ahora.',
-    features: ['1 proyecto activo', '5 acciones al mes', 'Tablero personal'],
-  },
-  {
-    name: 'Pro',
-    price: '$12',
-    text: 'Para trabajar sin friccion y jugar con tu mundo.',
-    features: ['Proyectos ilimitados', 'Mundo 3D', 'Kanban + Mapa'],
-    featured: true,
-  },
-  {
-    name: 'Premium',
-    price: '$24',
-    text: 'Para crecer con plantillas, equipos e integraciones.',
-    features: ['Todo Pro', 'Plantillas propias', 'Integraciones externas'],
-  },
-];
-
-const floatingItems = [
-  { className: 'island-one', label: '🏝️' },
-  { className: 'island-two', label: '🏡' },
-  { className: 'coin-one', label: '🪙' },
-  { className: 'coin-two', label: '🪙' },
-  { className: 'star-one', label: '✨' },
-  { className: 'star-two', label: '✦' },
-  { className: 'star-three', label: '✧' },
-];
+const slides = ['Un espacio para tus ideas', 'Algo nuevo está tomando forma', 'Conoce nuestra propuesta'];
 
 export default function LandingPage() {
-  const [showTopButton, setShowTopButton] = useState(false);
-  const { scrollYProgress } = useScroll();
-  const heroY = useTransform(scrollYProgress, [0, 0.35], [0, 120]);
-  const mockupY = useTransform(scrollYProgress, [0, 0.35], [0, -40]);
-  const scrollScaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
-
-  const particles = useMemo(
-    () => Array.from({ length: 28 }, (_, index) => ({
-      id: index,
-      left: `${(index * 37) % 100}%`,
-      delay: `${(index % 9) * 0.35}s`,
-      duration: `${5 + (index % 6)}s`,
-    })),
-    [],
-  );
-
-  useEffect(() => {
-    function handleScroll() {
-      setShowTopButton(window.scrollY > 520);
-    }
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-  function scrollToFeatures() {
-    document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth' });
-  }
-
-  function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
+  const [selected, setSelected] = useState(0);
+  const [slide, setSlide] = useState(0);
+  const preview = previews[selected];
   return (
-    <main className="foru-landing-page">
-      <motion.div className="foru-scroll-progress" style={{ scaleX: scrollScaleX }} />
-
-      <header className="foru-landing-nav">
-        <Link to="/" aria-label="FOR U" className="foru-landing-logo">
-          <Logo />
-        </Link>
-        <nav>
-          <button type="button" onClick={scrollToFeatures}>Cómo funciona</button>
-          <Link to="/pricing">Precios</Link>
-          <Link to="/login">Entrar</Link>
-        </nav>
+    <div className="public-welcome">
+      <a className="public-welcome-skip" href="#bienvenida">Ir al contenido</a>
+      <header className="public-welcome-header">
+        <Link to="/" aria-label="FOR U, inicio"><Logo /></Link>
+        <PearlButton to="/login" compact>Iniciar sesión</PearlButton>
       </header>
-
-      <section className="foru-landing-hero">
-        <motion.div className="foru-hero-magic-layer" style={{ y: heroY }} aria-hidden="true">
-          {floatingItems.map((item) => (
-            <span key={item.className} className={`foru-floating-charm ${item.className}`}>{item.label}</span>
-          ))}
-          {particles.map((particle) => (
-            <i
-              key={particle.id}
-              className="foru-ambient-particle"
-              style={{ left: particle.left, animationDelay: particle.delay, animationDuration: particle.duration }}
-            />
-          ))}
-        </motion.div>
-
-        <motion.div
-          className="foru-landing-hero-copy"
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55 }}
-        >
-          <motion.span
-            className="foru-landing-pill"
-            animate={{ scale: [1, 1.04, 1] }}
-            transition={{ repeat: Infinity, duration: 2.4, ease: 'easeInOut' }}
-          >
-            ✨ Nueva experiencia gamificada
-          </motion.span>
-          <h1><span>Deja de abrumarte con tus ideas.</span></h1>
-          <p>For U las convierte en acciones claras. Tan útil como una jefa amable, tan divertida como entrar a tu propio mundo.</p>
-          <div className="foru-landing-actions">
-            <Link to="/register" className="foru-ripple-button">Empezar gratis</Link>
-            <button type="button" className="foru-ripple-button is-soft" onClick={scrollToFeatures}>Ver cómo funciona</button>
+      <main id="bienvenida">
+        <section className="public-welcome-hero" aria-labelledby="welcome-title">
+          <div className="public-welcome-copy">
+            <p className="public-welcome-eyebrow">Tu idea tiene un lugar.</p>
+            <h1 id="welcome-title">Dale vida a tu negocio, paso a paso.</h1>
+            <p className="public-welcome-description">Crea tu página, prepara tu contenido y organiza tu negocio en un mismo espacio.</p>
+            <div className="public-welcome-actions">
+              <PearlButton to="/register">Crear mi cuenta</PearlButton>
+              <PearlButton href="#como-funciona" subtle>Ver cómo funciona</PearlButton>
+            </div>
+            <p className="public-welcome-helper">Empieza con tu idea. Vamos paso a paso.</p>
           </div>
-        </motion.div>
-
-        <motion.div
-          className="foru-landing-mockup"
-          style={{ y: mockupY }}
-          initial={{ opacity: 0, x: 80, rotate: 2, scale: 0.96 }}
-          animate={{ opacity: 1, x: 0, rotate: 0, scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.1, type: 'spring', stiffness: 90 }}
-          aria-label="Mockup del tablero personal"
-        >
-          <div className="foru-mockup-aura" />
-          <div className="foru-mockup-window">
-            <div className="foru-mockup-dots"><i /><i /><i /></div>
-            <strong>☀️ Buenos días, Nicole</strong>
-            <p>Hoy tienes 3 proyectos pidiendo atención. Empecemos por el más urgente.</p>
-            <article>
-              <span>Kiosco dulce</span>
-              <b>Llamar a 2 proveedores de golosinas</b>
-              <small>15 min · 20 monedas</small>
-              <button type="button">Empezar</button>
-            </article>
-            <article>
-              <span>Velas artesanales</span>
-              <b>Investigar 3 proveedores de cera de soja</b>
-              <small>15 min · 20 monedas</small>
-              <button type="button">Empezar</button>
-            </article>
-            <div className="foru-mockup-world">
-              <span>🏝️</span>
-              <span>🏡</span>
-              <span>🪙</span>
+          <div className="public-welcome-art" aria-hidden="true">
+            <img src="/brand/foru-landing-islands.png" alt="" width="1448" height="1086" fetchPriority="high" />
+          </div>
+        </section>
+        <section id="como-funciona" className="public-welcome-explore" aria-labelledby="explore-title" tabIndex={-1}>
+          <h2 id="explore-title">¿Qué te gustaría crear?</h2>
+          <p className="public-welcome-explore-hint">Toca una opción y explora.</p>
+          <div className="public-welcome-choices" role="group" aria-label="Explorar FOR U">
+            {previews.map(({ label, icon: Icon }, index) => <button key={label} type="button" className={`foru-pearl-button public-welcome-choice${selected === index ? ' is-selected' : ''}`} aria-pressed={selected === index} aria-controls="welcome-preview" onClick={() => setSelected(index)}><Icon size={20} aria-hidden="true"/><span>{label}</span></button>)}
+          </div>
+          <div id="welcome-preview" className="public-welcome-preview" key={selected}>
+            <div className="public-welcome-preview-copy">
+              <div aria-live="polite" aria-atomic="true"><h3>{preview.title}</h3><p>{preview.text}</p></div>
+              <PearlButton to="/register">{preview.action}</PearlButton>
+              <small>Primero creas tu cuenta. Después trabajamos en tu proyecto.</small>
+            </div>
+            <div className="public-welcome-demo">
+              <span className="public-welcome-demo-label">Vista de ejemplo</span>
+              {selected === 0 && <div className="public-welcome-page-demo"><div className="public-welcome-demo-browser"><span/><span/><span/></div><small>Tu proyecto</small><h4>Un lugar para compartir lo que haces.</h4><div className="public-welcome-demo-photo"/><div className="public-welcome-demo-lines"><span/><span/></div><p>Tu historia · Tu oferta · Tu contacto</p></div>}
+              {selected === 1 && <div className="public-welcome-content-demo"><div className="public-welcome-post" aria-live="polite"><small>Tu próxima publicación</small><h4>{slides[slide]}</h4><span className="public-welcome-post-orbit" aria-hidden="true"/><p>Tu proyecto, a tu manera.</p></div><div className="public-welcome-slide-controls"><button type="button" aria-label="Ver diseño anterior" onClick={() => setSlide((slide + slides.length - 1) % slides.length)}><ArrowLeft size={18}/></button><span>{slide + 1} / {slides.length}</span><button type="button" aria-label="Ver siguiente diseño" onClick={() => setSlide((slide + 1) % slides.length)}><ArrowRight size={18}/></button></div></div>}
+              {selected === 2 && <div className="public-welcome-business-demo"><img src="/brand/foru-landing-islands.png" alt="Islas conectadas que representan las áreas de un negocio" width="1448" height="1086" loading="lazy"/><div className="public-welcome-area-labels"><span>Marketing</span><span>Finanzas</span><span>Operaciones</span><span>Logística</span></div></div>}
             </div>
           </div>
-        </motion.div>
-      </section>
-
-      <section id="como-funciona" className="foru-landing-section">
-        <motion.div
-          className="foru-landing-section-heading"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.45 }}
-        >
-          <span>Cómo funciona</span>
-          <h2>Tres pasos. Cero drama. Mucha claridad.</h2>
-        </motion.div>
-        <div className="foru-landing-steps">
-          {steps.map((step, index) => (
-            <motion.article
-              key={step.title}
-              className={step.className}
-              initial={{ opacity: 0, y: 24, rotateX: 8 }}
-              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-              viewport={{ once: true, amount: 0.35 }}
-              transition={{ duration: 0.38, delay: index * 0.12 }}
-              whileHover={{ y: -8, rotateX: 6, rotateY: -5, scale: 1.025 }}
-            >
-              <span>{step.icon}</span>
-              <h3>{step.title}</h3>
-              <p>{step.text}</p>
-            </motion.article>
-          ))}
-        </div>
-      </section>
-
-      <section className="foru-landing-audience">
-        <div>
-          <span>Para quién es</span>
-          <h2>Para personas con demasiadas ideas y poca energía para ordenar.</h2>
-        </div>
-        <ul>
-          {audiences.map((item, index) => (
-            <motion.li
-              key={item.text}
-              initial={{ opacity: 0, x: 18 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{ duration: 0.3, delay: index * 0.08 }}
-            >
-              <span>{item.icon}</span>
-              {item.text}
-            </motion.li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="foru-landing-section">
-        <motion.div
-          className="foru-landing-section-heading"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.45 }}
-        >
-          <span>Planes</span>
-          <h2>Empieza simple. Desbloquea magia cuando la necesites.</h2>
-        </motion.div>
-        <div className="foru-landing-pricing">
-          {plans.map((plan, index) => (
-            <motion.article
-              key={plan.name}
-              className={plan.featured ? 'is-featured' : ''}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.35 }}
-              transition={{ duration: 0.35, delay: index * 0.08 }}
-              whileHover={{ y: -7, scale: 1.015 }}
-            >
-              {plan.featured ? <em>Más Popular</em> : null}
-              <h3>{plan.name}</h3>
-              <strong>{plan.price}<small>/mes</small></strong>
-              <p>{plan.text}</p>
-              <ul>
-                {plan.features.map((feature) => <li key={feature}>✓ {feature}</li>)}
-              </ul>
-              {plan.featured ? <div className="foru-price-confetti" aria-hidden="true"><i /><i /><i /><i /><i /></div> : null}
-            </motion.article>
-          ))}
-        </div>
-        <div className="foru-landing-center-action">
-          <Link to="/pricing" className="foru-ripple-button">Ver todos los detalles</Link>
-        </div>
-      </section>
-
-      <footer className="foru-landing-footer">
-        <div className="foru-footer-wave" aria-hidden="true" />
-        <Link to="/" className="foru-footer-logo" aria-label="FOR U">
-          <Logo />
-        </Link>
-        <nav>
-          <a href="mailto:hola@marketingforu.site">Contacto</a>
-          <Link to="/pricing">Precios</Link>
-          <a href="/terminos">Términos</a>
-          <a href="/privacidad">Privacidad</a>
-        </nav>
-        <div>
-          <a href="https://instagram.com" aria-label="Instagram">IG</a>
-          <a href="https://tiktok.com" aria-label="TikTok">TT</a>
-          <a href="https://linkedin.com" aria-label="LinkedIn">IN</a>
-        </div>
+        </section>
+      </main>
+      <footer className="public-welcome-footer">
+        <span>FOR U · Tu idea tiene un lugar.</span>
+        <nav aria-label="Información"><Link to="/pricing">Precios</Link><a href="mailto:hola@marketingforu.site">Contacto</a></nav>
       </footer>
-
-      <motion.button
-        type="button"
-        className="foru-back-to-top"
-        onClick={scrollToTop}
-        initial={false}
-        animate={showTopButton ? { opacity: 1, y: 0, pointerEvents: 'auto' } : { opacity: 0, y: 20, pointerEvents: 'none' }}
-        aria-label="Volver arriba"
-      >
-        ↑
-      </motion.button>
-    </main>
+    </div>
   );
 }

@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For U · Editor Web para Hospedaje</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #F8FAFC; height: 100vh; overflow: hidden; }
+
+/* ===== WIZARD ===== */
+.wizard-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 3000; }
+.wizard-card { background: white; border-radius: 24px; padding: 48px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
+.wizard-step { display: none; }
+.wizard-step.active { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.wizard-title { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 12px; }
+.wizard-subtitle { color: #64748B; margin-bottom: 32px; font-size: 15px; }
+.business-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+.business-option { padding: 24px; border: 2px solid #E2E8F0; border-radius: 16px; cursor: pointer; transition: all 0.2s; text-align: center; }
+.business-option:hover { border-color: #10B981; background: #ECFDF5; transform: translateY(-2px); }
+.business-option.selected { border-color: #10B981; background: #ECFDF5; }
+.business-icon { font-size: 32px; margin-bottom: 8px; }
+.business-name { font-weight: 600; font-size: 15px; }
+.wizard-input { width: 100%; padding: 14px 16px; border: 2px solid #E2E8F0; border-radius: 12px; font-size: 15px; margin-bottom: 16px; }
+.wizard-input:focus { outline: none; border-color: #10B981; }
+.wizard-btn { padding: 14px 32px; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; border: none; transition: all 0.2s; }
+.wizard-btn-primary { background: #0F172A; color: white; }
+.wizard-btn-primary:hover { background: #334155; }
+.wizard-btn-secondary { background: white; border: 1px solid #E2E8F0; color: #0F172A; }
+.wizard-progress { display: flex; gap: 8px; margin-bottom: 32px; }
+.wizard-progress-dot { flex: 1; height: 4px; background: #E2E8F0; border-radius: 2px; }
+.wizard-progress-dot.active { background: #10B981; }
+
+/* ===== EDITOR LAYOUT ===== */
+.editor { display: flex; height: 100vh; }
+.sidebar { width: 280px; background: white; border-right: 1px solid #E2E8F0; display: flex; flex-direction: column; }
+.sidebar-header { padding: 24px; border-bottom: 1px solid #E2E8F0; }
+.sidebar-logo { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #FDE68A, #10B981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: #64748B; font-weight: 500; font-size: 14px; cursor: pointer; transition: all 0.2s; margin-bottom: 4px; }
+.nav-item:hover { background: #F1F5F9; color: #0F172A; }
+.nav-item.active { background: #ECFDF5; color: #059669; font-weight: 600; }
+.sidebar-footer { padding: 16px; border-top: 1px solid #E2E8F0; }
+.user-profile { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; cursor: pointer; }
+.user-profile:hover { background: #F1F5F9; }
+.user-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FDE68A, #10B981); display: grid; place-items: center; color: white; font-weight: 700; font-size: 14px; }
+
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.header { height: 64px; background: white; border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+.header-title { font-weight: 600; font-size: 16px; }
+.header-actions { display: flex; gap: 12px; }
+.btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; }
+.btn-primary { background: #0F172A; color: white; }
+.btn-primary:hover { background: #334155; }
+.btn-secondary { background: white; border: 1px solid #E2E8F0; color: #0F172A; }
+.btn-secondary:hover { background: #F8FAFC; }
+.btn-gradient { background: linear-gradient(135deg, #FDE68A, #10B981); color: white; }
+
+.content { flex: 1; overflow-y: auto; padding: 32px; background: #F8FAFC; }
+
+/* ===== DRAG & DROP EDITOR ===== */
+.editor-container { display: grid; grid-template-columns: 280px 1fr; gap: 24px; height: 100%; }
+.components-panel { background: white; border-radius: 16px; border: 1px solid #E2E8F0; padding: 20px; overflow-y: auto; }
+.panel-title { font-weight: 700; font-size: 14px; margin-bottom: 16px; color: #0F172A; }
+.component-item { padding: 14px; border: 2px solid #E2E8F0; border-radius: 10px; margin-bottom: 8px; cursor: grab; transition: all 0.2s; display: flex; align-items: center; gap: 12px; }
+.component-item:hover { border-color: #10B981; background: #ECFDF5; transform: translateX(4px); }
+.component-item:active { cursor: grabbing; }
+.component-icon { font-size: 20px; }
+.component-name { font-weight: 500; font-size: 13px; }
+
+.canvas { background: white; border-radius: 16px; border: 1px solid #E2E8F0; padding: 32px; overflow-y: auto; min-height: 600px; }
+.canvas-section { border: 2px dashed transparent; border-radius: 12px; padding: 20px; margin-bottom: 16px; position: relative; transition: all 0.2s; }
+.canvas-section:hover { border-color: #10B981; background: #F0FDF4; }
+.canvas-section.dragging { opacity: 0.5; border-color: #10B981; }
+.canvas-section.drag-over { border-color: #10B981; background: #ECFDF5; transform: scale(1.02); }
+.section-controls { position: absolute; top: -12px; right: 20px; display: flex; gap: 8px; opacity: 0; transition: opacity 0.2s; }
+.canvas-section:hover .section-controls { opacity: 1; }
+.section-btn { width: 28px; height: 28px; border-radius: 6px; background: #0F172A; color: white; border: none; cursor: pointer; display: grid; place-items: center; font-size: 12px; }
+.section-btn:hover { background: #334155; }
+.section-btn.delete { background: #EF4444; }
+.section-btn.delete:hover { background: #DC2626; }
+
+/* ===== SECTIONS PREVIEW ===== */
+.hero-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 60px 40px; border-radius: 12px; text-align: center; }
+.hero-section h1 { font-family: 'Playfair Display', serif; font-size: 42px; margin-bottom: 12px; }
+.hero-section p { font-size: 18px; opacity: 0.9; }
+
+.rooms-section { padding: 20px; }
+.rooms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 16px; }
+.room-card { border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; }
+.room-img { width: 100%; height: 180px; object-fit: cover; background: #E2E8F0; }
+.room-info { padding: 16px; }
+.room-name { font-weight: 600; margin-bottom: 4px; }
+.room-price { color: #10B981; font-weight: 700; font-size: 18px; }
+
+.amenities-section { padding: 20px; }
+.amenities-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin-top: 16px; }
+.amenity-item { text-align: center; padding: 20px; background: #F8FAFC; border-radius: 12px; }
+.amenity-icon { font-size: 32px; margin-bottom: 8px; }
+.amenity-name { font-size: 13px; font-weight: 500; }
+
+.location-section { padding: 20px; background: #F0FDF4; border-radius: 12px; }
+.location-section h3 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 12px; }
+
+.reviews-section { padding: 20px; }
+.review-card { background: #F8FAFC; padding: 20px; border-radius: 12px; margin-bottom: 12px; border-left: 4px solid #10B981; }
+.review-text { font-style: italic; margin-bottom: 8px; }
+.review-author { font-weight: 600; font-size: 14px; }
+
+.contact-section { padding: 20px; background: #0F172A; color: white; border-radius: 12px; text-align: center; }
+.contact-section h3 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 12px; }
+
+/* ===== TOAST ===== */
+.toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(100px); background: #0F172A; color: white; padding: 14px 24px; border-radius: 12px; z-index: 2000; opacity: 0; transition: all 0.3s; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- WIZARD -->
+<div class="wizard-overlay" id="wizardOverlay">
+  <div class="wizard-card">
+    <div class="wizard-progress">
+      <div class="wizard-progress-dot active" id="prog1"></div>
+      <div class="wizard-progress-dot" id="prog2"></div>
+      <div class="wizard-progress-dot" id="prog3"></div>
+    </div>
+    
+    <!-- Paso 1: Tipo de negocio -->
+    <div class="wizard-step active" id="step1">
+      <div class="wizard-title">👋 ¡Bienvenido a For U!</div>
+      <div class="wizard-subtitle">Vamos a crear tu web profesional en minutos. ¿Qué tipo de negocio tienes?</div>
+      <div class="business-options">
+        <div class="business-option" onclick="selectBusiness('hospedaje', this)">
+          <div class="business-icon">🏨</div>
+          <div class="business-name">Hospedaje / Hotel</div>
+        </div>
+        <div class="business-option" onclick="selectBusiness('restaurante', this)">
+          <div class="business-icon">🍽️</div>
+          <div class="business-name">Restaurante</div>
+        </div>
+        <div class="business-option" onclick="selectBusiness('tienda', this)">
+          <div class="business-icon">🛍️</div>
+          <div class="business-name">Tienda Online</div>
+        </div>
+        <div class="business-option" onclick="selectBusiness('servicios', this)">
+          <div class="business-icon">💼</div>
+          <div class="business-name">Servicios / Tours</div>
+        </div>
+      </div>
+      <button class="wizard-btn wizard-btn-primary" onclick="nextStep(2)" id="btnStep1" disabled>Continuar →</button>
+    </div>
+    
+    <!-- Paso 2: Información básica -->
+    <div class="wizard-step" id="step2">
+      <div class="wizard-title">📝 Cuéntanos sobre tu negocio</div>
+      <div class="wizard-subtitle">Esta información aparecerá en tu web</div>
+      <input class="wizard-input" placeholder="Nombre de tu negocio" id="bizName" value="Hospedaje Valle Sagrado">
+      <input class="wizard-input" placeholder="Eslogan o descripción corta" id="bizTagline" value="Tu hogar en el corazón del Valle Sagrado">
+      <input class="wizard-input" placeholder="Ubicación" id="bizLocation" value="Urubamba, Cusco - Perú">
+      <input class="wizard-input" placeholder="WhatsApp de contacto" id="bizPhone" value="+51 984 123 456">
+      <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <button class="wizard-btn wizard-btn-secondary" onclick="prevStep(1)">← Atrás</button>
+        <button class="wizard-btn wizard-btn-primary" onclick="nextStep(3)">Continuar →</button>
+      </div>
+    </div>
+    
+    <!-- Paso 3: Secciones sugeridas -->
+    <div class="wizard-step" id="step3">
+      <div class="wizard-title">✨ Secciones recomendadas para ti</div>
+      <div class="wizard-subtitle">Basado en tu tipo de negocio, te sugerimos estas secciones. Puedes modificarlas después.</div>
+      <div id="suggestedSections" style="margin-bottom: 24px;"></div>
+      <div style="display: flex; gap: 12px;">
+        <button class="wizard-btn wizard-btn-secondary" onclick="prevStep(2)">← Atrás</button>
+        <button class="wizard-btn wizard-btn-gradient" onclick="finishWizard()"> Crear mi Web</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDITOR -->
+<div class="editor hidden" id="editor">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">For U Editor</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="switchView('editor', this)">🎨 Editor Web</div>
+      <div class="nav-item" onclick="switchView('inventory', this)">📦 Inventario</div>
+      <div class="nav-item" onclick="switchView('payments', this)">💳 Pagos</div>
+      <div class="nav-item" onclick="switchView('media', this)">🖼️ Galería</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="user-avatar">N</div>
+        <div>
+          <div style="font-weight:600;font-size:14px">nicoiriartemarketing@gmail.com</div>
+          <div style="font-size:12px;color:#64748B">Plan Pro</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="header">
+      <div class="header-title" id="headerTitle">Editor Web - Arrastra y suelta</div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="showToast('🔗 Link copiado')">🔗 Copiar Link</button>
+        <button class="btn btn-primary" onclick="openPublicView()">️ Ver Web</button>
+      </div>
+    </header>
+    <div class="content" id="content"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let state = {
+  businessType: null,
+  businessName: '',
+  tagline: '',
+  location: '',
+  phone: '',
+  sections: [],
+  currentView: 'editor',
+  dragIndex: null
+};
+
+const sectionTemplates = {
+  hospedaje: [
+    { type: 'hero', name: 'Portada Principal', icon: '️' },
+    { type: 'rooms', name: 'Habitaciones', icon: '️' },
+    { type: 'amenities', name: 'Servicios & Comodidades', icon: '✨' },
+    { type: 'location', name: 'Ubicación', icon: '📍' },
+    { type: 'reviews', name: 'Reseñas de Huéspedes', icon: '⭐' },
+    { type: 'contact', name: 'Contacto & Reservas', icon: '📞' }
+  ],
+  restaurante: [
+    { type: 'hero', name: 'Portada', icon: '️' },
+    { type: 'menu', name: 'Menú / Carta', icon: '🍽️' },
+    { type: 'about', name: 'Nuestra Historia', icon: '📖' },
+    { type: 'location', name: 'Ubicación', icon: '📍' },
+    { type: 'reviews', name: 'Reseñas', icon: '⭐' },
+    { type: 'contact', name: 'Reservas', icon: '📞' }
+  ],
+  tienda: [
+    { type: 'hero', name: 'Portada', icon: '🖼️' },
+    { type: 'products', name: 'Productos', icon: '️' },
+    { type: 'about', name: 'Sobre Nosotros', icon: '' },
+    { type: 'reviews', name: 'Testimonios', icon: '⭐' },
+    { type: 'contact', name: 'Contacto', icon: '📞' }
+  ],
+  servicios: [
+    { type: 'hero', name: 'Portada', icon: '🖼️' },
+    { type: 'services', name: 'Servicios / Tours', icon: '🎯' },
+    { type: 'about', name: 'Sobre Nosotros', icon: '📖' },
+    { type: 'reviews', name: 'Testimonios', icon: '⭐' },
+    { type: 'contact', name: 'Contacto', icon: '📞' }
+  ]
+};
+
+const sampleData = {
+  rooms: [
+    { name: 'Habitación Doble', price: 120, image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400' },
+    { name: 'Suite Familiar', price: 180, image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400' },
+    { name: 'Cabaña Privada', price: 250, image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400' }
+  ],
+  amenities: [
+    { icon: '📶', name: 'WiFi Gratis' },
+    { icon: '🅿️', name: 'Estacionamiento' },
+    { icon: '🍳', name: 'Desayuno Incluido' },
+    { icon: '🏊', name: 'Piscina' },
+    { icon: '', name: 'Vista a Montañas' },
+    { icon: '🔥', name: 'Chimenea' }
+  ],
+  reviews: [
+    { text: 'Increíble experiencia, la vista es espectacular y el servicio excelente.', author: 'María G.' },
+    { text: 'El mejor hospedaje del Valle Sagrado, volveremos sin duda.', author: 'Carlos R.' },
+    { text: 'Muy acogedor, perfecto para descansar después de visitar Machu Picchu.', author: 'Ana L.' }
+  ]
+};
+
+// ===== WIZARD =====
+function selectBusiness(type, el) {
+  state.businessType = type;
+  document.querySelectorAll('.business-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('btnStep1').disabled = false;
+}
+
+function nextStep(step) {
+  document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+  document.getElementById(`step${step}`).classList.add('active');
+  
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById(`prog${i}`).classList.toggle('active', i <= step);
+  }
+  
+  if (step === 2) {
+    // Pre-fill with defaults based on business type
+  } else if (step === 3) {
+    renderSuggestedSections();
+  }
+}
+
+function prevStep(step) {
+  nextStep(step);
+}
+
+function renderSuggestedSections() {
+  const templates = sectionTemplates[state.businessType] || sectionTemplates.hospedaje;
+  const container = document.getElementById('suggestedSections');
+  container.innerHTML = templates.map((s, i) => `
+    <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #F0FDF4; border-radius: 8px; margin-bottom: 8px; border: 1px solid #BBF7D0;">
+      <span style="font-size: 20px;">${s.icon}</span>
+      <span style="font-weight: 500; font-size: 14px;">${s.name}</span>
+      <span style="margin-left: auto; color: #10B981; font-size: 12px; font-weight: 600;">✓ Recomendado</span>
+    </div>
+  `).join('');
+}
+
+function finishWizard() {
+  state.businessName = document.getElementById('bizName').value;
+  state.tagline = document.getElementById('bizTagline').value;
+  state.location = document.getElementById('bizLocation').value;
+  state.phone = document.getElementById('bizPhone').value;
+  
+  // Create initial sections
+  const templates = sectionTemplates[state.businessType] || sectionTemplates.hospedaje;
+  state.sections = templates.map((t, i) => ({
+    id: Date.now() + i,
+    type: t.type,
+    name: t.name,
+    icon: t.icon
+  }));
+  
+  document.getElementById('wizardOverlay').classList.add('hidden');
+  document.getElementById('editor').classList.remove('hidden');
+  renderEditor();
+  showToast('🎉 ¡Tu web está lista! Personalízala arrastrando las secciones');
+}
+
+// ===== EDITOR =====
+function switchView(view, el) {
+  state.currentView = view;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  
+  const titles = {
+    editor: 'Editor Web - Arrastra y suelta',
+    inventory: 'Inventario',
+    payments: 'Pagos',
+    media: 'Galería'
+  };
+  document.getElementById('headerTitle').textContent = titles[view];
+  
+  if (view === 'editor') renderEditor();
+  else if (view === 'inventory') renderInventory();
+  else if (view === 'payments') renderPayments();
+  else if (view === 'media') renderMedia();
+}
+
+function renderEditor() {
+  const c = document.getElementById('content');
+  const availableComponents = [
+    { type: 'hero', name: 'Portada', icon: '️' },
+    { type: 'rooms', name: 'Habitaciones', icon: '️' },
+    { type: 'products', name: 'Productos', icon: '🛍️' },
+    { type: 'services', name: 'Servicios', icon: '🎯' },
+    { type: 'amenities', name: 'Comodidades', icon: '✨' },
+    { type: 'about', name: 'Sobre Nosotros', icon: '📖' },
+    { type: 'location', name: 'Ubicación', icon: '📍' },
+    { type: 'reviews', name: 'Reseñas', icon: '⭐' },
+    { type: 'contact', name: 'Contacto', icon: '' }
+  ];
+  
+  c.innerHTML = `
+    <div class="editor-container">
+      <div class="components-panel">
+        <div class="panel-title">📦 Componentes Disponibles</div>
+        <p style="font-size: 12px; color: #64748B; margin-bottom: 16px;">Arrastra al canvas para agregar</p>
+        ${availableComponents.map(comp => `
+          <div class="component-item" draggable="true" ondragstart="dragStart(event, '${comp.type}', '${comp.name}', '${comp.icon}')">
+            <span class="component-icon">${comp.icon}</span>
+            <span class="component-name">${comp.name}</span>
+          </div>
+        `).join('')}
+        
+        <div style="margin-top: 24px; padding: 16px; background: #F0FDF4; border-radius: 12px; border: 1px solid #BBF7D0;">
+          <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px;"> Tip</div>
+          <div style="font-size: 12px; color: #166534;">
+            Arrastra las secciones en el canvas para reordenarlas. Usa los botones ️ para editar contenido.
+          </div>
+        </div>
+      </div>
+      
+      <div class="canvas" id="canvas" ondragover="dragOver(event)" ondrop="drop(event)">
+        <div style="text-align: center; padding: 40px; color: #64748B; border: 2px dashed #E2E8F0; border-radius: 12px; margin-bottom: 24px;" id="emptyState" style="${state.sections.length > 0 ? 'display:none' : ''}">
+          <div style="font-size: 48px; margin-bottom: 16px;">🎨</div>
+          <div style="font-weight: 600; margin-bottom: 8px;">Comienza arrastrando componentes aquí</div>
+          <div style="font-size: 13px;">O usa las secciones sugeridas del wizard</div>
+        </div>
+        
+        ${state.sections.map((section, index) => renderSection(section, index)).join('')}
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('emptyState').style.display = state.sections.length === 0 ? 'block' : 'none';
+}
+
+function renderSection(section, index) {
+  let content = '';
+  
+  if (section.type === 'hero') {
+    content = `
+      <div class="hero-section">
+        <h1>${state.businessName}</h1>
+        <p>${state.tagline}</p>
+        <p style="margin-top: 16px; font-size: 14px; opacity: 0.8;"> ${state.location}</p>
+      </div>
+    `;
+  } else if (section.type === 'rooms') {
+    content = `
+      <div class="rooms-section">
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 16px;">Nuestras Habitaciones</h2>
+        <div class="rooms-grid">
+          ${sampleData.rooms.map(r => `
+            <div class="room-card">
+              <div class="room-img" style="background: url('${r.image}') center/cover;"></div>
+              <div class="room-info">
+                <div class="room-name">${r.name}</div>
+                <div class="room-price">S/ ${r.price} / noche</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  } else if (section.type === 'amenities') {
+    content = `
+      <div class="amenities-section">
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 16px;">Servicios & Comodidades</h2>
+        <div class="amenities-grid">
+          ${sampleData.amenities.map(a => `
+            <div class="amenity-item">
+              <div class="amenity-icon">${a.icon}</div>
+              <div class="amenity-name">${a.name}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  } else if (section.type === 'location') {
+    content = `
+      <div class="location-section">
+        <h3> Ubicación</h3>
+        <p style="margin-bottom: 16px;">${state.location}</p>
+        <div style="background: #E2E8F0; height: 200px; border-radius: 8px; display: grid; place-items: center; color: #64748B;">
+          [Mapa de Google Maps]
+        </div>
+      </div>
+    `;
+  } else if (section.type === 'reviews') {
+    content = `
+      <div class="reviews-section">
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 16px;">Lo que dicen nuestros huéspedes</h2>
+        ${sampleData.reviews.map(r => `
+          <div class="review-card">
+            <div class="review-text">"${r.text}"</div>
+            <div class="review-author">— ${r.author}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } else if (section.type === 'contact') {
+    content = `
+      <div class="contact-section">
+        <h3>📞 Contacto & Reservas</h3>
+        <p style="margin-bottom: 16px;">WhatsApp: ${state.phone}</p>
+        <button style="padding: 12px 32px; background: #10B981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Reservar Ahora</button>
+      </div>
+    `;
+  } else {
+    content = `<div style="padding: 40px; text-align: center; color: #64748B;">Sección: ${section.name}</div>`;
+  }
+  
+  return `
+    <div class="canvas-section" draggable="true" ondragstart="sectionDragStart(event, ${index})" ondragover="sectionDragOver(event)" ondrop="sectionDrop(event, ${index})" ondragend="dragEnd(event)">
+      <div class="section-controls">
+        <button class="section-btn" onclick="editSection(${index})" title="Editar">✏️</button>
+        <button class="section-btn delete" onclick="deleteSection(${index})" title="Eliminar">🗑️</button>
+      </div>
+      ${content}
+    </div>
+  `;
+}
+
+// ===== DRAG & DROP =====
+function dragStart(event, type, name, icon) {
+  event.dataTransfer.setData('componentType', type);
+  event.dataTransfer.setData('componentName', name);
+  event.dataTransfer.setData('componentIcon', icon);
+}
+
+function dragOver(event) {
+  event.preventDefault();
+  event.currentTarget.classList.add('drag-over');
+}
+
+function drop(event) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag-over');
+  
+  const type = event.dataTransfer.getData('componentType');
+  const name = event.dataTransfer.getData('componentName');
+  const icon = event.dataTransfer.getData('componentIcon');
+  
+  if (type) {
+    state.sections.push({
+      id: Date.now(),
+      type,
+      name,
+      icon
+    });
+    renderEditor();
+    showToast(`✅ ${name} agregado`);
+  }
+}
+
+function sectionDragStart(event, index) {
+  state.dragIndex = index;
+  event.currentTarget.classList.add('dragging');
+  event.dataTransfer.effectAllowed = 'move';
+}
+
+function sectionDragOver(event) {
+  event.preventDefault();
+  event.currentTarget.classList.add('drag-over');
+}
+
+function sectionDrop(event, index) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag-over');
+  
+  if (state.dragIndex !== null && state.dragIndex !== index) {
+    const dragged = state.sections[state.dragIndex];
+    state.sections.splice(state.dragIndex, 1);
+    state.sections.splice(index, 0, dragged);
+    renderEditor();
+    showToast('🔄 Sección reordenada');
+  }
+}
+
+function dragEnd(event) {
+  event.currentTarget.classList.remove('dragging');
+  state.dragIndex = null;
+}
+
+function editSection(index) {
+  const section = state.sections[index];
+  const newName = prompt('Nombre de la sección:', section.name);
+  if (newName) {
+    section.name = newName;
+    renderEditor();
+    showToast('✅ Sección actualizada');
+  }
+}
+
+function deleteSection(index) {
+  if (confirm('¿Eliminar esta sección?')) {
+    state.sections.splice(index, 1);
+    renderEditor();
+    showToast('🗑️ Sección eliminada');
+  }
+}
+
+function renderInventory() {
+  document.getElementById('content').innerHTML = `
+    <div class="card">
+      <div class="card-title">📦 Inventario</div>
+      <p style="color: #64748B; margin-top: 12px;">Módulo de inventario en desarrollo</p>
+    </div>
+  `;
+}
+
+function renderPayments() {
+  document.getElementById('content').innerHTML = `
+    <div class="card">
+      <div class="card-title">💳 Pagos</div>
+      <p style="color: #64748B; margin-top: 12px;">Configuración de pagos en desarrollo</p>
+    </div>
+  `;
+}
+
+function renderMedia() {
+  document.getElementById('content').innerHTML = `
+    <div class="card">
+      <div class="card-title">🖼️ Galería</div>
+      <p style="color: #64748B; margin-top: 12px;">Galería de medios en desarrollo</p>
+    </div>
+  `;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function openPublicView() {
+  showToast('👁️ Vista pública: ' + state.businessName);
+}
+
+// Inicializar
+// El wizard se muestra automáticamente al cargar
+</script>
+</body>
+</html>

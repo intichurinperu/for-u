@@ -1,0 +1,128 @@
+.project-island { width: min(100%, 940px); margin: 0 auto 32px; }
+.island-heading { text-align: center; margin: 12px 0 18px; }
+.island-heading p { margin: 8px 0; color: #62576b; }
+.island-map-art {
+  position: relative;
+  width: min(100%, 760px);
+  aspect-ratio: 3 / 2;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid #e9dfec;
+  border-radius: 28px;
+  background: #fffdfb;
+}
+.island-map-art > img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.island-map-art .island-pin {
+  position: absolute;
+  left: var(--pin-x);
+  top: var(--pin-y);
+  translate: -50% -50%;
+  padding-inline: clamp(9px, 2vw, 22px);
+  font-size: clamp(.74rem, 2.8vw, .95rem);
+  white-space: nowrap;
+}
+.island-pin-marketing { --pin-x: 50%; --pin-y: 44%; }
+.island-pin-finance { --pin-x: 22%; --pin-y: 65%; }
+.island-pin-logistics { --pin-x: 78%; --pin-y: 65%; }
+.island-pin-operations { --pin-x: 50%; --pin-y: 81%; }
+.island-view-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0;
+}
+.island-view-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 13px;
+  border: 1px solid #e7dceb;
+  border-radius: 99px;
+  color: #51425e;
+  background: #fffdfb;
+  text-decoration: none;
+  font-size: .85rem;
+}
+.island-view-links a:hover { background: #f7f0fa; }
+.island-area { --area-ink: #6b4a68; }
+.island-area-finance { --area-ink: #785523; }
+.island-area-logistics { --area-ink: #365f62; }
+.island-area-operations { --area-ink: #594474; }
+.island-rubro {
+  display: inline-block;
+  padding: 5px 12px;
+  border: 1px solid #ecdfeb;
+  border-radius: 999px;
+  background: #fffdfd;
+  color: var(--area-ink);
+  font-size: .82rem;
+}
+.island-area-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: clamp(20px, 4vw, 54px);
+  padding: clamp(22px, 5vw, 52px);
+  border: 1px solid #e9dfec;
+  border-radius: 30px;
+  background: radial-gradient(ellipse at 12% 0%, #f6effb, transparent 55%), #fffdfc;
+}
+.island-area-art { min-width: 0; }
+.island-area-art img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 22px;
+  mix-blend-mode: multiply;
+}
+.island-area-content { min-width: 0; }
+.island-area-content h2 {
+  margin: 0 0 8px;
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  letter-spacing: -.035em;
+  line-height: 1.1;
+}
+.island-area-content > p { margin: 0; color: #62576b; line-height: 1.5; }
+.island-area-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 0;
+}
+.island-area-actions .foru-pearl-button { min-height: 48px; padding: 10px 18px; font-size: 1rem; }
+.island-area-links, .island-task-preview { display: grid; gap: 6px; margin: 12px 0 0; padding: 0; }
+.island-area-links a, .island-area-links button, .island-task-preview li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #eae1ec;
+  border-radius: 13px;
+  background: #fffdfc;
+  color: var(--area-ink);
+  font: inherit;
+  font-size: .88rem;
+  text-align: left;
+  text-decoration: none;
+}
+.island-area-links a:hover, .island-area-links button:hover { background: #f8f2fa; }
+.island-area-links button { cursor: pointer; }
+.island-task-preview li { color: #3d3441; }
+.island-task-preview svg, .island-area-links svg { flex: none; }
+.island-task-preview small { margin-inline-start: auto; color: #62576b; }
+.island-task-preview span { overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .island-area-card { grid-template-columns: 1fr; gap: 14px; padding: 14px; border-radius: 22px; }
+  .island-area-art img { width: min(100%, 360px); margin: 0 auto; border-radius: 16px; }
+  .island-area-content { padding: 0 4px 4px; }
+  .island-area-actions { margin-top: 14px; }
+}
+@media (max-width: 420px) {
+  .island-map-art { border-radius: 20px; }
+  .island-map-art .island-pin { min-height: 44px; }
+  .island-view-links { gap: 5px; }
+  .island-view-links a { padding-inline: 9px; font-size: .76rem; }
+}

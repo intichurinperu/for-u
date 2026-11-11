@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary } from './ui/DesignSystem';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, PointerEvent, WheelEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -119,7 +120,7 @@ export default function ArchipelagoView({ onEnterProject }: ArchipelagoViewProps
           <h1>Todas tus islas en un solo mapa</h1>
           <p>Arrastra el mar para moverte, usa la rueda o los botones para hacer zoom, doble clic en una isla para acercarte.</p>
         </div>
-        <button type="button" onClick={createIsland}>+ Nueva isla</button>
+        <DSButtonSecondary type="button" onClick={createIsland}>+ Nueva isla</DSButtonSecondary>
       </header>
 
       <div
@@ -132,25 +133,25 @@ export default function ArchipelagoView({ onEnterProject }: ArchipelagoViewProps
         onPointerCancel={handlePanEnd}
       >
         <div className="foru-archipelago-controls" aria-label="Controles de zoom">
-          <button type="button" onClick={() => zoomBy(0.15)}>+</button>
-          <button type="button" onClick={() => zoomBy(-0.15)}>-</button>
-          <button type="button" onClick={resetArchipelagoView}>Ver todo</button>
+          <DSButtonSecondary type="button" onClick={() => zoomBy(0.15)}>+</DSButtonSecondary>
+          <DSButtonSecondary type="button" onClick={() => zoomBy(-0.15)}>-</DSButtonSecondary>
+          <DSButtonSecondary type="button" onClick={resetArchipelagoView}>Ver todo</DSButtonSecondary>
         </div>
 
-        <button
+        <DSButtonSecondary
           type="button"
           className={`foru-map-lock-toggle foru-archipelago-lock-toggle ${isMapMovementUnlocked ? 'is-unlocked' : 'is-locked'}`}
           onClick={() => setIsMapMovementUnlocked((current) => !current)}
         >
           {isMapMovementUnlocked ? '🔒 Bloquear Movimiento' : '🔓 Mover Mapa'}
-        </button>
+        </DSButtonSecondary>
 
-        <button type="button" className="foru-archipelago-nav is-prev" onClick={() => panToIsland(projects[Math.max(0, selectedIndex - 1)]?.id ?? activeProjectId ?? '')}>
+        <DSButtonSecondary type="button" className="foru-archipelago-nav is-prev" onClick={() => panToIsland(projects[Math.max(0, selectedIndex - 1)]?.id ?? activeProjectId ?? '')}>
           ← Isla Anterior
-        </button>
-        <button type="button" className="foru-archipelago-nav is-next" onClick={() => panToIsland(projects[Math.min(projects.length - 1, selectedIndex + 1)]?.id ?? activeProjectId ?? '')}>
+        </DSButtonSecondary>
+        <DSButtonSecondary type="button" className="foru-archipelago-nav is-next" onClick={() => panToIsland(projects[Math.min(projects.length - 1, selectedIndex + 1)]?.id ?? activeProjectId ?? '')}>
           Isla Siguiente →
-        </button>
+        </DSButtonSecondary>
 
         <div
           className="foru-archipelago-canvas"

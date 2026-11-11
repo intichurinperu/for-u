@@ -1,0 +1,100 @@
+.public-welcome { color: #111; background: #fff; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-weight: 400; overflow: clip; }
+.public-welcome *, .public-welcome *::before, .public-welcome *::after { box-sizing: border-box; }
+.public-welcome h1, .public-welcome h2, .public-welcome h3, .public-welcome p { margin: 0; color: inherit; font-family: inherit; }
+.public-welcome-header, .public-welcome main, .public-welcome-footer { width: min(1280px, calc(100% - 96px)); margin-inline: auto; }
+.public-welcome-header { display: flex; align-items: center; justify-content: space-between; min-height: 112px; gap: 16px; }
+.public-welcome-header > a:first-child { display: inline-flex; border-radius: 14px; }
+.public-welcome a:focus-visible { outline: 3px solid #333; outline-offset: 5px; }
+.public-welcome-hero { display: grid; grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr); align-items: center; min-height: 610px; padding-block: 42px 48px; gap: 10px; }
+.public-welcome-eyebrow { font-size: 17px; line-height: 1.5; }
+.public-welcome h1 { max-width: 520px; margin-top: 19px; font-size: clamp(42px, 4.15vw, 60px); font-weight: 450; line-height: 1.12; letter-spacing: -.045em; text-wrap: balance; }
+.public-welcome-description { max-width: 450px; margin-top: 26px !important; font-size: 20px; line-height: 1.5; text-wrap: pretty; }
+.public-welcome-actions { display: grid; width: min(100%, 370px); gap: 12px; margin-top: 29px; }
+.public-welcome-helper { margin-top: 19px !important; font-size: 14px; line-height: 1.6; }
+.public-welcome-art { min-width: 0; }
+.public-welcome-art img { display: block; width: 113%; max-width: none; height: auto; margin-left: -4%; object-fit: contain; }
+.public-welcome-features { padding-block: 30px 65px; }
+.public-welcome h2 { font-size: clamp(27px, 3vw, 38px); font-weight: 450; line-height: 1.2; letter-spacing: -.035em; text-wrap: balance; }
+.public-welcome-features > h2 { text-align: center; }
+.public-welcome-columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px; padding: 0; margin: 45px 0 0; list-style: none; }
+.public-welcome h3 { margin-bottom: 6px; font-size: 24px; font-weight: 500; line-height: 1.3; letter-spacing: -.025em; }
+.public-welcome-columns p { font-size: 16px; line-height: 1.65; }
+.public-welcome-how { padding-block: 65px 75px; border-top: 1px solid #eee; scroll-margin-top: 24px; }
+.public-welcome-how > h2 { margin-top: 12px; }
+.public-welcome-step { display: block; margin-bottom: 16px; font-size: 14px; color: #666; }
+.public-welcome-how > .foru-pearl-button { margin-top: 36px; min-width: 280px; }
+.public-welcome-footer { display: flex; justify-content: space-between; gap: 24px; padding-block: 28px; border-top: 1px solid #eee; font-size: 13px; }
+.public-welcome-footer nav { display: flex; gap: 24px; }
+.public-welcome-footer a { color: inherit; text-underline-offset: 4px; }
+.public-welcome-skip { position: fixed; top: -100px; left: 20px; z-index: 100; padding: 12px; background: #fff; color: #111; }
+.public-welcome-skip:focus { top: 12px; }
+.public-welcome-explore { padding: 30px 0 70px; scroll-margin-top: 28px; }
+.public-welcome-explore > h2, .public-welcome-explore-hint { text-align: center; }
+.public-welcome-explore-hint { margin-top: 12px !important; font-size: 15px; color: #555 !important; }
+.public-welcome-choices { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px; margin: 28px 0 32px; }
+.public-welcome-choice { gap: 10px; min-width: 190px; min-height: 56px; font-size: 18px; }
+.public-welcome-choice[aria-pressed="false"] { filter: saturate(.5); }
+.public-welcome-choice.is-selected { outline: 2px solid #555; outline-offset: 4px; }
+.public-welcome-choice:focus-visible { outline: 3px solid #111; outline-offset: 6px; }
+.public-welcome-preview { display: grid; grid-template-columns: .9fr 1.1fr; gap: 60px; align-items: center; min-height: 390px; padding: 36px 48px; border: 1px solid #e8e4de; border-radius: 30px; animation: welcome-reveal 250ms ease both; }
+.public-welcome-preview-copy h3 { font-size: clamp(26px, 2.7vw, 36px); line-height: 1.15; text-wrap: balance; }
+.public-welcome-preview-copy p { max-width: 400px; margin-top: 16px; font-size: 17px; line-height: 1.6; }
+.public-welcome-preview-copy > .foru-pearl-button { margin-top: 26px; min-height: 56px; font-size: 18px; }
+.public-welcome-preview-copy > small { display: block; max-width: 320px; margin-top: 14px; color: #666; font-size: 12px; line-height: 1.6; }
+.public-welcome-demo { min-width: 0; }
+.public-welcome-demo-label { display: block; margin-bottom: 12px; text-align: center; font-size: 12px; color: #666; }
+.public-welcome-page-demo { max-width: 380px; margin: auto; overflow: hidden; border: 1px solid #ddd7cd; border-radius: 16px; background: #fff; box-shadow: 0 12px 36px #44351a0b; }
+.public-welcome-demo-browser { display: flex; gap: 5px; padding: 12px 16px; background: #faf9f7; border-bottom: 1px solid #eee; }
+.public-welcome-demo-browser > span { width: 6px; height: 6px; background: #d8d0c2; border-radius: 50%; }
+.public-welcome-page-demo > small { display: block; padding: 18px 22px 0; font-size: 11px; }
+.public-welcome-page-demo h4 { margin: 10px 22px 18px; font-size: 25px; font-weight: 500; line-height: 1.2; letter-spacing: -.03em; }
+.public-welcome-demo-photo { height: 110px; background: #fff url('/brand/foru-landing-islands.png') center 53% / cover; }
+.public-welcome-demo-lines { display: grid; gap: 7px; margin: 18px 22px 10px; }
+.public-welcome-demo-lines span { height: 5px; width: 85%; background: #eceae6; border-radius: 5px; }
+.public-welcome-demo-lines span:last-child { width: 55%; }
+.public-welcome-page-demo > p { padding: 0 22px 18px; font-size: 10px; color: #555; }
+.public-welcome-content-demo { max-width: 270px; margin: auto; }
+.public-welcome-post { position: relative; isolation: isolate; overflow: hidden; min-height: 250px; padding: 24px; border-radius: 12px; border: 1px solid #e5dfd5; background: linear-gradient(145deg, #fffaf1, #f5faf8 50%, #f8eef1); }
+.public-welcome-post > small { font-size: 10px; }
+.public-welcome-post h4 { position: relative; z-index: 1; margin: 24px 0 32px; font-size: 30px; font-weight: 500; line-height: 1.1; letter-spacing: -.04em; }
+.public-welcome-post p { position: relative; font-size: 11px; }
+.public-welcome-post-orbit { position: absolute; z-index: -1; right: -30px; bottom: -40px; width: 180px; height: 180px; border: 24px solid #d5e9e49c; border-radius: 50%; }
+.public-welcome-slide-controls { display: flex; justify-content: center; gap: 20px; align-items: center; margin-top: 10px; font-size: 12px; }
+.public-welcome-slide-controls button { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid #d5cebf; background: linear-gradient(135deg, #f7eee3, #e0f0e8, #f4e0e1); color: #111; cursor: pointer; }
+.public-welcome-slide-controls button:focus-visible { outline: 3px solid #333; outline-offset: 3px; }
+.public-welcome-business-demo > img { display: block; width: 100%; height: auto; }
+.public-welcome-area-labels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; font-size: 13px; }
+.public-welcome-area-labels > span { padding: 8px; border-bottom: 1px solid #e9e4da; }
+@keyframes welcome-reveal { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .public-welcome-preview { animation: none; } }
+@media (max-width: 760px) {
+  .public-welcome-header, .public-welcome main, .public-welcome-footer { width: calc(100% - 40px); }
+  .public-welcome-header { min-height: 92px; }
+  .public-welcome-header .foru-original-logo { transform: scale(.75); transform-origin: left center; margin-right: -42px !important; }
+  .public-welcome-header .foru-pearl-button.is-compact { font-size: 13px; padding-inline: 16px; }
+  .public-welcome-hero { grid-template-columns: 1fr; min-height: 0; gap: 16px; padding-block: 24px 12px; }
+  .public-welcome-eyebrow { font-size: 15px; }
+  .public-welcome h1 { max-width: 430px; margin-top: 15px; font-size: clamp(35px, 9.5vw, 49px); }
+  .public-welcome-description { max-width: 430px; margin-top: 20px !important; font-size: 17px; }
+  .public-welcome-actions { width: 100%; max-width: 430px; gap: 11px; margin-top: 24px; }
+  .public-welcome-actions .foru-pearl-button { min-height: 58px; font-size: 19px; }
+  .public-welcome-helper { font-size: 12px; margin-top: 15px !important; }
+  .public-welcome-art { max-width: 490px; width: 100%; margin-inline: auto; }
+  .public-welcome-art img { width: 100%; margin-left: 0; }
+  .public-welcome-features { padding-block: 12px 40px; }
+  .public-welcome-features > h2 { text-align: left; }
+  .public-welcome h2 { font-size: 27px; }
+  .public-welcome-columns { grid-template-columns: 1fr; gap: 24px; margin-top: 28px; }
+  .public-welcome h3 { font-size: 21px; }
+  .public-welcome-columns p { font-size: 15px; }
+  .public-welcome-how { padding-block: 40px 48px; }
+  .public-welcome-how > .foru-pearl-button { width: 100%; min-width: 0; }
+  .public-welcome-step { margin-bottom: 8px; }
+  .public-welcome-footer { flex-direction: column; gap: 14px; }
+  .public-welcome-explore { padding: 14px 0 40px; }
+  .public-welcome-choices { gap: 10px; flex-wrap: nowrap; margin: 24px 0; }
+  .public-welcome-choice { flex: 1; flex-direction: column; gap: 6px; min-width: 0; min-height: 74px; padding: 12px 6px; font-size: 13px; }
+  .public-welcome-preview { grid-template-columns: 1fr; gap: 28px; padding: 26px 20px; border-radius: 22px; }
+  .public-welcome-preview-copy > .foru-pearl-button { width: 100%; }
+  .public-welcome-preview-copy p { font-size: 16px; }
+}

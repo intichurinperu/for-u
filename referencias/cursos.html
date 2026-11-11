@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For U · Creator Studio</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎓%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #10B981;
+  --primary-gradient: linear-gradient(135deg, #FDE68A, #10B981, #F9A8D4, #93C5FD);
+  --bg-app: #F8FAFC;
+  --bg-panel: #FFFFFF;
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --border: #E2E8F0;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.025);
+  --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: var(--bg-app); color: var(--text-main); height: 100vh; overflow: hidden; }
+
+/* ===== EDITOR LAYOUT ===== */
+.editor-layout { display: flex; height: 100vh; }
+.sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 50; }
+.sidebar-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.auth-logo-badge { width: 48px; height: 48px; border-radius: 14px; background: var(--primary-gradient); display: grid; place-items: center; color: white; font-weight: 800; font-size: 22px; }
+.sidebar-logo { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+.nav-section { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); padding: 12px 16px 6px; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-radius: 10px; color: var(--text-muted); font-weight: 500; font-size: 14px; cursor: pointer; transition: all 0.2s; margin-bottom: 2px; }
+.nav-item:hover { background: #F1F5F9; color: var(--text-main); }
+.nav-item.active { background: #ECFDF5; color: #059669; font-weight: 600; }
+.nav-item.pro { background: linear-gradient(135deg, rgba(253,230,138,0.1), rgba(16,185,129,0.1)); color: #059669; border: 1px solid rgba(16,185,129,0.2); }
+.sidebar-footer { padding: 16px; border-top: 1px solid var(--border); }
+.user-profile { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; cursor: pointer; transition: background 0.2s; }
+.user-profile:hover { background: #F1F5F9; }
+.user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary-gradient); display: grid; place-items: center; color: white; font-weight: 700; font-size: 14px; }
+
+.canvas-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.canvas-header { height: 64px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+.canvas-title { font-weight: 700; font-size: 16px; }
+.canvas-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.header-actions { display: flex; gap: 12px; }
+.btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; }
+.btn-primary { background: var(--text-main); color: white; }
+.btn-primary:hover { background: #334155; transform: translateY(-1px); }
+.btn-secondary { background: white; border: 1px solid var(--border); color: var(--text-main); }
+.btn-secondary:hover { background: #F8FAFC; }
+.btn-gradient { background: var(--primary-gradient); color: white; }
+.btn-gradient:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+.btn-danger { background: #FEE2E2; color: #991B1B; }
+.btn-danger:hover { background: #FECACA; }
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+
+.canvas-content { flex: 1; overflow-y: auto; padding: 32px; background: var(--bg-app); }
+
+/* ===== COURSE EDITOR 3-PANEL ===== */
+.course-editor { display: grid; grid-template-columns: 260px 1fr 320px; height: calc(100vh - 64px); margin: -32px; }
+.editor-panel { background: var(--bg-panel); border-right: 1px solid var(--border); overflow-y: auto; padding: 20px; }
+.editor-canvas { overflow-y: auto; padding: 32px; background: var(--bg-app); }
+.editor-preview { background: var(--bg-panel); border-left: 1px solid var(--border); overflow-y: auto; padding: 20px; }
+
+.editor-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin: 16px 0 10px; }
+.editor-section-title:first-child { margin-top: 0; }
+
+.module-item { background: var(--bg-app); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
+.module-item:hover { border-color: var(--primary); }
+.module-item.active { border-color: var(--primary); background: #ECFDF5; }
+.module-header { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+.module-drag { color: var(--text-muted); cursor: move; font-size: 12px; }
+.module-count { margin-left: auto; font-size: 11px; color: var(--text-muted); }
+
+.lesson-item { padding: 8px 12px 8px 28px; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; border-radius: 6px; cursor: pointer; margin-top: 4px; }
+.lesson-item:hover { background: #F1F5F9; color: var(--text-main); }
+.lesson-item.active { background: var(--primary-gradient); color: white; font-weight: 600; }
+
+.add-btn { width: 100%; padding: 10px; border: 1px dashed var(--border); border-radius: 10px; background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+.add-btn:hover { border-color: var(--primary); color: var(--primary); background: #ECFDF5; }
+
+/* ===== EDITOR BLOCKS ===== */
+.editor-block { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+.editor-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.editor-block-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+
+.upload-area { border: 2px dashed var(--border); border-radius: var(--radius); padding: 32px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg-app); }
+.upload-area:hover { border-color: var(--primary); background: #ECFDF5; }
+.upload-area.has-file { border-style: solid; border-color: var(--primary); padding: 0; overflow: hidden; }
+.upload-icon { font-size: 32px; margin-bottom: 8px; }
+.upload-text { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.upload-hint { font-size: 12px; color: var(--text-muted); }
+.upload-preview { width: 100%; max-height: 200px; object-fit: cover; display: block; }
+
+.form-input, .form-textarea, .form-select { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; transition: all 0.2s; background: var(--bg-panel); margin-bottom: 12px; }
+.form-input:focus, .form-textarea:focus, .form-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; display: block; }
+
+/* ===== CONTENT TYPE SELECTOR ===== */
+.type-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+.type-option { padding: 12px 8px; background: var(--bg-app); border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.2s; text-align: center; }
+.type-option:hover { border-color: var(--primary); }
+.type-option.active { border-color: var(--primary); background: #ECFDF5; }
+.type-icon { font-size: 20px; margin-bottom: 4px; }
+.type-label { font-size: 11px; font-weight: 600; }
+
+/* ===== PREVIEW PHONE ===== */
+.preview-phone { background: var(--text-main); border-radius: 24px; padding: 12px; margin-bottom: 16px; }
+.preview-screen { background: white; border-radius: 16px; overflow: hidden; }
+.preview-hero { position: relative; height: 180px; background: var(--primary-gradient); overflow: hidden; }
+.preview-hero img { width: 100%; height: 100%; object-fit: cover; }
+.preview-hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.7)); display: flex; flex-direction: column; justify-content: flex-end; padding: 16px; color: white; }
+.preview-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.preview-subtitle { font-size: 12px; opacity: 0.9; }
+.preview-body { padding: 16px; }
+.preview-module { padding: 12px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; }
+.preview-module-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.preview-lesson { padding: 8px 12px; background: var(--bg-app); border-radius: 6px; font-size: 12px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.preview-lesson-icon { width: 20px; height: 20px; border-radius: 50%; background: var(--primary-gradient); display: grid; place-items: center; font-size: 10px; color: white; flex-shrink: 0; }
+.preview-cta { width: 100%; padding: 12px; background: var(--primary-gradient); color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 14px; margin-top: 12px; cursor: pointer; font-family: 'Inter', sans-serif; }
+.preview-price { text-align: center; font-size: 24px; font-weight: 800; color: var(--primary); margin: 12px 0; }
+
+/* ===== COURSE CARDS ===== */
+.courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.course-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: all 0.25s; }
+.course-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+.course-cover { width: 100%; height: 160px; object-fit: cover; background: var(--primary-gradient); }
+.course-body { padding: 18px; }
+.course-type { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 6px; margin-bottom: 8px; background: #ECFDF5; color: #059669; }
+.course-name { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.course-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.course-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-muted); padding-top: 10px; border-top: 1px solid var(--border); }
+.course-price { font-size: 20px; font-weight: 800; color: var(--primary); margin-top: 8px; }
+
+.add-course { border: 2px dashed var(--border); border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 280px; cursor: pointer; transition: all 0.2s; background: var(--bg-panel); }
+.add-course:hover { border-color: var(--primary); background: #ECFDF5; }
+.add-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--primary-gradient); display: grid; place-items: center; font-size: 28px; color: white; margin-bottom: 12px; transition: transform 0.2s; }
+.add-course:hover .add-icon { transform: scale(1.1); }
+
+/* ===== MEDIA GALLERY ===== */
+.media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.media-item { aspect-ratio: 1; border-radius: 10px; overflow: hidden; border: 2px solid transparent; cursor: pointer; position: relative; transition: all 0.2s; background: var(--bg-app); }
+.media-item:hover { border-color: var(--primary); transform: scale(1.02); }
+.media-item img { width: 100%; height: 100%; object-fit: cover; }
+.media-item.selected { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+.media-add { display: grid; place-items: center; border: 2px dashed var(--border); background: var(--bg-app); }
+.media-add:hover { border-color: var(--primary); background: #ECFDF5; }
+
+/* ===== CONTENT CREATOR ===== */
+.content-templates { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.content-template { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: all 0.2s; }
+.content-template:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+.template-preview { height: 200px; background: var(--primary-gradient); display: grid; place-items: center; font-size: 48px; position: relative; }
+.template-body { padding: 14px; }
+.template-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+.template-desc { font-size: 12px; color: var(--text-muted); }
+
+/* ===== CANVAS COMPONENTS ===== */
+.component-card { background: var(--bg-panel); border-radius: 16px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+.component-card:hover { box-shadow: var(--shadow-md); border-color: #CBD5E1; }
+.component-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.component-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-box { background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
+.stat-label { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 8px; }
+.stat-value { font-size: 28px; font-weight: 700; }
+
+/* ===== TABLES ===== */
+.data-table { width: 100%; background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; border-collapse: collapse; }
+.data-table th { text-align: left; padding: 12px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); background: var(--bg-app); border-bottom: 1px solid var(--border); }
+.data-table td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid var(--border); }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--bg-app); }
+
+.badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+.badge-success { background: #ECFDF5; color: #059669; }
+.badge-warning { background: #FFFBEB; color: #92400E; }
+.badge-info { background: #EFF6FF; color: #1E40AF; }
+
+.progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; width: 100px; }
+.progress-fill { height: 100%; background: var(--primary-gradient); border-radius: 3px; }
+
+/* ===== MODALS ===== */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.modal-overlay.active { display: flex; }
+.modal { background: var(--bg-panel); border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: modalIn 0.3s ease; }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal-header { padding: 24px 28px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--bg-panel); z-index: 10; border-radius: 20px 20px 0 0; }
+.modal-body { padding: 28px; }
+.modal-footer { padding: 20px 28px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; position: sticky; bottom: 0; background: var(--bg-panel); border-radius: 0 0 20px 20px; }
+
+/* ===== TOAST ===== */
+.toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--text-main); color: white; padding: 14px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 2000; opacity: 0; transition: all 0.3s; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media(max-width: 1200px) {
+  .course-editor { grid-template-columns: 220px 1fr; }
+  .editor-preview { display: none; }
+}
+@media(max-width: 768px) {
+  .sidebar { position: fixed; left: -280px; height: 100%; transition: left 0.3s; }
+  .sidebar.open { left: 0; }
+  .course-editor { grid-template-columns: 1fr; }
+  .editor-panel { display: none; }
+  .stats-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- EDITOR -->
+<div class="editor-layout" id="proEditor">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="auth-logo-badge" style="width: 36px; height: 36px; font-size: 16px;">F</div>
+      <span class="sidebar-logo">For U Creator</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Principal</div>
+      <div class="nav-item active" onclick="switchView('dashboard', this)">📊 Dashboard</div>
+      <div class="nav-item" onclick="switchView('courses', this)"> Mis Cursos</div>
+      <div class="nav-item" onclick="switchView('students', this)">👥 Alumnos</div>
+      <div class="nav-item" onclick="switchView('sales', this)">💰 Ventas</div>
+      <div class="nav-section">Contenido</div>
+      <div class="nav-item" onclick="switchView('media', this)">🖼️ Galería de Medios</div>
+      <div class="nav-item" onclick="switchView('content', this)"> Creador de Contenido</div>
+      <div class="nav-section">Configuración</div>
+      <div class="nav-item pro" onclick="showToast('🔒 Plan Pro')">️ Ajustes Avanzados</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="user-avatar">N</div>
+        <div style="flex: 1;">
+          <div style="font-weight: 600; font-size: 14px;">Nico Iriarte</div>
+          <div style="font-size: 12px; color: var(--text-muted);">nico@foru.site</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="canvas-area">
+    <header class="canvas-header">
+      <div>
+        <div class="canvas-title" id="canvasTitle">Dashboard</div>
+        <div class="canvas-subtitle" id="canvasSubtitle">Resumen de tu negocio digital</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="copyPublicLink()">🔗 Copiar Link</button>
+        <button class="btn btn-primary" onclick="openPublicView()">👁️ Ver Publicado</button>
+      </div>
+    </header>
+
+    <div class="canvas-content" id="canvasContent"></div>
+  </main>
+</div>
+
+<!-- MODAL: NUEVO CURSO -->
+<div class="modal-overlay" id="newCourseModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="component-title">✨ Crear Nuevo Curso</div>
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('newCourseModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <label class="form-label">Nombre del curso</label>
+      <input type="text" class="form-input" id="newCourseName" placeholder="Ej: Marketing Digital para Negocios">
+      <label class="form-label">Descripción corta</label>
+      <textarea class="form-textarea" id="newCourseDesc" placeholder="¿Qué aprenderán tus alumnos?"></textarea>
+      <label class="form-label">Precio (S/)</label>
+      <input type="number" class="form-input" id="newCoursePrice" placeholder="689">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('newCourseModal')">Cancelar</button>
+      <button class="btn btn-gradient" onclick="createCourse()">Crear y editar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CTA BUILDER -->
+<div class="modal-overlay" id="ctaModal">
+  <div class="modal" style="max-width: 500px;">
+    <div class="modal-header">
+      <div class="component-title">🔗 Configurar Botón</div>
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('ctaModal')">✕</button>
+    </div>
+    <div class="modal-body" id="ctaModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('ctaModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCtaButton()"> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ Acción completada</div>
+
+<script>
+// ===== STATE =====
+let state = {
+  currentView: 'dashboard',
+  editingCourseId: null,
+  editingModuleId: null,
+  editingLessonId: null,
+  editingCtaIndex: -1,
+  courses: [
+    {
+      id: 1,
+      name: 'Plan Profesional Web',
+      description: 'Diseño web completo + landing page + acompañamiento de 7 días.',
+      price: 689,
+      cover: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
+      modules: [
+        { id: 1, title: 'Módulo 1: Fundamentos', lessons: [
+          { id: 1, title: 'Bienvenida al curso', type: 'video', duration: '5:20', content: null },
+          { id: 2, title: 'Qué necesitas antes de empezar', type: 'text', duration: '3 min', content: 'Antes de comenzar, asegúrate de tener tu dominio y hosting listos.' }
+        ]},
+        { id: 2, title: 'Módulo 2: Diseño', lessons: [
+          { id: 3, title: 'Arquitectura de la web', type: 'video', duration: '12:45', content: null },
+          { id: 4, title: 'Recursos descargables', type: 'file', duration: 'PDF', content: null }
+        ]}
+      ],
+      students: 4,
+      revenue: 2756
+    },
+    {
+      id: 2,
+      name: 'Asesoría de Diagnóstico',
+      description: 'Sesión 1:1 para definir misión, visión y scripts antes del plan profesional.',
+      price: 195,
+      cover: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80',
+      modules: [
+        { id: 3, title: 'Sesión en vivo', lessons: [
+          { id: 5, title: 'Grabación de la sesión', type: 'video', duration: '45:00', content: null }
+        ]}
+      ],
+      students: 8,
+      revenue: 1560
+    }
+  ],
+  students: [
+    { id: 1, name: 'María García', email: 'maria@email.com', courseId: 1, progress: 100, status: 'Completado', date: '2025-09-10' },
+    { id: 2, name: 'Carlos Ruiz', email: 'carlos@email.com', courseId: 1, progress: 45, status: 'Activo', date: '2025-09-20' },
+    { id: 3, name: 'Ana López', email: 'ana@email.com', courseId: 1, progress: 78, status: 'Activo', date: '2025-09-18' },
+    { id: 4, name: 'Pedro Sánchez', email: 'pedro@email.com', courseId: 2, progress: 100, status: 'Completado', date: '2025-09-05' },
+    { id: 5, name: 'Lucía Torres', email: 'lucia@email.com', courseId: 2, progress: 30, status: 'Activo', date: '2025-09-22' }
+  ],
+  sales: [
+    { id: 1, student: 'María García', course: 'Plan Profesional Web', amount: 689, date: '2025-09-10', status: 'completed' },
+    { id: 2, student: 'Carlos Ruiz', course: 'Plan Profesional Web', amount: 689, date: '2025-09-20', status: 'completed' },
+    { id: 3, student: 'Ana López', course: 'Plan Profesional Web', amount: 689, date: '2025-09-18', status: 'completed' },
+    { id: 4, student: 'Pedro Sánchez', course: 'Asesoría de Diagnóstico', amount: 195, date: '2025-09-05', status: 'completed' },
+    { id: 5, student: 'Lucía Torres', course: 'Asesoría de Diagnóstico', amount: 195, date: '2025-09-22', status: 'pending' }
+  ],
+  mediaLibrary: [
+    { id: 1, url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&q=80', name: 'Asesoría 1' },
+    { id: 2, url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&q=80', name: 'Web Design' },
+    { id: 3, url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&q=80', name: 'Curso' },
+    { id: 4, url: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=400&q=80', name: 'Marketing' }
+  ],
+  settings: {
+    coverImage: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80',
+    coverTitle: 'For U · Servicios Digitales',
+    coverTagline: 'Soluciones claras para llevar tu negocio al mundo digital',
+    ctaButtons: [
+      { text: '📱 Pedir asesoría por WhatsApp', type: 'whatsapp', target: '' },
+      { text: '📚 Ver cursos disponibles', type: 'section', target: 'section-courses' }
+    ]
+  }
+};
+
+// ===== NAVIGATION =====
+function switchView(view, el) {
+  state.currentView = view;
+  state.editingCourseId = null;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  
+  const titles = {
+    dashboard: ['Dashboard', 'Resumen de tu negocio digital'],
+    courses: ['Mis Cursos', 'Gestiona tus cursos y mentorías'],
+    students: ['Alumnos', 'Seguimiento y progreso'],
+    sales: ['Ventas', 'Ingresos y transacciones'],
+    media: ['Galería de Medios', 'Tus imágenes y recursos'],
+    content: ['Creador de Contenido', 'Diseña posts para redes'],
+    editor: ['Editor de Curso', 'Construye tu curso paso a paso']
+  };
+  
+  const [title, subtitle] = titles[view] || ['Dashboard', ''];
+  document.getElementById('canvasTitle').textContent = title;
+  document.getElementById('canvasSubtitle').textContent = subtitle;
+  
+  renderCurrentView();
+}
+
+function renderCurrentView() {
+  const container = document.getElementById('canvasContent');
+  container.innerHTML = '';
+  
+  if (state.currentView === 'dashboard') renderDashboard(container);
+  else if (state.currentView === 'courses') renderCourses(container);
+  else if (state.currentView === 'students') renderStudents(container);
+  else if (state.currentView === 'sales') renderSales(container);
+  else if (state.currentView === 'media') renderMedia(container);
+  else if (state.currentView === 'content') renderContent(container);
+  else if (state.currentView === 'editor') renderEditor(container);
+}
+
+// ===== DASHBOARD =====
+function renderDashboard(container) {
+  const totalRevenue = state.sales.filter(s => s.status === 'completed').reduce((a, s) => a + s.amount, 0);
+  const activeStudents = state.students.filter(s => s.status === 'Activo').length;
+  const avgProgress = Math.round(state.students.reduce((a, s) => a + s.progress, 0) / state.students.length);
+  
+  container.innerHTML = `
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-label">Ingresos Totales</div>
+        <div class="stat-value" style="color: var(--primary);">S/ ${totalRevenue.toLocaleString()}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Alumnos Activos</div>
+        <div class="stat-value">${activeStudents}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Progreso Promedio</div>
+        <div class="stat-value">${avgProgress}%</div>
+      </div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+      <div class="component-card">
+        <div class="component-header">
+          <div class="component-title">💰 Ventas Recientes</div>
+          <button class="btn btn-secondary btn-sm" onclick="switchView('sales', document.querySelectorAll('.nav-item')[3])">Ver todas</button>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Cliente</th><th>Curso</th><th>Monto</th><th>Estado</th></tr></thead>
+          <tbody>
+            ${state.sales.slice(0, 4).map(s => `
+              <tr>
+                <td style="font-weight: 600;">${s.student}</td>
+                <td>${s.course}</td>
+                <td style="font-weight: 700; color: var(--primary);">S/ ${s.amount}</td>
+                <td><span class="badge ${s.status === 'completed' ? 'badge-success' : 'badge-warning'}">${s.status === 'completed' ? '✅ Completado' : '⏳ Pendiente'}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="component-card">
+        <div class="component-header">
+          <div class="component-title"> Acceso Rápido</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <button class="btn btn-gradient" style="justify-content: center;" onclick="openNewCourseModal()">✨ Crear Nuevo Curso</button>
+          <button class="btn btn-secondary" style="justify-content: center;" onclick="switchView('media', document.querySelectorAll('.nav-item')[4])">🖼️ Subir Imágenes</button>
+          <button class="btn btn-secondary" style="justify-content: center;" onclick="switchView('content', document.querySelectorAll('.nav-item')[5])">🎨 Crear Contenido</button>
+          <button class="btn btn-secondary" style="justify-content: center;" onclick="openPublicView()">👁️ Ver Catálogo Público</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ===== COURSES =====
+function renderCourses(container) {
+  container.innerHTML = `
+    <div class="component-header">
+      <div class="component-title">🎓 Mis Cursos</div>
+      <button class="btn btn-gradient" onclick="openNewCourseModal()">✨ Nuevo Curso</button>
+    </div>
+    <div class="courses-grid">
+      ${state.courses.map(c => `
+        <div class="course-card" onclick="openEditor(${c.id})">
+          <img class="course-cover" src="${c.cover}" alt="${c.name}">
+          <div class="course-body">
+            <span class="course-type">Curso Online</span>
+            <div class="course-name">${c.name}</div>
+            <div class="course-desc">${c.description}</div>
+            <div class="course-meta">
+              <span>👥 ${c.students} alumnos</span>
+              <span> ${c.modules.length} módulos</span>
+            </div>
+            <div class="course-price">S/ ${c.price}</div>
+          </div>
+        </div>
+      `).join('')}
+      <div class="add-course" onclick="openNewCourseModal()">
+        <div class="add-icon">+</div>
+        <div style="font-weight: 600;">Crear Nuevo Curso</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Acceso exclusivo para alumnos</div>
+      </div>
+    </div>
+  `;
+}
+
+// ===== STUDENTS =====
+function renderStudents(container) {
+  container.innerHTML = `
+    <div class="component-header">
+      <div class="component-title">👥 Alumnos</div>
+      <button class="btn btn-secondary btn-sm">📥 Exportar</button>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Alumno</th><th>Curso</th><th>Progreso</th><th>Estado</th><th>Fecha</th></tr></thead>
+      <tbody>
+        ${state.students.map(s => {
+          const course = state.courses.find(c => c.id === s.courseId);
+          return `
+            <tr>
+              <td>
+                <div style="font-weight: 600;">${s.name}</div>
+                <div style="font-size: 11px; color: var(--text-muted);">${s.email}</div>
+              </td>
+              <td>${course ? course.name : '-'}</td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div class="progress-bar"><div class="progress-fill" style="width: ${s.progress}%"></div></div>
+                  <span style="font-size: 12px; font-weight: 600;">${s.progress}%</span>
+                </div>
+              </td>
+              <td><span class="badge ${s.status === 'Completado' ? 'badge-success' : 'badge-info'}">${s.status}</span></td>
+              <td style="font-size: 12px; color: var(--text-muted);">${s.date}</td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+// ===== SALES =====
+function renderSales(container) {
+  const total = state.sales.filter(s => s.status === 'completed').reduce((a, s) => a + s.amount, 0);
+  container.innerHTML = `
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-label">Ingresos Totales</div><div class="stat-value" style="color: var(--primary);">S/ ${total.toLocaleString()}</div></div>
+      <div class="stat-box"><div class="stat-label">Transacciones</div><div class="stat-value">${state.sales.length}</div></div>
+      <div class="stat-box"><div class="stat-label">Ticket Promedio</div><div class="stat-value">S/ ${Math.round(total / state.sales.filter(s => s.status === 'completed').length)}</div></div>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Cliente</th><th>Curso</th><th>Monto</th><th>Fecha</th><th>Estado</th></tr></thead>
+      <tbody>
+        ${state.sales.map(s => `
+          <tr>
+            <td style="font-weight: 600;">${s.student}</td>
+            <td>${s.course}</td>
+            <td style="font-weight: 700; color: var(--primary);">S/ ${s.amount}</td>
+            <td style="font-size: 12px; color: var(--text-muted);">${s.date}</td>
+            <td><span class="badge ${s.status === 'completed' ? 'badge-success' : 'badge-warning'}">${s.status === 'completed' ? '✅ Completado' : ' Pendiente'}</span></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+// ===== MEDIA GALLERY =====
+function renderMedia(container) {
+  container.innerHTML = `
+    <div class="component-card">
+      <div class="component-header">
+        <div class="component-title">🖼️ Galería de Medios</div>
+        <button class="btn btn-gradient" onclick="document.getElementById('mediaUpload').click()">📤 Subir Imagen</button>
+        <input type="file" id="mediaUpload" hidden accept="image/*" onchange="handleMediaUpload(event)">
+      </div>
+      <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">Todas las imágenes que subas se guardarán aquí para reutilizarlas en cursos, portadas o contenido.</p>
+      <div class="media-grid" id="mediaGrid">
+        <div class="media-item media-add" onclick="document.getElementById('mediaUpload').click()">
+          <span style="font-size: 24px; color: var(--text-muted);">+</span>
+        </div>
+      </div>
+    </div>
+  `;
+  renderMediaGrid();
+}
+
+function renderMediaGrid() {
+  const grid = document.getElementById('mediaGrid');
+  if(!grid) return;
+  const addBtn = grid.querySelector('.media-add');
+  grid.innerHTML = '';
+  state.mediaLibrary.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'media-item';
+    div.innerHTML = `<img src="${m.url}" alt="${m.name}">`;
+    div.onclick = () => selectMedia(m.url);
+    grid.appendChild(div);
+  });
+  if(addBtn) grid.appendChild(addBtn);
+  else {
+    const addDiv = document.createElement('div');
+    addDiv.className = 'media-item media-add';
+    addDiv.innerHTML = '<span style="font-size: 24px; color: var(--text-muted);">+</span>';
+    addDiv.onclick = () => document.getElementById('mediaUpload').click();
+    grid.appendChild(addDiv);
+  }
+}
+
+function handleMediaUpload(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    state.mediaLibrary.push({ id: Date.now(), url: e.target.result, name: file.name });
+    renderMediaGrid();
+    showToast('✅ Imagen subida a la galería');
+  };
+  reader.readAsDataURL(file);
+}
+
+function selectMedia(url) {
+  showToast('🖼️ Imagen seleccionada (lista para usar)');
+}
+
+// ===== CONTENT CREATOR =====
+function renderContent(container) {
+  container.innerHTML = `
+    <div class="component-card">
+      <div class="component-header">
+        <div class="component-title"> Creador de Contenido</div>
+        <button class="btn btn-gradient" onclick="showToast('🚀 Editor de contenido abierto')">✨ Crear Nuevo</button>
+      </div>
+      <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 14px;">Diseña artes para Instagram, Facebook y WhatsApp usando las fotos de tu galería.</p>
+      <div class="content-templates">
+        <div class="content-template" onclick="openContentEditor('post')">
+          <div class="template-preview" style="background: linear-gradient(135deg, #FDE68A, #10B981);">📱</div>
+          <div class="template-body">
+            <div class="template-name">Post Instagram</div>
+            <div class="template-desc">1080x1080 · Feed</div>
+          </div>
+        </div>
+        <div class="content-template" onclick="openContentEditor('story')">
+          <div class="template-preview" style="background: linear-gradient(135deg, #F9A8D4, #93C5FD);">📲</div>
+          <div class="template-body">
+            <div class="template-name">Story / Reel</div>
+            <div class="template-desc">1080x1920 · Vertical</div>
+          </div>
+        </div>
+        <div class="content-template" onclick="openContentEditor('carousel')">
+          <div class="template-preview" style="background: linear-gradient(135deg, #10B981, #93C5FD);">🎠</div>
+          <div class="template-body">
+            <div class="template-name">Carrusel</div>
+            <div class="template-desc">Multi-slide · Educativo</div>
+          </div>
+        </div>
+        <div class="content-template" onclick="openContentEditor('whatsapp')">
+          <div class="template-preview" style="background: linear-gradient(135deg, #FDE68A, #F9A8D4);">💬</div>
+          <div class="template-body">
+            <div class="template-name">Estado WhatsApp</div>
+            <div class="template-desc">1080x1920 · Promoción</div>
+          </div>
+        </div>
+        <div class="content-template" onclick="openContentEditor('banner')">
+          <div class="template-preview" style="background: linear-gradient(135deg, #93C5FD, #FDE68A);">🖼️</div>
+          <div class="template-body">
+            <div class="template-name">Banner Web</div>
+            <div class="template-desc">1200x600 · Landing</div>
+          </div>
+        </div>
+        <div class="content-template" onclick="openContentEditor('thumbnail')">
+          <div class="template-preview" style="background: linear-gradient(135deg, #F9A8D4, #FDE68A);">🎬</div>
+          <div class="template-body">
+            <div class="template-name">Thumbnail YouTube</div>
+            <div class="template-desc">1280x720 · Video</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="component-card">
+      <div class="component-header">
+        <div class="component-title">📅 Contenido Programado</div>
+      </div>
+      <div style="color: var(--text-muted); text-align: center; padding: 40px;">
+        <div style="font-size: 48px; margin-bottom: 12px;">📭</div>
+        <div style="font-weight: 600; margin-bottom: 4px;">Aún no tienes contenido programado</div>
+        <div style="font-size: 13px;">Crea tu primer post y programa su publicación</div>
+      </div>
+    </div>
+  `;
+}
+
+function openContentEditor(type) {
+  showToast(`🎨 Editor de ${type} abierto (próximamente)`);
+}
+
+// ===== COURSE EDITOR (3-PANEL) =====
+function openEditor(courseId) {
+  state.editingCourseId = courseId;
+  state.currentView = 'editor';
+  const course = state.courses.find(c => c.id === courseId);
+  state.editingModuleId = course.modules[0]?.id || null;
+  state.editingLessonId = course.modules[0]?.lessons[0]?.id || null;
+  
+  document.getElementById('canvasTitle').textContent = 'Editor de Curso';
+  document.getElementById('canvasSubtitle').textContent = course.name;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  
+  renderEditor(document.getElementById('canvasContent'));
+}
+
+function renderEditor(container) {
+  const course = state.courses.find(c => c.id === state.editingCourseId);
+  if(!course) { renderCourses(container); return; }
+  
+  const activeModule = course.modules.find(m => m.id === state.editingModuleId);
+  const activeLesson = activeModule?.lessons.find(l => l.id === state.editingLessonId);
+  
+  container.innerHTML = `
+    <div class="course-editor">
+      <!-- LEFT: Structure -->
+      <div class="editor-panel">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+          <div style="font-weight: 700; font-size: 14px;">📚 Estructura</div>
+          <button class="btn btn-secondary btn-sm" onclick="switchView('courses', document.querySelectorAll('.nav-item')[1])">← Volver</button>
+        </div>
+        
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; font-weight: 500;">${course.name}</div>
+        
+        ${course.modules.map(m => `
+          <div class="module-item ${m.id === state.editingModuleId ? 'active' : ''}" onclick="selectModule(${m.id})">
+            <div class="module-header">
+              <span class="module-drag">⋮⋮</span>
+              <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${m.title}</span>
+              <span class="module-count">${m.lessons.length}</span>
+            </div>
+            ${m.id === state.editingModuleId ? `
+              <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);">
+                ${m.lessons.map(l => `
+                  <div class="lesson-item ${l.id === state.editingLessonId ? 'active' : ''}" onclick="event.stopPropagation(); selectLesson(${l.id})">
+                    <span>${l.type === 'video' ? '🎥' : l.type === 'file' ? '📄' : l.type === 'quiz' ? '❓' : '📝'}</span>
+                    <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${l.title}</span>
+                  </div>
+                `).join('')}
+                <button class="add-btn" style="margin-top: 6px; padding: 6px; font-size: 11px;" onclick="event.stopPropagation(); addLesson(${m.id})">+ Lección</button>
+              </div>
+            ` : ''}
+          </div>
+        `).join('')}
+        
+        <button class="add-btn" onclick="addModule()" style="margin-top: 8px;">+ Nuevo Módulo</button>
+      </div>
+
+      <!-- CENTER: Canvas -->
+      <div class="editor-canvas">
+        <div style="margin-bottom: 20px;">
+          <label class="form-label">Portada del curso</label>
+          <div class="upload-area ${course.cover ? 'has-file' : ''}" onclick="document.getElementById('coverUpload').click()">
+            ${course.cover ? `<img class="upload-preview" src="${course.cover}" alt="Cover">` : `<div class="upload-icon">🖼️</div><div class="upload-text">Subir imagen de portada</div><div class="upload-hint">JPG, PNG · Máx 5MB</div>`}
+            <input type="file" id="coverUpload" accept="image/*" style="display: none;" onchange="handleCoverUpload(event)">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label class="form-label">Nombre del curso</label>
+          <input type="text" class="form-input" value="${course.name}" onchange="updateCourseName(this.value)">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-textarea" onchange="updateCourseDesc(this.value)">${course.description}</textarea>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label class="form-label">Precio (S/)</label>
+          <input type="number" class="form-input" value="${course.price}" onchange="updateCoursePrice(this.value)">
+        </div>
+
+        ${activeLesson ? renderLessonEditor(activeLesson) : `
+          <div style="text-align: center; padding: 60px 20px; color: var(--text-muted);">
+            <div style="font-size: 48px; margin-bottom: 12px;"></div>
+            <div style="font-weight: 600; margin-bottom: 4px;">Selecciona una lección</div>
+            <div style="font-size: 13px;">Elige un módulo y lección del panel izquierdo</div>
+          </div>
+        `}
+      </div>
+
+      <!-- RIGHT: Preview -->
+      <div class="editor-preview">
+        <div style="font-weight: 700; font-size: 13px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+          <span>👁️ Vista previa</span>
+          <span class="badge badge-success">En vivo</span>
+        </div>
+        
+        <div class="preview-phone">
+          <div class="preview-screen">
+            <div class="preview-hero">
+              <img src="${course.cover}" alt="cover">
+              <div class="preview-hero-overlay">
+                <div class="preview-title">${course.name}</div>
+                <div class="preview-subtitle">${course.students} alumnos · ${course.modules.length} módulos</div>
+              </div>
+            </div>
+            <div class="preview-body">
+              ${course.modules.map(m => `
+                <div class="preview-module">
+                  <div class="preview-module-title">${m.title}</div>
+                  ${m.lessons.map(l => `
+                    <div class="preview-lesson">
+                      <div class="preview-lesson-icon">${l.type === 'video' ? '▶' : l.type === 'file' ? '📄' : l.type === 'quiz' ? '?' : '📝'}</div>
+                      <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${l.title}</span>
+                      <span style="font-size: 10px; color: var(--text-muted); flex-shrink: 0;">${l.duration}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              `).join('')}
+              <div class="preview-price">S/ ${course.price}</div>
+              <button class="preview-cta">Acceder al curso</button>
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn btn-gradient" style="width: 100%; justify-content: center;" onclick="showToast('✅ Curso publicado')">🚀 Publicar curso</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderLessonEditor(lesson) {
+  const typeIcons = { video: '🎥', text: '📝', file: '📄', quiz: '❓' };
+  
+  return `
+    <div class="editor-block">
+      <div class="editor-block-header">
+        <div class="editor-block-title">${typeIcons[lesson.type] || '📝'} Editando: ${lesson.title}</div>
+        <button class="btn btn-danger btn-sm" onclick="deleteLesson()">🗑️ Eliminar</button>
+      </div>
+      
+      <label class="form-label">Título de la lección</label>
+      <input type="text" class="form-input" value="${lesson.title}" onchange="updateLessonTitle(this.value)">
+      
+      <label class="form-label">Tipo de contenido</label>
+      <div class="type-selector">
+        <div class="type-option ${lesson.type === 'video' ? 'active' : ''}" onclick="changeLessonType('video')">
+          <div class="type-icon">🎥</div>
+          <div class="type-label">Video</div>
+        </div>
+        <div class="type-option ${lesson.type === 'text' ? 'active' : ''}" onclick="changeLessonType('text')">
+          <div class="type-icon">📝</div>
+          <div class="type-label">Texto</div>
+        </div>
+        <div class="type-option ${lesson.type === 'file' ? 'active' : ''}" onclick="changeLessonType('file')">
+          <div class="type-icon"></div>
+          <div class="type-label">Archivo</div>
+        </div>
+        <div class="type-option ${lesson.type === 'quiz' ? 'active' : ''}" onclick="changeLessonType('quiz')">
+          <div class="type-icon">❓</div>
+          <div class="type-label">Quiz</div>
+        </div>
+      </div>
+
+      ${lesson.type === 'video' ? `
+        <label class="form-label">Video de la lección</label>
+        <div class="upload-area" onclick="document.getElementById('videoUpload').click()">
+          <div class="upload-icon">🎬</div>
+          <div class="upload-text">Subir video</div>
+          <div class="upload-hint">MP4, MOV · Máx 500MB</div>
+          <input type="file" id="videoUpload" accept="video/*" style="display: none;" onchange="handleVideoUpload(event)">
+        </div>
+      ` : ''}
+
+      ${lesson.type === 'file' ? `
+        <label class="form-label">Archivo descargable</label>
+        <div class="upload-area" onclick="document.getElementById('fileUpload').click()">
+          <div class="upload-icon">📎</div>
+          <div class="upload-text">Subir archivo</div>
+          <div class="upload-hint">PDF, DOC, ZIP · Máx 50MB</div>
+          <input type="file" id="fileUpload" style="display: none;" onchange="handleFileUpload(event)">
+        </div>
+      ` : ''}
+
+      ${lesson.type === 'text' ? `
+        <label class="form-label">Contenido</label>
+        <textarea class="form-textarea" style="min-height: 140px;" onchange="updateLessonContent(this.value)">${lesson.content || ''}</textarea>
+      ` : ''}
+
+      ${lesson.type === 'quiz' ? `
+        <label class="form-label">Pregunta</label>
+        <textarea class="form-textarea" placeholder="Escribe la pregunta..." style="margin-bottom: 12px;"></textarea>
+        <label class="form-label">Opciones</label>
+        <input type="text" class="form-input" placeholder="Opción 1">
+        <input type="text" class="form-input" placeholder="Opción 2">
+        <input type="text" class="form-input" placeholder="Opción 3 (correcta)">
+        <button class="btn btn-secondary btn-sm" style="margin-top: 8px;">+ Agregar opción</button>
+      ` : ''}
+    </div>
+  `;
+}
+
+// ===== EDITOR ACTIONS =====
+function openNewCourseModal() {
+  document.getElementById('newCourseModal').classList.add('active');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+function createCourse() {
+  const name = document.getElementById('newCourseName').value.trim();
+  const desc = document.getElementById('newCourseDesc').value.trim();
+  const price = parseFloat(document.getElementById('newCoursePrice').value) || 0;
+  
+  if(!name) { showToast('❌ Nombre requerido'); return; }
+  
+  const newId = Math.max(...state.courses.map(c => c.id), 0) + 1;
+  state.courses.push({
+    id: newId,
+    name,
+    description: desc || 'Nuevo curso',
+    price,
+    cover: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+    modules: [{ id: Date.now(), title: 'Módulo 1', lessons: [] }],
+    students: 0,
+    revenue: 0
+  });
+  
+  closeModal('newCourseModal');
+  document.getElementById('newCourseName').value = '';
+  document.getElementById('newCourseDesc').value = '';
+  document.getElementById('newCoursePrice').value = '';
+  
+  openEditor(newId);
+  showToast('✅ Curso creado');
+}
+
+function selectModule(id) {
+  state.editingModuleId = id;
+  const course = state.courses.find(c => c.id === state.editingCourseId);
+  const module = course.modules.find(m => m.id === id);
+  state.editingLessonId = module.lessons[0]?.id || null;
+  renderEditor(document.getElementById('canvasContent'));
+}
+
+function selectLesson(id) {
+  state.editingLessonId = id;
+  renderEditor(document.getElementById('canvasContent'));
+}
+
+function addModule() {
+  const course = state.courses.find(c => c.id === state.editingCourseId);
+  const newId = Date.now();
+  course.modules.push({ id: newId, title: `Módulo ${course.modules.length + 1}`, lessons: [] });
+  state.editingModuleId = newId;
+  renderEditor(document.getElementById('canvasContent'));
+  showToast('✅ Módulo agregado');
+}
+
+function addLesson(moduleId) {
+  const course = state.courses.find(c => c.id === state.editingCourseId);
+  const module = course.modules.find(m => m.id === moduleId);
+  const newId = Date.now();
+  module.lessons.push({ id: newId, title: 'Nueva lección', type: 'video', duration: '0:00', content: null });
+  state.editingLessonId = newId;
+  renderEditor(document.getElementById('canvasContent'));
+  showToast('✅ Lección agregada');
+}
+
+function deleteLesson() {
+  const course = state.courses.find(c => c.id === state.editingCourseId);
+  const module = course.modules.find(m => m.id === state.editingModuleId);
+  module.lessons = module.lessons.filter(l => l.id !== state.editingLessonId);
+  state.editingLessonId = module.lessons[0]?.id || null;
+  renderEditor(document.getElementById('canvasContent'));
+  showToast('🗑️ Lección eliminada');
+}
+
+function updateCourseName(val) {
+  const course = state.courses.find(c => c.id === state.editingCourseId);
+  course.name = val;
+  document.getElementById('canvasSubtitle').textContent = val;
+}
+
+function updateCourseDesc(val) {
+  const course = state.courses.find(c => c.id === state.editingCourseId);
+  course.description = val;
+}
+
+function updateCoursePrice(val) {
+  const course = state.courses.find(c => c.id === state.editingCourseId);
+  course.price = parseFloat(val) || 0;
+}
+
+function updateLessonTitle(val) {
+  const course = state.courses.find(c => c.id === state.editingCourseId);
+  const module = course.modules.find(m => m.id === state.editingModuleId);
+  const lesson = module.lessons.find(l => l.id === state.editingLessonId);
+  lesson.title = val;
+  renderEditor(document.getElementById('canvasContent'));
+}
+
+function changeLessonType(type) {
+  const course = state.courses.find(c => c.id === state.editingCourseId);
+  const module = course.modules.find(m => m.id === state.editingModuleId);
+  const lesson = module.lessons.find(l => l.id === state.editingLessonId);
+  lesson.type = type;
+  renderEditor(document.getElementById('canvasContent'));
+}
+
+function updateLessonContent(val) {
+  const course = state.courses.find(c => c.id === state.editingCourseId);
+  const module = course.modules.find(m => m.id === state.editingModuleId);
+  const lesson = module.lessons.find(l => l.id === state.editingLessonId);
+  lesson.content = val;
+}
+
+// ===== FILE UPLOADS =====
+function handleCoverUpload(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const course = state.courses.find(c => c.id === state.editingCourseId);
+    course.cover = e.target.result;
+    renderEditor(document.getElementById('canvasContent'));
+    showToast('✅ Portada subida');
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleVideoUpload(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const course = state.courses.find(c => c.id === state.editingCourseId);
+    const module = course.modules.find(m => m.id === state.editingModuleId);
+    const lesson = module.lessons.find(l => l.id === state.editingLessonId);
+    lesson.videoUrl = e.target.result;
+    lesson.fileName = file.name;
+    showToast(`✅ Video "${file.name}" subido`);
+    renderEditor(document.getElementById('canvasContent'));
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const course = state.courses.find(c => c.id === state.editingCourseId);
+    const module = course.modules.find(m => m.id === state.editingModuleId);
+    const lesson = module.lessons.find(l => l.id === state.editingLessonId);
+    lesson.fileUrl = e.target.result;
+    lesson.fileName = file.name;
+    showToast(`✅ Archivo "${file.name}" subido`);
+    renderEditor(document.getElementById('canvasContent'));
+  };
+  reader.readAsDataURL(file);
+}
+
+// ===== CTA BUILDER =====
+function editCtaButton(index) {
+  state.editingCtaIndex = index;
+  const btn = state.settings.ctaButtons[index];
+  
+  document.getElementById('ctaModalBody').innerHTML = `
+    <label class="form-label">Texto del botón</label>
+    <input type="text" class="form-input" id="ctaText" value="${btn.text}">
+    
+    <label class="form-label">Acción al hacer clic</label>
+    <select class="form-select" id="ctaType" onchange="updateCtaTargetPreview(this.value)">
+      <option value="whatsapp" ${btn.type === 'whatsapp' ? 'selected' : ''}>📱 Abrir WhatsApp</option>
+      <option value="section" ${btn.type === 'section' ? 'selected' : ''}>📍 Ir a una sección</option>
+      <option value="url" ${btn.type === 'url' ? 'selected' : ''}>🌐 Enlace externo</option>
+    </select>
+    <div id="ctaTargetContainer"></div>
+    
+    <button class="btn btn-danger" style="width: 100%; margin-top: 16px; justify-content: center;" onclick="deleteCtaButton(${index})">🗑️ Eliminar botón</button>
+  `;
+  
+  updateCtaTargetPreview(btn.type);
+  document.getElementById('ctaModal').classList.add('active');
+}
+
+function updateCtaTargetPreview(type) {
+  const container = document.getElementById('ctaTargetContainer');
+  if(type === 'section') {
+    container.innerHTML = `<select class="form-select" id="ctaTarget" style="margin-top: 12px;">
+      <option value="section-courses">Sección: Cursos</option>
+      <option value="section-about">Sección: Conócenos</option>
+      <option value="section-contact">Sección: Contacto</option>
+    </select>`;
+  } else if(type === 'url') {
+    container.innerHTML = `<input type="text" class="form-input" id="ctaTarget" placeholder="https://..." style="margin-top: 12px;">`;
+  } else {
+    container.innerHTML = '';
+  }
+}
+
+function saveCtaButton() {
+  const text = document.getElementById('ctaText').value;
+  const type = document.getElementById('ctaType').value;
+  const targetEl = document.getElementById('ctaTarget');
+  const target = targetEl ? targetEl.value : '';
+  
+  state.settings.ctaButtons[state.editingCtaIndex] = { text, type, target };
+  closeModal('ctaModal');
+  renderCurrentView();
+  showToast('✅ Botón actualizado');
+}
+
+function addCtaButton() {
+  if(state.settings.ctaButtons.length >= 3) { showToast('⚠️ Máximo 3 botones'); return; }
+  state.settings.ctaButtons.push({ text: 'Nuevo Botón', type: 'whatsapp', target: '' });
+  renderCurrentView();
+}
+
+function deleteCtaButton(index) {
+  state.settings.ctaButtons.splice(index, 1);
+  closeModal('ctaModal');
+  renderCurrentView();
+  showToast('🗑️ Botón eliminado');
+}
+
+// ===== PUBLIC VIEW =====
+function openPublicView() {
+  const publicUrl = `${window.location.origin}${window.location.pathname}?view=public`;
+  window.open(publicUrl, '_blank');
+}
+
+function copyPublicLink() {
+  const url = `${window.location.origin}${window.location.pathname}?view=public`;
+  navigator.clipboard.writeText(url).then(() => showToast('🔗 Link copiado'));
+}
+
+function checkPublicView() {
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('view') === 'public') {
+    document.body.innerHTML = '';
+    document.body.style.background = 'white';
+    document.body.style.overflow = 'auto';
+    
+    let html = `<div style="max-width: 800px; margin: 0 auto; font-family: 'Inter', sans-serif; color: #0F172A;">`;
+    
+    html += `<div style="position: relative; height: 350px; background: #E2E8F0; overflow: hidden;">
+      <img src="${state.settings.coverImage}" style="width: 100%; height: 100%; object-fit: cover;">
+      <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.7)); display: flex; flex-direction: column; justify-content: flex-end; padding: 40px; color: white;">
+        <h1 style="font-family: 'Playfair Display', serif; font-size: 42px; margin-bottom: 12px;">${state.settings.coverTitle}</h1>
+        <p style="font-size: 18px; opacity: 0.9; max-width: 500px;">${state.settings.coverTagline}</p>
+        <div style="display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;">
+          ${state.settings.ctaButtons.map(btn => `<button style="padding: 12px 24px; background: white; color: black; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer;">${btn.text}</button>`).join('')}
+        </div>
+      </div>
+    </div>`;
+    
+    html += `<div style="padding: 48px 32px;">
+      <h2 style="font-family: 'Playfair Display', serif; font-size: 32px; margin-bottom: 32px; text-align: center;">Cursos Disponibles</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">`;
+    
+    state.courses.forEach(c => {
+      html += `<div style="background: white; border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <img src="${c.cover}" style="width: 100%; height: 180px; object-fit: cover;">
+        <div style="padding: 24px;">
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 8px;">${c.name}</h3>
+          <p style="font-size: 14px; color: #64748B; line-height: 1.5; margin-bottom: 16px;">${c.description}</p>
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #0F172A; margin-bottom: 8px;">Incluye:</div>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+              ${c.modules.flatMap(m => m.lessons).slice(0, 4).map(l => `<li style="font-size: 13px; color: #475569; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;"><span style="color: #10B981;">✓</span> ${l.title}</li>`).join('')}
+            </ul>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid #F1F5F9;">
+            <div style="font-size: 28px; font-weight: 800; color: #10B981;">S/ ${c.price}</div>
+            <button style="padding: 10px 20px; background: #0F172A; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer;">Inscribirme</button>
+          </div>
+        </div>
+      </div>`;
+    });
+    
+    html += `</div></div>`;
+    
+    html += `<div style="text-align: center; padding: 40px 32px; background: #0F172A; color: white;">
+      <div style="font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px;">For U</div>
+      <div style="font-size: 14px; opacity: 0.7;">Sistematización y diseño digital con propósito.</div>
+    </div></div>`;
+    
+    document.body.innerHTML = html;
+  }
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if(e.target === overlay) overlay.classList.remove('active');
+  });
+});
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  checkPublicView();
+  renderCurrentView();
+});
+</script>
+</body>
+</html>

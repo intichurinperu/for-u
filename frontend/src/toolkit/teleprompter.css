@@ -1,0 +1,122 @@
+.prompter-workshop{max-width:860px;margin:auto;padding:clamp(8px,2vw,24px);color:#2c3b32}.prompter-top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:0 0 26px}.prompter-top>div{display:flex;align-items:center;gap:16px}.prompter-top a,.prompter-top>div>button{background:transparent;border:0;color:#4d6b57;font:inherit;font-size:14px;min-height:44px;display:inline-flex;align-items:center;text-decoration:none;cursor:pointer}.prompter-top small{font-size:10px;letter-spacing:.1em;color:#718073}.prompter-top nav{display:flex;gap:6px;background:#fff;border:1px solid #dce5dc;border-radius:16px;padding:5px}.prompter-top nav button{min-width:44px;min-height:44px;padding:8px;border-radius:11px;border:0;font:600 13px Inter,sans-serif;background:transparent;color:#425d49;cursor:pointer}.prompter-top nav button[aria-pressed=true]{background:linear-gradient(120deg,#e5f3e9,#f9edda,#f1e5f2)}.prompter-top nav button:disabled{cursor:default}.prompter-workshop h1{font-size:clamp(28px,4vw,40px);line-height:1.15;letter-spacing:-.04em;margin:14px 0}.prompter-workshop h2{font-size:22px;letter-spacing:-.02em}.prompter-prepare{max-width:680px;margin:0 auto}.prompter-prepare>p,.prompter-lead{color:#6b786f;font-size:15px;line-height:1.6}.prompter-prepare textarea{min-height:260px;line-height:1.7;font-size:18px;background:#fffefb;border-color:#dbe4da;border-radius:20px;padding:22px}.prompter-prepare>button{min-height:54px;margin-top:16px}.prompter-ai{margin:18px 0 26px}.prompter-ai small{display:block;font-size:12px;color:#708074;line-height:1.5;margin-top:8px}.prompter-ai textarea{min-height:220px}.prompter-quiet{display:block;font:inherit;border:0;background:transparent;color:#526a59;font-size:14px;min-height:44px;padding:12px 0;cursor:pointer}.prompter-reading{background:linear-gradient(145deg,#f5f7ed,#edf6f1,#f8f0f5);border:1px solid #dce6dc;border-radius:26px;height:clamp(280px,48dvh,480px);overflow-y:auto;padding:28px clamp(22px,5vw,70px);font-weight:500;line-height:1.65;scrollbar-width:thin;overflow-wrap:anywhere}.prompter-reading p,.prompter-camera-script p{margin:0 0 .7em;white-space:pre-wrap}.prompter-reading-tail{height:220px}.prompter-reading-controls{display:flex;gap:24px;align-items:center;padding:20px 0;flex-wrap:wrap}.prompter-reading-controls>button{min-height:52px;min-width:150px}.prompter-reading-controls label{display:grid;grid-template-columns:auto minmax(90px,180px);gap:4px 12px;align-items:center;font-size:13px;color:#566c5d}.prompter-reading-controls small{grid-column:2;font-size:11px;color:#7b877e}.prompter-workshop input[type=range]{accent-color:#749b83;min-height:44px;max-width:100%}.prompter-options{padding:12px 0;border-top:1px solid #e0e6dd;margin:12px 0}.prompter-options summary{min-height:44px;align-content:center;cursor:pointer;font-size:14px;color:#617769}.prompter-options>label{display:flex;gap:12px;align-items:center;margin:12px 0;flex-wrap:wrap;font-size:14px}.prompter-options small{display:block;font-size:12px;line-height:1.6;color:#738176;margin:8px 0}.prompter-options>button{margin:8px 10px 8px 0}.prompter-next{padding:16px 0;display:flex;justify-content:flex-end}.prompter-next button{min-height:54px}.prompter-record-frame{position:relative;background:#eaf0eb;border:1px solid #d8e3d8;border-radius:22px;overflow:hidden;width:min(100%,380px);max-height:70dvh;margin:24px auto 16px}.prompter-record-frame>video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.prompter-record-frame>video.is-mirrored{transform:scaleX(-1)}.prompter-camera-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:30px;text-align:center;background:radial-gradient(ellipse at top,#f9eddb,#e7f2ea 60%,#f0e9f3)}.prompter-camera-empty>span{font-size:44px;color:#668873}.prompter-camera-empty strong{font-size:20px}.prompter-camera-empty small{font-size:13px;line-height:1.6;color:#6f8074;max-width:240px}.prompter-eye-line{position:absolute;top:10px;left:12px;right:12px;text-align:center;color:#fff;text-shadow:0 1px 4px #000;font-size:11px;font-weight:600}.prompter-camera-script{position:absolute;top:40px;left:8%;right:8%;height:42%;overflow-y:auto;scrollbar-width:none;color:#fff;line-height:1.5;font-weight:600;text-shadow:0 1px 5px #000;background:linear-gradient(#0008,#0000);padding:12px;border-radius:14px;overflow-wrap:anywhere}.prompter-countdown{position:absolute;inset:0;display:grid;place-items:center;background:#182b2566;color:white;font:600 100px/1 Inter,sans-serif}.prompter-record-badge{position:absolute;left:18px;bottom:18px;color:#fff;background:#8d3845;padding:8px 14px;border-radius:20px;font-size:14px}.prompter-record-action{display:flex;justify-content:center;margin:18px 0}.prompter-record-action button{min-height:56px;min-width:220px}.prompter-stop{border:0;border-radius:18px;background:#9c3448;color:#fff;font:600 16px Inter,sans-serif;padding:16px 24px;cursor:pointer}.prompter-review-video{display:block;width:min(100%,380px);max-height:65dvh;object-fit:contain;background:#13291c;border-radius:20px;margin:24px auto}.prompter-review-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:18px 0}.prompter-workshop .piece-file-save{text-align:center;margin:20px 0}.prompter-workshop .piece-file-save>button{min-height:54px}.prompter-cover{border:1px solid #dce5db;border-radius:22px;padding:24px;background:linear-gradient(135deg,#edf6ef,#fff7ec,#f8eef5)}.prompter-cover p{font-size:14px;line-height:1.6;color:#67786c}.prompter-cover>a{display:block;margin:16px 0;color:#4e735a;text-decoration:none;min-height:44px;align-content:center}.prompter-message{padding:14px 18px;border-radius:16px;background:#edf5ec;color:#41664b;font-size:14px;line-height:1.6}.prompter-message.is-error{background:#fff0ef;color:#853d48}.prompter-small-note{font-size:13px;text-align:center;color:#6b7f70}.prompter-workshop button:focus-visible,.prompter-workshop summary:focus-visible,.prompter-workshop a:focus-visible{outline:3px solid #7c9e89;outline-offset:4px}@media(max-width:600px){.prompter-workshop{padding:8px 0}.prompter-top{gap:8px;flex-wrap:wrap;margin-bottom:20px}.prompter-top>div{gap:12px}.prompter-top small{font-size:9px}.prompter-top nav{margin-left:auto}.prompter-prepare textarea{padding:18px;min-height:240px;font-size:17px}.prompter-workshop h1{font-size:29px}.prompter-prepare>button,.prompter-next>button{width:100%}.prompter-reading{padding:24px 20px;height:45dvh;border-radius:20px}.prompter-reading-controls{gap:14px;display:grid;grid-template-columns:1fr}.prompter-reading-controls>button{width:100%}.prompter-reading-controls label{grid-template-columns:auto 1fr}.prompter-record-frame{width:min(100%,340px);max-height:60dvh}.prompter-record-action>button{width:100%}.prompter-next{padding-bottom:calc(12px + env(safe-area-inset-bottom))}.prompter-cover{padding:18px}.prompter-review-actions{display:grid;grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){.prompter-workshop *{scroll-behavior:auto!important}}
+
+.prompter-workshop .prompter-prepare textarea{min-height:clamp(220px,32dvh,300px)!important;height:auto!important}.prompter-workshop{background:transparent!important}
+
+.prompter-workshop.prompter-camera-workspace {
+  max-width: 920px;
+  color: #29232e;
+}
+
+.prompter-camera-workspace > h1 {
+  margin: 0 0 14px;
+  text-align: center;
+  font-weight: 550;
+}
+
+.prompter-camera-stage {
+  padding: clamp(7px, 2vw, 18px);
+  border: 1px solid #ece3ed;
+  border-radius: 24px;
+  background:
+    radial-gradient(ellipse at -10% 105%, transparent 54%, #eadbf3 55%, #fff3db 55.5%, transparent 57%),
+    radial-gradient(ellipse at 110% -10%, transparent 55%, #e1ebf0 55.5%, #f6e1ed 56%, transparent 58%),
+    #faf7fa;
+}
+
+.prompter-camera-workspace .prompter-record-frame {
+  container-type: inline-size;
+  margin: 0 auto;
+  border: 2px solid transparent;
+  border-radius: 19px;
+  background: linear-gradient(#fbf8fc,#fbf8fc) padding-box, var(--foru-pearl-finish) border-box;
+  box-shadow: 0 5px 22px #775d8126;
+}
+
+.prompter-camera-workspace .prompter-camera-empty {
+  gap: 12px;
+  padding: 15px;
+  color: #4f4055;
+  background: radial-gradient(ellipse at 25% 0%, #fff6e9, transparent 65%), linear-gradient(155deg,#fff,#f1ebf6);
+}
+
+.prompter-camera-workspace .prompter-camera-empty strong { font-size: clamp(14px, 6cqi, 19px); }
+.prompter-camera-workspace .prompter-camera-script {
+  inset: auto 7px 8px;
+  height: auto;
+  max-height: 37%;
+  padding: 8px 10px;
+  color: #211c24;
+  background: #fcf9f5e8;
+  text-shadow: none;
+  line-height: 1.35;
+}
+
+.prompter-camera-script .prompter-reading-tail { height: 4em; }
+.prompter-camera-workspace .prompter-record-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  inset: 9px auto auto 50%;
+  transform: translateX(-50%);
+  padding: 4px 9px;
+  background: #241f29d6;
+  font-variant-numeric: tabular-nums;
+}
+.prompter-record-badge svg, .prompter-record-label svg { color: #b92e46; }
+.prompter-record-label { display: inline-flex; align-items: center; gap: 8px; }
+.prompter-camera-workspace .prompter-record-action { margin: 12px 0; }
+.prompter-camera-workspace .prompter-record-action > button { width: min(100%, 350px); min-height: 50px; }
+.tk-app .prompter-camera-workspace .foru-pearl-button {
+  border-radius: 999px;
+  color: #29232e;
+}
+.tk-app .prompter-camera-workspace .foru-pearl-button:not(.is-neutral),
+.tk-app .prompter-camera-workspace .prompter-format-options [aria-pressed=true] {
+  border-color: #d4c8b7;
+  background: var(--foru-pearl-finish);
+}
+.tk-app .prompter-camera-workspace .prompter-stop {
+  border-radius: 999px;
+  background: #f8e3e7;
+  color: #762b3b;
+}
+
+.prompter-script-controls {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: start;
+  gap: 14px;
+  padding: 12px 16px;
+  border: 1px solid #ece3ed;
+  border-radius: 17px;
+  background: #fff;
+}
+
+.prompter-script-controls textarea {
+  min-height: 72px;
+  padding: 9px 11px;
+  border: 1px solid #dfd5e3;
+  border-radius: 12px;
+  color: #29232e;
+  background: #fdfbfe;
+  font-size: 16px;
+  resize: vertical;
+}
+.prompter-speed { display: grid; gap: 7px; }
+.prompter-speed > span { font-size: 14px; font-weight: 600; }
+.prompter-speed > div { display: flex; align-items: center; gap: 7px; }
+.prompter-speed output { min-width: 50px; text-align: center; font-variant-numeric: tabular-nums; }
+.prompter-speed .foru-pearl-button { width: 44px; padding: 0; }
+.prompter-speed .foru-pearl-button svg { display: block; }
+.prompter-camera-options summary { display: flex; align-items: center; gap: 8px; list-style: none; color: #514659; }
+.prompter-camera-options summary::-webkit-details-marker { display: none; }
+.prompter-format-options { display: flex; gap: 7px; flex-wrap: wrap; }
+.prompter-format-options [aria-pressed=true] { background: var(--foru-pearl-finish); }
+.prompter-camera-workspace :is(button,textarea,summary):focus-visible { outline: 2px solid #795e84; outline-offset: 3px; }
+
+@media (max-width: 620px) {
+  body:has(.prompter-camera-workspace) .workspace-utilities { visibility: hidden; }
+  .prompter-camera-workspace .prompter-record-frame { max-height: 54dvh; }
+  .prompter-script-controls { grid-template-columns: 1fr; gap: 9px; padding: 11px; }
+  .prompter-speed { display: flex; justify-content: space-between; align-items: center; }
+}

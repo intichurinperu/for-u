@@ -1,4 +1,6 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { ButtonSecondary as DSButtonSecondary } from '../components/ui/DesignSystem';
+import '../toolkit/toolkit.css';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
@@ -6,8 +8,10 @@ import EmotionalOnboardingModal from '../components/EmotionalOnboardingModal';
 import FloatingReward, { type FloatingRewardBurst } from '../components/FloatingReward';
 import IndustryOnboardingModal, { type IndustryOnboardingInput } from '../components/IndustryOnboardingModal';
 import Logo from '../components/Logo';
+import JourneyMap, { projectJourney } from '../components/JourneyMap';
 import { useAuth } from '../contexts/AuthContext';
 import { planConfigs, type ForUNextAction, useActiveProjectsStore } from '../stores/useActiveProjectsStore';
+import { projectModuleType } from '../modules/moduleProjects';
 
 const World3D = lazy(() => import('../components/World3D'));
 const ActionView = lazy(() => import('../components/ActionView'));
@@ -15,12 +19,12 @@ const DigitalRouteView = lazy(() => import('../components/DigitalRouteView'));
 const GanttView = lazy(() => import('../components/GanttView'));
 const KanbanView = lazy(() => import('../components/KanbanView'));
 const IndustryKitView = lazy(() => import('../components/IndustryKitView'));
-const ProjectCanvas = lazy(() => import('../components/ProjectCanvas'));
 const ForUChat = lazy(() => import('../components/ForUChat'));
 const PersonalDashboard = lazy(() => import('../components/PersonalDashboard'));
 const NodeDetailPanel = lazy(() => import('../components/NodeDetailPanel'));
+const Toolkit = lazy(() => import('../toolkit/Toolkit'));
 
-type WorkspaceScreen = 'dashboard' | 'action' | 'project' | 'world';
+type WorkspaceScreen = 'projects' | 'dashboard' | 'action' | 'project' | 'world' | 'tools';
 type ProjectSubview = 'route' | 'kit' | 'kanban' | 'map' | 'gantt';
 
 export default function ForUWorkspace() {
@@ -34,8 +38,8 @@ export default function ForUWorkspace() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isIndustryModalOpen, setIsIndustryModalOpen] = useState(false);
 
-  const activeProjectIds = useActiveProjectsStore((state) => state.activeProjectIds);
-  const projectsById = useActiveProjectsStore((state) => state.projectsById);
+  useActiveProjectsStore((state) => state.activeProjectIds);
+  useActiveProjectsStore((state) => state.projectsById);
   const activeProjectId = useActiveProjectsStore((state) => state.activeProjectId);
   const selectedNodeId = useActiveProjectsStore((state) => state.selectedNodeId);
   const coins = useActiveProjectsStore((state) => state.coins);
@@ -56,16 +60,15 @@ export default function ForUWorkspace() {
   const openProject = useActiveProjectsStore((state) => state.openProject);
   const hydrateFromSupabase = useActiveProjectsStore((state) => state.hydrateFromSupabase);
   const clearCloudUser = useActiveProjectsStore((state) => state.clearCloudUser);
+  const cloudUserId = useActiveProjectsStore((state) => state.cloudUserId);
+  const isCloudSyncing = useActiveProjectsStore((state) => state.isCloudSyncing);
 
   useEffect(() => {
     if (!user?.id) return;
     void hydrateFromSupabase(user.id);
   }, [hydrateFromSupabase, user?.id]);
 
-  const dashboardProjects = useMemo(
-    () => getPersonalDashboardProjects(),
-    [activeProjectIds, projectsById, getPersonalDashboardProjects],
-  );
+  const dashboardProjects = getPersonalDashboardProjects();
   const currentProjectId = selectedProjectId ?? activeProjectId ?? dashboardProjects[0]?.project.id ?? null;
   const currentProject = currentProjectId ? getProjectById(currentProjectId) : null;
   const currentAction = currentProjectId ? getNextAction(currentProjectId) : null;
@@ -128,7 +131,7 @@ export default function ForUWorkspace() {
 
     selectProject(projectId);
     setProjectSubview('route');
-    setScreen('project');
+    setScreen('dashboard');
   }
 
   function viewProject(projectId: string) {
@@ -151,7 +154,7 @@ export default function ForUWorkspace() {
   }
 
   function changeProjectSubview(subview: ProjectSubview) {
-    if ((subview === 'kanban' || subview === 'map' || subview === 'gantt') && !features.kanban) {
+    if ((subview === 'kanban' || subview === 'gantt') && !features.kanban) {
       showUpgrade(
         'Upgrade a Pro para ver vistas avanzadas',
         'La Ruta Digital y el tablero personal siguen disponibles en Gratis. Pro desbloquea Kanban, mapa mental y cronograma.',
@@ -162,7 +165,7 @@ export default function ForUWorkspace() {
     deselectNode();
     clearFocus();
     setProjectSubview(subview);
-    setView(subview === 'map' ? 'map' : subview);
+    setView(subview === 'route' || subview === 'kit' ? 'dashboard' : subview);
   }
 
   function completeAction(point: { x: number; y: number }) {
@@ -183,10 +186,14 @@ export default function ForUWorkspace() {
   }
 
   async function handleSignOut() {
-    clearCloudUser();
     await signOut();
+    clearCloudUser();
     navigate('/login', { replace: true });
   }
+
+  if (user && (cloudUserId !== user.id || isCloudSyncing)) return <ScreenLoader label="Preparando tus proyectos..." />;
+  if (screen === 'dashboard' && !currentProject) return <main className="hoy-shell"><section className="hoy-view"><p className="hoy-greeting">Hola, {user?.user_metadata?.display_name || 'emprendedora'}</p><div className="hoy-task"><h1>Elige el rubro de tu negocio</h1><p className="hoy-description">Solo necesitamos la base para preparar tu primer paso.</p></div><DSButtonSecondary className="hoy-action-btn" onClick={()=>setIsIndustryModalOpen(true)}>Empezar ahora</DSButtonSecondary></section><IndustryOnboardingModal isOpen={isIndustryModalOpen} onClose={()=>setIsIndustryModalOpen(false)} onCreateIndustryProject={createIndustryProject}/></main>;
+  if ((screen === 'dashboard' || screen === 'tools') && currentProject) return <Suspense fallback={<ScreenLoader label="Abriendo tu estudio..." />}><Toolkit project={currentProject} onBack={() => setScreen('projects')} /></Suspense>;
 
   return (
     <main className="foru-personal-shell">
@@ -224,30 +231,32 @@ export default function ForUWorkspace() {
         </label>
 
         <div className="foru-personal-header-stats">
-          <button
+          <DSButtonSecondary type="button" className="magic-button magic-button-soft" disabled={!currentProject} onClick={() => setScreen('tools')}>Mi estudio · Herramientas</DSButtonSecondary>
+          <DSButtonSecondary
             type="button"
-            className="foru-header-primary-action"
+            className="magic-button magic-button-soft"
             onClick={() => (screen === 'project' ? openDashboard(currentProjectId ?? undefined) : currentProjectId && viewProject(currentProjectId))}
             style={{
               borderColor: 'transparent',
-              background: 'var(--gradient-iridiscente)',
               color: 'var(--color-texto)',
               fontFamily: 'var(--font-principal)',
             }}
           >
             {screen === 'project' ? 'Volver al tablero' : 'Continuar ruta'}
-          </button>
+          </DSButtonSecondary>
 
           <details className="foru-header-more">
             <summary style={{ fontFamily: 'var(--font-principal)' }}>Más</summary>
             <div>
-              <button type="button" onClick={() => setIsChatOpen(true)}>Chat con For U</button>
-              <button type="button" onClick={openWorld}>Mi Mundo</button>
+              <Link to="/dashboard?view=projects">Mis proyectos por rubro</Link>
+              {currentProject && projectModuleType(currentProject) === 'restaurant' && <Link to={`/modules/restaurant?project=${encodeURIComponent(currentProject.id)}`}>Mi restaurante · Menú y logística</Link>}
+              <DSButtonSecondary type="button" onClick={() => setIsChatOpen(true)}>Chat con For U</DSButtonSecondary>
+              <DSButtonSecondary type="button" onClick={openWorld}>Mi Mundo</DSButtonSecondary>
               <span>Monedas: {coins}</span>
               <Link to="/whatsapp">WhatsApp</Link>
               <Link to="/pricing">Plan {planLabel}</Link>
               <span>Racha: {dailyStreak} {dailyStreak === 1 ? 'dia' : 'dias'}</span>
-              <button type="button" onClick={handleSignOut}>Salir</button>
+              <DSButtonSecondary type="button" onClick={handleSignOut}>Salir</DSButtonSecondary>
             </div>
           </details>
         </div>
@@ -255,9 +264,9 @@ export default function ForUWorkspace() {
 
       {screen === 'world' ? (
         <section className="foru-integrated-view">
-          <button type="button" className="foru-integrated-back" onClick={() => openDashboard(currentProjectId ?? undefined)}>
+          <DSButtonSecondary type="button" className="foru-integrated-back" onClick={() => openDashboard(currentProjectId ?? undefined)}>
             ← Volver al tablero
-          </button>
+          </DSButtonSecondary>
           <Suspense fallback={<WorldLoader />}>
             <World3D onBackToMap={() => openDashboard(currentProjectId ?? undefined)} onOpenProject={viewProject} />
           </Suspense>
@@ -265,28 +274,28 @@ export default function ForUWorkspace() {
       ) : screen === 'project' ? (
         <section className="foru-integrated-view">
           <div className="foru-project-workbar">
-            <button type="button" onClick={() => openDashboard(currentProjectId ?? undefined)}>
+            <DSButtonSecondary type="button" onClick={() => openDashboard(currentProjectId ?? undefined)}>
               ← Volver al tablero
-            </button>
-            <p>{currentProject?.name ? `Aquí tienes todo lo de ${currentProject.name}, Nicole.` : 'Aquí tienes el proyecto completo, Nicole.'}</p>
+            </DSButtonSecondary>
+            <p>{currentProject?.name ? `Aquí tienes todo lo de ${currentProject.name}.` : 'Aquí tienes el proyecto completo.'}</p>
             <div className="foru-project-subtabs" aria-label="Vistas del proyecto">
-              <button type="button" className={projectSubview === 'route' ? 'is-active' : ''} onClick={() => setProjectSubview('route')}>
+              <DSButtonSecondary type="button" className={projectSubview === 'route' ? 'is-active' : ''} onClick={() => setProjectSubview('route')}>
                 🗺️ Ruta
-              </button>
+              </DSButtonSecondary>
               {currentProject?.industryKey ? (
-                <button type="button" className={projectSubview === 'kit' ? 'is-active' : ''} onClick={() => setProjectSubview('kit')}>
+                <DSButtonSecondary type="button" className={projectSubview === 'kit' ? 'is-active' : ''} onClick={() => setProjectSubview('kit')}>
                   🧳 Kit
-                </button>
+                </DSButtonSecondary>
               ) : null}
-              <button type="button" className={projectSubview === 'kanban' ? 'is-active' : ''} onClick={() => changeProjectSubview('kanban')}>
+              <DSButtonSecondary type="button" className={projectSubview === 'kanban' ? 'is-active' : ''} onClick={() => changeProjectSubview('kanban')}>
                 📋 Tareas
-              </button>
-              <button type="button" className={projectSubview === 'map' ? 'is-active' : ''} onClick={() => changeProjectSubview('map')}>
+              </DSButtonSecondary>
+              <DSButtonSecondary type="button" className={projectSubview === 'map' ? 'is-active' : ''} onClick={() => changeProjectSubview('map')}>
                 🧠 Mapa
-              </button>
-              <button type="button" className={projectSubview === 'gantt' ? 'is-active' : ''} onClick={() => changeProjectSubview('gantt')}>
+              </DSButtonSecondary>
+              <DSButtonSecondary type="button" className={projectSubview === 'gantt' ? 'is-active' : ''} onClick={() => changeProjectSubview('gantt')}>
                 📊 Tiempo
-              </button>
+              </DSButtonSecondary>
             </div>
           </div>
 
@@ -318,7 +327,7 @@ export default function ForUWorkspace() {
           ) : null}
           {projectSubview === 'map' ? (
             <Suspense fallback={<ScreenLoader label="Cargando mapa..." />}>
-              <ProjectCanvas />
+              {currentProject && <JourneyMap steps={projectJourney(currentProject)} onSelect={step => { if (step.nodeId) useActiveProjectsStore.getState().selectNode(step.nodeId); }} />}
               <AnimatePresence>
                 {selectedNodeId ? <NodeDetailPanel key={selectedNodeId} /> : null}
               </AnimatePresence>
@@ -344,7 +353,7 @@ export default function ForUWorkspace() {
       ) : (
         <Suspense fallback={<ScreenLoader label="Cargando tablero..." />}>
           <PersonalDashboard
-            name="Nicole"
+            name={user?.user_metadata?.display_name || "emprendedora"}
             planLabel={planLabel}
             projects={dashboardProjects}
             onViewProject={viewProject}
@@ -361,8 +370,8 @@ export default function ForUWorkspace() {
               <h2>{planLimitNotice.title}</h2>
               <p>{planLimitNotice.message}</p>
               <div>
-                <button type="button" onClick={() => navigate('/pricing')}>Ver planes</button>
-                <button type="button" onClick={clearPlanLimitNotice}>Ahora no</button>
+                <DSButtonSecondary type="button" onClick={() => navigate('/pricing')}>Ver planes</DSButtonSecondary>
+                <DSButtonSecondary type="button" onClick={clearPlanLimitNotice}>Ahora no</DSButtonSecondary>
               </div>
             </div>
           </div>

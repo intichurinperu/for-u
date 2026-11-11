@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary } from './ui/DesignSystem';
 import { useMemo } from 'react';
 import type { MouseEvent } from 'react';
 import { motion } from 'framer-motion';
@@ -40,13 +41,13 @@ export default function DigitalRoutePath({ project, onCompleteStep }: DigitalRou
           <p>Cada estación tiene su mini mapa mental. Lo demás queda como misiones secundarias.</p>
         </div>
         {onCompleteStep ? (
-          <button
+          <DSButtonSecondary
             type="button"
             onClick={onCompleteStep}
             disabled={!project.digitalRoute.length || project.currentRouteIndex >= project.digitalRoute.length}
           >
             Completar estación
-          </button>
+          </DSButtonSecondary>
         ) : null}
       </header>
 

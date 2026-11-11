@@ -17,7 +17,7 @@ export default function BranchNode({ data, selected }: NodeProps<BranchNodeData>
   return (
     <article
       className={selected ? 'foru-branch-node is-selected' : 'foru-branch-node'}
-      style={{ '--branch-color': data.color ?? '#C39BD3' } as CSSProperties}
+      style={{ '--branch-color': data.color ?? '#9A9A9A' } as CSSProperties}
     >
       <div className="foru-branch-node-icon">{data.icon}</div>
       <div>

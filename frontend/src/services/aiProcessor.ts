@@ -30,11 +30,7 @@ export type AiProcessResponse = {
 export const FOR_U_AI_SYSTEM_PROMPT = `Eres For U, un asistente empático y juguetón para emprendedores con TDAH. Usas analogías de mar y navegación. Recibes notas crudas y desordenadas. Tu tarea es priorizarlas, detectar rama, dividir tareas complejas en micro-subtareas de maximo 15 minutos y responder SOLO JSON:
 { "nodos": [ { "id": "string", "label": "string", "type": "Idea" | "Acción" | "Recurso", "branchKey": "ideas" | "actions" | "finances" | "marketing" | "resources", "description": "string", "priority": "high" | "medium" | "low", "subtasks": ["string"], "reasoning": "string", "lastActiveDate": "string ISO", "position": { "x": number, "y": number } } ], "digitalRoute": [ { "id": "string", "title": "string", "linkedNodeId": "string" } ], "mensaje": "string" }`;
 
-const mockDelayMs = 1200;
-
 export async function processRawNotes(rawNotes: string[], projectName: string): Promise<AiProcessResponse> {
-  await new Promise((resolve) => window.setTimeout(resolve, mockDelayMs));
-
   const usableNotes = rawNotes.map((note) => note.trim()).filter(Boolean);
   const notes = usableNotes.length > 0 ? usableNotes : ['Ordenar ideas del proyecto'];
   const branchCounts = createEmptyBranchCounts();
@@ -75,7 +71,7 @@ export async function processRawNotes(rawNotes: string[], projectName: string): 
   return {
     nodos,
     digitalRoute,
-    mensaje: `⛵ Listo: organicé ${nodos.length} ideas para "${projectName}"${highPriorityCount ? ` y marqué ${highPriorityCount} como prioridad alta` : ''}.`,
+    mensaje: `⛵ Guía local: organicé ${nodos.length} ideas para "${projectName}"${highPriorityCount ? ` y marqué ${highPriorityCount} como prioridad alta` : ''}.`,
   };
 }
 

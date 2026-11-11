@@ -49,7 +49,7 @@ export default function ActionView({
           </div>
           <span>🎉</span>
           <p>{project.name}</p>
-          <h1><GradientText>¡Excelente, Nicole!</GradientText></h1>
+          <h1><GradientText>¡Excelente!</GradientText></h1>
           <strong>+{completedAction.rewardCoins} monedas</strong>
           {completedFeeling ? (
             <p className="foru-action-feeling-win">

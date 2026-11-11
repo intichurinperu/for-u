@@ -1,0 +1,11 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import { emptyCourses, saveCourse, enrollStudent, enrollmentProgress, completeLesson, issueCertificate, certificateSvg, recordCoursePayment } from '../src/modules/courses/model.ts';
+const lesson={id:'l',title:'Lección',type:'text',content:'Contenido',durationMinutes:5,question:'',options:[],correctOption:0};
+const course={id:'c',name:'Curso',description:'',price:100,cover:'',modules:[{id:'m',title:'Módulo',lessons:[lesson,{...lesson,id:'q',type:'quiz',question:'Pregunta',options:['A','B'],correctOption:1}]}]};
+const student={id:'s',courseId:'c',name:'Ana',email:'ana@example.test'};
+const fixture=()=>enrollStudent(saveCourse(emptyCourses('Academia'),course),student);
+test('duplicate enrollments are rejected and enrolling does not invent a sale',()=>{const data=fixture();assert.throws(()=>enrollStudent(data,{...student,id:'s2',email:'ANA@example.test'}));assert.equal(data.sales.length,0);});
+test('quiz must be answered correctly and completion is counted once',()=>{let data=completeLesson(fixture(),'s','l');data=completeLesson(data,'s','l');assert.equal(enrollmentProgress(data,'s').percent,50);assert.throws(()=>completeLesson(data,'s','q',0));data=completeLesson(data,'s','q',1);assert.equal(enrollmentProgress(data,'s').percent,100);});
+test('certificates require a nonempty completed curriculum',()=>{assert.throws(()=>issueCertificate(fixture(),'s','cert'));let data=completeLesson(completeLesson(fixture(),'s','l'),'s','q',1);data=issueCertificate(data,'s','cert');assert.equal(issueCertificate(data,'s','other'),data);assert.equal(data.certificates[0].lessonCount,2);});
+test('downloaded certificate escapes user text',()=>{const svg=certificateSvg({id:'c',studentName:'<script>&',courseName:'Curso',issuedAt:'2026-09-27',lessonCount:2,enrollmentId:'s'},'Academia');assert.ok(svg.includes('&lt;script&gt;&amp;'));assert.ok(!svg.includes('<script>'));});
+test('manual payment references cannot be counted twice',()=>{const sale={id:'p',enrollmentId:'s',amount:100,reference:'REC-1',date:'2026-09-27'};const data=recordCoursePayment(fixture(),sale);assert.equal(recordCoursePayment(data,sale),data);assert.throws(()=>recordCoursePayment(data,{...sale,id:'p2'}),/referencia/);});

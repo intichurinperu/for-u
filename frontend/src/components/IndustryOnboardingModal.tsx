@@ -1,14 +1,16 @@
-import { useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import MagicBadge from './ui/MagicBadge';
-import MagicButton from './ui/MagicButton';
-import MagicCard from './ui/MagicCard';
-import type { ForUIndustryKey } from '../templates/industryTemplates';
+import { ButtonSecondary as DSButtonSecondary, Input as DSInput } from './ui/DesignSystem';
+import { useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import MagicBadge from "./ui/MagicBadge";
+import MagicButton from "./ui/MagicButton";
+import MagicCard from "./ui/MagicCard";
+import { businessTemplates } from "../data/templates";
+import type { ForUIndustryKey } from "../templates/industryTemplates";
 
 export type IndustryOnboardingInput = {
-  industryKey: Extract<ForUIndustryKey, 'tourism' | 'gastronomy'>;
+  industryKey: ForUIndustryKey;
   projectName: string;
-  objective: 'ventas' | 'reservas' | 'clientes' | 'marca';
+  objective: "ventas" | "reservas" | "clientes" | "marca";
   offerType: string;
   location: string;
   idealTraveler: string;
@@ -23,131 +25,188 @@ type IndustryOnboardingModalProps = {
 };
 
 const industryOptions = [
-  {
-    key: 'tourism',
-    title: 'Turismo / experiencias',
-    description: 'Tours, hospedajes, retiros, rutas, experiencias locales y reservas por WhatsApp.',
+  ...businessTemplates.map((template) => ({
+    key: template.key,
+    title: template.name,
+    description: template.entry,
     enabled: true,
-  },
+  })),
   {
-    key: 'gastronomy',
-    title: 'Gastronomía',
-    description: 'Menú, delivery, reservas, combos, contenido y promociones.',
+    key: "tourism",
+    title: "Turismo / experiencias",
+    description: "Experiencias locales y reservas por WhatsApp.",
     enabled: true,
-  },
-  {
-    key: 'wellness',
-    title: 'Belleza / bienestar',
-    description: 'Servicios, agenda, paquetes, antes/después y fidelización.',
-    enabled: false,
-  },
-  {
-    key: 'education',
-    title: 'Educación',
-    description: 'Cursos, módulos, comunidad, leads y calendario de lanzamientos.',
-    enabled: false,
   },
 ];
 
 const objectiveOptions = [
   {
-    key: 'ventas',
-    title: 'Vender más',
-    description: 'Crear una ruta para convertir interés en compras.',
+    key: "ventas",
+    title: "Vender más",
+    description: "Crear una ruta para convertir interés en compras.",
   },
   {
-    key: 'reservas',
-    title: 'Conseguir reservas',
-    description: 'Ordenar disponibilidad, confianza y WhatsApp.',
+    key: "reservas",
+    title: "Conseguir reservas",
+    description: "Ordenar disponibilidad, confianza y WhatsApp.",
   },
   {
-    key: 'clientes',
-    title: 'Conseguir clientes',
-    description: 'Atraer personas correctas y guiarlas al contacto.',
+    key: "clientes",
+    title: "Conseguir clientes",
+    description: "Atraer personas correctas y guiarlas al contacto.",
   },
   {
-    key: 'marca',
-    title: 'Ordenar mi marca',
-    description: 'Claridad, contenido y presencia digital consistente.',
+    key: "marca",
+    title: "Ordenar mi marca",
+    description: "Claridad, contenido y presencia digital consistente.",
   },
 ] as const;
 
-const copyByIndustry = {
+const legacyCopy = {
   tourism: {
-    badge: 'Turismo',
-    title: 'Armemos la base turística',
-    intro: 'Responde lo mínimo. Con esto For U crea ruta, tareas y próximas acciones específicas.',
-    defaultProjectName: 'Sistema turismo experiencial',
-    offerLabel: '¿Qué vendes?',
-    offerPlaceholder: 'Ej: tours, hospedaje, retiro, caminata, experiencia cultural',
-    locationLabel: '¿Dónde ocurre?',
-    locationPlaceholder: 'Ej: Cusco, Churín, Valle Sagrado',
-    customerLabel: '¿Quién compra?',
-    customerPlaceholder: 'Ej: turistas extranjeros, parejas, familias, viajeros espirituales',
-    submit: 'Crear estrategia turística',
-    assets: ['Fotos', 'Testimonios', 'Precios', 'Calendario', 'Instagram', 'Web', 'WhatsApp'],
+    badge: "Turismo",
+    title: "Armemos la base turística",
+    intro:
+      "Responde lo mínimo. Con esto For U crea ruta, tareas y próximas acciones específicas.",
+    defaultProjectName: "Sistema turismo experiencial",
+    offerLabel: "¿Qué vendes?",
+    offerPlaceholder:
+      "Ej: tours, hospedaje, retiro, caminata, experiencia cultural",
+    locationLabel: "¿Dónde ocurre?",
+    locationPlaceholder: "Ej: Cusco, Churín, Valle Sagrado",
+    customerLabel: "¿Quién compra?",
+    customerPlaceholder:
+      "Ej: turistas extranjeros, parejas, familias, viajeros espirituales",
+    submit: "Crear estrategia turística",
+    assets: [
+      "Fotos",
+      "Testimonios",
+      "Precios",
+      "Calendario",
+      "Instagram",
+      "Web",
+      "WhatsApp",
+    ],
   },
   gastronomy: {
-    badge: 'Gastronomía',
-    title: 'Armemos la base gastronómica',
-    intro: 'Con esto For U crea producto estrella, flujo de pedido, contenido y tareas de venta.',
-    defaultProjectName: 'Sistema gastronómico',
-    offerLabel: '¿Qué vendes?',
-    offerPlaceholder: 'Ej: cafetería, menú ejecutivo, catering, dark kitchen, postres',
-    locationLabel: '¿Dónde vendes?',
-    locationPlaceholder: 'Ej: Lima, Miraflores, delivery por WhatsApp, local propio',
-    customerLabel: '¿Quién compra?',
-    customerPlaceholder: 'Ej: oficinas, familias, turistas, universitarios, eventos',
-    submit: 'Crear estrategia gastronómica',
-    assets: ['Fotos', 'Menú', 'Precios', 'Delivery', 'Instagram', 'Reseñas', 'WhatsApp'],
+    badge: "Gastronomía",
+    title: "Armemos la base gastronómica",
+    intro:
+      "Con esto For U crea producto estrella, flujo de pedido, contenido y tareas de venta.",
+    defaultProjectName: "Sistema gastronómico",
+    offerLabel: "¿Qué vendes?",
+    offerPlaceholder:
+      "Ej: cafetería, menú ejecutivo, catering, dark kitchen, postres",
+    locationLabel: "¿Dónde vendes?",
+    locationPlaceholder:
+      "Ej: Lima, Miraflores, delivery por WhatsApp, local propio",
+    customerLabel: "¿Quién compra?",
+    customerPlaceholder:
+      "Ej: oficinas, familias, turistas, universitarios, eventos",
+    submit: "Crear estrategia gastronómica",
+    assets: [
+      "Fotos",
+      "Menú",
+      "Precios",
+      "Delivery",
+      "Instagram",
+      "Reseñas",
+      "WhatsApp",
+    ],
   },
-} satisfies Record<Extract<ForUIndustryKey, 'tourism' | 'gastronomy'>, {
-  badge: string;
-  title: string;
-  intro: string;
-  defaultProjectName: string;
-  offerLabel: string;
-  offerPlaceholder: string;
-  locationLabel: string;
-  locationPlaceholder: string;
-  customerLabel: string;
-  customerPlaceholder: string;
-  submit: string;
-  assets: string[];
-}>;
+} satisfies Record<
+  "tourism" | "gastronomy",
+  {
+    badge: string;
+    title: string;
+    intro: string;
+    defaultProjectName: string;
+    offerLabel: string;
+    offerPlaceholder: string;
+    locationLabel: string;
+    locationPlaceholder: string;
+    customerLabel: string;
+    customerPlaceholder: string;
+    submit: string;
+    assets: string[];
+  }
+>;
 
-export default function IndustryOnboardingModal({ isOpen, onClose, onCreateIndustryProject }: IndustryOnboardingModalProps) {
-  const [step, setStep] = useState<'industry' | 'details'>('industry');
-  const [industryKey, setIndustryKey] = useState<Extract<ForUIndustryKey, 'tourism' | 'gastronomy'>>('tourism');
-  const [projectName, setProjectName] = useState(copyByIndustry.tourism.defaultProjectName);
-  const [objective, setObjective] = useState<IndustryOnboardingInput['objective']>('ventas');
-  const [offerType, setOfferType] = useState('');
-  const [location, setLocation] = useState('');
-  const [idealTraveler, setIdealTraveler] = useState('');
-  const [primaryChannel, setPrimaryChannel] = useState('WhatsApp');
-  const [assets, setAssets] = useState<string[]>(['WhatsApp']);
+const copyByIndustry = {
+  ...legacyCopy,
+  ...Object.fromEntries(
+    businessTemplates.map((template) => [
+      template.key,
+      {
+        badge: template.name,
+        title: "Armemos la base de tu negocio",
+        intro: template.entry,
+        defaultProjectName: "Mi negocio de " + template.name.toLowerCase(),
+        offerLabel: "¿Qué vendes?",
+        offerPlaceholder: template.offer,
+        locationLabel: "¿Dónde atiendes?",
+        locationPlaceholder: "Ciudad, zona o atención virtual",
+        customerLabel: "¿Quién compra?",
+        customerPlaceholder: template.audience,
+        submit: "Crear mi ruta",
+        assets: [
+          "Fotos",
+          "Precios",
+          "Testimonios",
+          "Calendario",
+          "Web",
+          "WhatsApp",
+        ],
+      },
+    ]),
+  ),
+} as Record<ForUIndustryKey, typeof legacyCopy.gastronomy>;
+
+export default function IndustryOnboardingModal({
+  isOpen,
+  onClose,
+  onCreateIndustryProject,
+}: IndustryOnboardingModalProps) {
+  const [step, setStep] = useState<"industry" | "details">("industry");
+  const [industryKey, setIndustryKey] = useState<ForUIndustryKey>("tourism");
+  const [projectName, setProjectName] = useState(
+    copyByIndustry.tourism.defaultProjectName,
+  );
+  const [objective, setObjective] =
+    useState<IndustryOnboardingInput["objective"]>("ventas");
+  const [offerType, setOfferType] = useState("");
+  const [location, setLocation] = useState("");
+  const [idealTraveler, setIdealTraveler] = useState("");
+  const [primaryChannel, setPrimaryChannel] = useState("WhatsApp");
+  const [assets, setAssets] = useState<string[]>(["WhatsApp"]);
   const activeCopy = copyByIndustry[industryKey];
 
   const canCreate = useMemo(
-    () => Boolean(projectName.trim() && offerType.trim() && location.trim() && idealTraveler.trim()),
+    () =>
+      Boolean(
+        projectName.trim() &&
+        offerType.trim() &&
+        location.trim() &&
+        idealTraveler.trim(),
+      ),
     [idealTraveler, location, offerType, projectName],
   );
 
   function resetAndClose() {
-    setStep('industry');
+    setStep("industry");
     onClose();
   }
 
-  function chooseIndustry(nextIndustryKey: Extract<ForUIndustryKey, 'tourism' | 'gastronomy'>) {
+  function chooseIndustry(nextIndustryKey: ForUIndustryKey) {
     setIndustryKey(nextIndustryKey);
     setProjectName(copyByIndustry[nextIndustryKey].defaultProjectName);
-    setObjective(nextIndustryKey === 'tourism' ? 'reservas' : 'ventas');
-    setOfferType('');
-    setLocation('');
-    setIdealTraveler('');
-    setPrimaryChannel('WhatsApp');
-    setAssets(['WhatsApp']);
-    setStep('details');
+    setObjective(nextIndustryKey === "tourism" ? "reservas" : "ventas");
+    setOfferType("");
+    setLocation("");
+    setIdealTraveler("");
+    setPrimaryChannel("WhatsApp");
+    setAssets(["WhatsApp"]);
+    setStep("details");
   }
 
   function toggleAsset(asset: string) {
@@ -191,39 +250,54 @@ export default function IndustryOnboardingModal({ isOpen, onClose, onCreateIndus
             initial={{ opacity: 0, y: 20, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 14, scale: 0.98 }}
-            transition={{ duration: 0.28, ease: 'easeOut' }}
+            transition={{ duration: 0.28, ease: "easeOut" }}
           >
             <header>
               <div>
-                <MagicBadge>{step === 'industry' ? 'Nuevo proyecto' : activeCopy.badge}</MagicBadge>
+                <MagicBadge>
+                  {step === "industry" ? "Nuevo proyecto" : activeCopy.badge}
+                </MagicBadge>
                 <h2 id="industry-modal-title">
-                  {step === 'industry' ? '¿Qué tipo de negocio quieres ordenar?' : activeCopy.title}
+                  {step === "industry"
+                    ? "¿Qué tipo de negocio quieres ordenar?"
+                    : activeCopy.title}
                 </h2>
                 <p>
-                  {step === 'industry'
-                    ? 'For U cambia la estrategia según el rubro. Ya tenemos turismo y gastronomía como sistemas base.'
+                  {step === "industry"
+                    ? "Elige tu rubro para crear cinco pasos con tareas, ejemplos y recursos específicos."
                     : activeCopy.intro}
                 </p>
               </div>
-              <button type="button" onClick={resetAndClose} aria-label="Cerrar selector de rubro">
+              <DSButtonSecondary
+                type="button"
+                onClick={resetAndClose}
+                aria-label="Cerrar selector de rubro"
+              >
                 ×
-              </button>
+              </DSButtonSecondary>
             </header>
 
-            {step === 'industry' ? (
+            {step === "industry" ? (
               <div className="foru-industry-grid">
                 {industryOptions.map((industry) => (
-                  <button
+                  <DSButtonSecondary
                     type="button"
                     key={industry.key}
-                    className={industry.enabled ? 'foru-industry-option is-enabled' : 'foru-industry-option'}
-                    onClick={() => industry.enabled && chooseIndustry(industry.key as Extract<ForUIndustryKey, 'tourism' | 'gastronomy'>)}
+                    className={
+                      industry.enabled
+                        ? "foru-industry-option is-enabled"
+                        : "foru-industry-option"
+                    }
+                    onClick={() =>
+                      industry.enabled &&
+                      chooseIndustry(industry.key as ForUIndustryKey)
+                    }
                     disabled={!industry.enabled}
                   >
                     <strong>{industry.title}</strong>
                     <span>{industry.description}</span>
-                    {!industry.enabled ? <em>Próximamente</em> : <em>Disponible</em>}
-                  </button>
+                    <em>Disponible</em>
+                  </DSButtonSecondary>
                 ))}
               </div>
             ) : (
@@ -231,11 +305,14 @@ export default function IndustryOnboardingModal({ isOpen, onClose, onCreateIndus
                 <MagicCard as="div" className="foru-tourism-form-card">
                   <label>
                     <span>Nombre del proyecto</span>
-                    <input value={projectName} onChange={(event) => setProjectName(event.target.value)} />
+                    <DSInput
+                      value={projectName}
+                      onChange={(event) => setProjectName(event.target.value)}
+                    />
                   </label>
                   <label>
                     <span>{activeCopy.offerLabel}</span>
-                    <input
+                    <DSInput
                       value={offerType}
                       onChange={(event) => setOfferType(event.target.value)}
                       placeholder={activeCopy.offerPlaceholder}
@@ -243,7 +320,7 @@ export default function IndustryOnboardingModal({ isOpen, onClose, onCreateIndus
                   </label>
                   <label>
                     <span>{activeCopy.locationLabel}</span>
-                    <input
+                    <DSInput
                       value={location}
                       onChange={(event) => setLocation(event.target.value)}
                       placeholder={activeCopy.locationPlaceholder}
@@ -251,7 +328,7 @@ export default function IndustryOnboardingModal({ isOpen, onClose, onCreateIndus
                   </label>
                   <label>
                     <span>{activeCopy.customerLabel}</span>
-                    <input
+                    <DSInput
                       value={idealTraveler}
                       onChange={(event) => setIdealTraveler(event.target.value)}
                       placeholder={activeCopy.customerPlaceholder}
@@ -261,21 +338,28 @@ export default function IndustryOnboardingModal({ isOpen, onClose, onCreateIndus
                     <span>¿Qué quieres lograr primero?</span>
                     <div>
                       {objectiveOptions.map((option) => (
-                        <button
+                        <DSButtonSecondary
                           type="button"
                           key={option.key}
-                          className={objective === option.key ? 'is-selected' : ''}
+                          className={
+                            objective === option.key ? "is-selected" : ""
+                          }
                           onClick={() => setObjective(option.key)}
                         >
                           <strong>{option.title}</strong>
                           <small>{option.description}</small>
-                        </button>
+                        </DSButtonSecondary>
                       ))}
                     </div>
                   </div>
                   <label>
                     <span>Canal principal</span>
-                    <select value={primaryChannel} onChange={(event) => setPrimaryChannel(event.target.value)}>
+                    <select
+                      value={primaryChannel}
+                      onChange={(event) =>
+                        setPrimaryChannel(event.target.value)
+                      }
+                    >
                       <option>WhatsApp</option>
                       <option>Instagram</option>
                       <option>Web</option>
@@ -289,23 +373,31 @@ export default function IndustryOnboardingModal({ isOpen, onClose, onCreateIndus
                   <p>Esto ayuda a priorizar las tareas iniciales.</p>
                   <div>
                     {activeCopy.assets.map((asset) => (
-                      <button
+                      <DSButtonSecondary
                         type="button"
                         key={asset}
-                        className={assets.includes(asset) ? 'is-selected' : ''}
+                        className={assets.includes(asset) ? "is-selected" : ""}
                         onClick={() => toggleAsset(asset)}
                       >
                         {asset}
-                      </button>
+                      </DSButtonSecondary>
                     ))}
                   </div>
                 </MagicCard>
 
                 <footer>
-                  <MagicButton type="button" variant="soft" onClick={() => setStep('industry')}>
+                  <MagicButton
+                    type="button"
+                    variant="soft"
+                    onClick={() => setStep("industry")}
+                  >
                     Volver
                   </MagicButton>
-                  <MagicButton type="button" onClick={createProject} disabled={!canCreate}>
+                  <MagicButton
+                    type="button"
+                    onClick={createProject}
+                    disabled={!canCreate}
+                  >
                     {activeCopy.submit}
                   </MagicButton>
                 </footer>

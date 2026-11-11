@@ -11,9 +11,9 @@ type TaskPropProps = {
 };
 
 const priorityColor = {
-  high: '#fb7185',
-  medium: '#fbbf24',
-  low: '#86efac',
+  high: '#6B6B6B',
+  medium: '#9A9A9A',
+  low: '#EAEAEA',
 };
 
 export default function TaskProp({ node, index, viewLevel, origin = [0, 0, 0], position }: TaskPropProps) {
@@ -40,7 +40,7 @@ export default function TaskProp({ node, index, viewLevel, origin = [0, 0, 0], p
       </mesh>
       <mesh position={[0, 0.08, 0]} castShadow>
         <boxGeometry args={[0.24, 0.03, 0.32]} />
-        <meshPhysicalMaterial color="#ffffff" roughness={0.8} metalness={0.02} clearcoat={0.18} />
+        <meshPhysicalMaterial color="#FAFAFA" roughness={0.8} metalness={0.02} clearcoat={0.18} />
       </mesh>
       {isHovered ? (
         <Html position={[0, 0.42, 0]} center distanceFactor={6}>

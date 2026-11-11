@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary } from './ui/DesignSystem';
 import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import FloatingReward, { type FloatingRewardBurst } from './FloatingReward';
@@ -91,13 +92,13 @@ export default function KanbanView({ includeAllProjectsDefault = false }: Kanban
       <header className="foru-view-header">
         <div>
           <span>{activeProject?.name ?? 'Proyecto'}</span>
-          <h1>Aquí tienes todas tus tareas, Nicole.</h1>
+          <h1>Aquí tienes todas tus tareas.</h1>
           <p>Sin juicio: solo vemos qué está por hacer, qué está andando y qué ya salió.</p>
         </div>
         <div className="foru-view-header-actions">
-          <button type="button" onClick={() => setIncludeAllProjects((current) => !current)}>
+          <DSButtonSecondary type="button" onClick={() => setIncludeAllProjects((current) => !current)}>
             {includeAllProjects ? 'Ver solo este proyecto' : 'Ver todos'}
-          </button>
+          </DSButtonSecondary>
         </div>
       </header>
 
@@ -107,8 +108,8 @@ export default function KanbanView({ includeAllProjectsDefault = false }: Kanban
           <h2>Tu tablero está listo, solo faltan tareas.</h2>
           <p>Empieza con una acción pequeña o lanza ideas al frasco para que For U las organice contigo.</p>
           <div>
-            <button type="button" onClick={createFirstKanbanTask}>Agregar tarea manualmente</button>
-            <button type="button" onClick={openIdeaJar}>✨ Echar ideas al frasco</button>
+            <DSButtonSecondary type="button" onClick={createFirstKanbanTask}>Agregar tarea manualmente</DSButtonSecondary>
+            <DSButtonSecondary type="button" onClick={openIdeaJar}>✨ Echar ideas al frasco</DSButtonSecondary>
           </div>
         </section>
       ) : null}

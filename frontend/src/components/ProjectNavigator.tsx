@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary } from './ui/DesignSystem';
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useActiveProjectsStore } from '../stores/useActiveProjectsStore';
@@ -42,9 +43,9 @@ export default function ProjectNavigator({ onOpenProject, onOpenDashboard }: Pro
 
   return (
     <div className="foru-project-navigator">
-      <button type="button" onClick={() => setIsOpen((current) => !current)}>
+      <DSButtonSecondary type="button" onClick={() => setIsOpen((current) => !current)}>
         📁 {activeProject?.name ?? 'Mis Proyectos'}
-      </button>
+      </DSButtonSecondary>
 
       <AnimatePresence>
         {isOpen ? (
@@ -55,7 +56,7 @@ export default function ProjectNavigator({ onOpenProject, onOpenDashboard }: Pro
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.16 }}
           >
-            <button
+            <DSButtonSecondary
               type="button"
               className="foru-project-navigator-dashboard"
               onClick={() => {
@@ -64,9 +65,9 @@ export default function ProjectNavigator({ onOpenProject, onOpenDashboard }: Pro
               }}
             >
               Ver todos los proyectos
-            </button>
+            </DSButtonSecondary>
             {projects.map((project) => (
-              <button
+              <DSButtonSecondary
                 key={project.id}
                 type="button"
                 className={project.id === activeProjectId ? 'is-active' : ''}
@@ -77,11 +78,11 @@ export default function ProjectNavigator({ onOpenProject, onOpenDashboard }: Pro
               >
                 <span>{project.name}</span>
                 <small>{project.status}</small>
-              </button>
+              </DSButtonSecondary>
             ))}
-            <button type="button" className="foru-project-navigator-new" onClick={createProject}>
+            <DSButtonSecondary type="button" className="foru-project-navigator-new" onClick={createProject}>
               + Nuevo Proyecto
-            </button>
+            </DSButtonSecondary>
             <p>Atajo: Cmd+Shift+P</p>
           </motion.div>
         ) : null}

@@ -1,0 +1,16 @@
+import {orderRpc} from '../modules/restaurant/orders';
+import type {Offer} from '../proposal/model';
+import type {PaymentMode} from './service';
+export type Selection={id:string;offerId:string;quantity:number;variantId?:string|null;extraIds:string[];note:string};
+export type CommerceItem={offerId:string;name:string;kind:string;pricing:string;conditions:string;quantity:number;variantName?:string;extraNames:string[];note:string;unitCents:number|null;totalCents:number|null};
+export type CommerceQuote={items:CommerceItem[];totalCents:number|null;needsConfirmation:boolean;business:string;policy:PaymentMode;siteId:string;projectId:string};
+export type CommerceOrder={id:string;projectId:string;business:string;slug:string;sourceKind:'toolkit'|'module';items:CommerceItem[];totalCents:number|null;conditions:string;status:string;revision:string;quoteRevision:string|null;acceptedQuote:string|null;quoteExpiresAt:string|null;policy:PaymentMode;history:{status:string;at:string}[];createdAt:string;customerName?:string;email?:string;phone?:string};
+export type CommerceRequest={site_slug:string;source_kind:'toolkit'|'module';selections:Selection[];customer_name:string;email:string;phone:string;request_id:string;tracking_token:string;expected_quote:CommerceQuote};
+export const commerceLabels:Record<string,string>={awaiting_quote:'Pendiente de propuesta del negocio',awaiting_acceptance:'Revisa y acepta la cotización',received:'Recibido',accepted:'Aceptado',in_progress:'En curso',completed:'Completado',cancelled:'Cancelado',created:'Creado',quote_prepared:'Cotización preparada',quote_accepted:'Cotización aceptada'};
+export const commerceCatalog=(slug:string,kind:string)=>orderRpc<{offers:Offer[];business:string;mode:PaymentMode;environment:string}>('commerce_catalog',{site_slug:slug,source_kind:kind});
+export const commerceQuote=(slug:string,kind:string,selections:Selection[])=>orderRpc<CommerceQuote>('commerce_quote',{site_slug:slug,source_kind:kind,selections});
+export const commerceCreate=(request:CommerceRequest)=>orderRpc<CommerceOrder>('commerce_create',request);
+export const commerceTrack=(id:string,token:string|null,acceptRevision?:string)=>orderRpc<CommerceOrder>('commerce_track',{order_id:id,tracking_token:token,accept_revision:acceptRevision||null});
+export {readCommerceCart} from './session';
+import {submitCommerce as submitSavedCommerce} from './session';
+export const submitCommerce=(storage:Storage,key:string,request:CommerceRequest,create=commerceCreate)=>submitSavedCommerce(storage,key,request,create);

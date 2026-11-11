@@ -1,0 +1,140 @@
+/* FOR U shared application language. Published customer sites opt in separately. */
+.foru-experience.foru-experience,.foru-presentation-v2{--foru-pearl:#F4F0EA;--foru-lavender:#EDE7F7;--foru-violet:#7751B8;--foru-violet-hover:#614096;--foru-mint:#A9E8D7;--foru-gold:#D9B46B;--foru-ink:#24232A;--foru-muted:#625D6C;--foru-line:#D8D0E2;--ds-ink:var(--foru-ink);--ds-muted:var(--foru-muted);--ds-line:var(--foru-line);--color-fondo:var(--foru-pearl);--color-superficie:#fff;--color-superficie-fuerte:#fff;--color-texto:var(--foru-ink);--color-texto-suave:var(--foru-muted);--color-dorado:var(--foru-gold);--color-lila-iridiscente:var(--foru-violet);--color-menta-iridiscente:var(--foru-mint);--gradient-boton:linear-gradient(110deg,#7751B8,#6845A5);--gradient-botón:var(--gradient-boton);--gradient-iridiscente:linear-gradient(110deg,#D9B46B,#EDE7F7,#A9E8D7);--gradient-fondo:linear-gradient(#F4F0EA,#F4F0EA);--font-principal:Inter,system-ui,sans-serif;--font-titulos:Inter,system-ui,sans-serif;color:var(--foru-ink);font-family:var(--font-principal);min-width:0}
+.foru-experience.foru-experience{background:var(--foru-pearl);min-height:100vh}
+.foru-experience.foru-experience :is(button,input,select,textarea){font-family:inherit}
+.foru-experience.foru-experience :is(.ds-button,.module-action,.button-primary,.btn-primary,.magic-button-primary,.foru-auth-button),.foru-presentation-v2 .ds-button{min-height:44px;border-radius:16px;font-weight:650;transition:background-color .18s,box-shadow .18s,transform .18s}
+.foru-experience.foru-experience :is(button.ds-button-primary,.magic-button-primary,.btn-primary,.button-primary,.foru-auth-button){background:var(--gradient-boton);border:1px solid var(--foru-violet);color:#fff;box-shadow:0 3px 8px #7751B81A}
+.foru-experience.foru-experience :is(button.ds-button-primary,.magic-button-primary,.btn-primary,.button-primary,.foru-auth-button):hover:not(:disabled){background:var(--foru-violet-hover);color:#fff;box-shadow:0 5px 12px #7751B826;transform:translateY(-1px)}
+.foru-experience.foru-experience button.ds-button-secondary{background:var(--foru-lavender);border:1px solid #CDBDDD;color:#513477}
+.foru-experience.foru-experience button.ds-button-secondary:hover:not(:disabled){background:#DFD3EF;border-color:var(--foru-violet)}
+.foru-experience.foru-experience button.ds-button-ghost{background:transparent;color:#513477}
+.foru-experience.foru-experience button.ds-button[aria-pressed=true],.foru-experience.foru-experience .area-tabs button[aria-pressed=true]{background:var(--foru-violet);border-color:var(--foru-violet);color:#fff}
+.foru-experience.foru-experience .ds-button[data-tone=mint]{background:var(--foru-mint);border-color:#70B6A3;color:var(--foru-ink)}
+.foru-experience.foru-experience .ds-button[data-tone=gold]{background:var(--foru-gold);border-color:#B89450;color:var(--foru-ink)}
+.foru-experience.foru-experience .ds-button[data-tone=danger]{background:#FCE8E6;color:#8B2520;border-color:#D7A8A3}
+.foru-experience.foru-experience button:active:not(:disabled){transform:scale(.98)}
+.foru-experience.foru-experience :is(button,a,input,textarea,select,[tabindex]):focus-visible,.foru-presentation-v2 :is(button,a,input,textarea,select):focus-visible{outline:3px solid #7751B8;outline-offset:3px}
+.foru-experience.foru-experience :is(.ds-card,.component-card,.magic-card,.foru-auth-card){background:#fff;border:1px solid var(--foru-line);border-radius:24px;box-shadow:0 3px 14px #24232A08;min-width:0}
+.foru-experience.foru-experience :is(input.ds-input,textarea.ds-textarea,select.ds-select){background:#fff;color:var(--foru-ink);border:1px solid #A89DB5;border-radius:14px;min-height:44px}
+.foru-experience.foru-experience :is(.module-workspace,.hoy-shell,.foru-auth-page,.tk-shell){background:var(--foru-pearl);color:var(--foru-ink)}
+.foru-experience.foru-experience :is(.module-navigation,.tk-tabs,.area-tools){gap:10px}
+.foru-experience.foru-experience :is(.module-navigation,.tk-tabs) button[aria-current],.foru-experience.foru-experience :is(.module-navigation,.tk-tabs) button[aria-selected=true]{background:var(--foru-lavender);color:#513477;border-color:#CDBDDD}
+.foru-experience.foru-experience :is(.area-tools a,.world-invitation){background:var(--foru-lavender);color:#513477}
+.foru-experience.foru-experience :is(.tk-toolbar,.pe-toolbar,.module-actions){flex-wrap:wrap;gap:10px}
+.foru-experience.foru-experience :is(.pe-toolbar,.module-header,.tk-header){border-color:var(--foru-line)}
+.foru-experience.foru-experience .ds-steps [aria-current] .ds-step-number{background:var(--foru-violet);color:#fff}
+.foru-experience.foru-experience .ds-steps [data-past=true] .ds-step-number{background:var(--foru-mint);color:#24483D}
+.foru-experience.foru-experience .ds-steps li[aria-current]{color:#513477}
+.foru-experience.foru-experience .workspace-top,.foru-experience.foru-experience .workspace-shell{--paper:var(--foru-pearl);--ink:var(--foru-ink);--muted:var(--foru-muted)}
+.foru-experience.foru-experience .workspace-sidebar nav a[aria-current]{background:var(--foru-lavender);color:#513477;border-color:#CDBDDD}
+.foru-experience.foru-experience .workspace-sidebar .workspace-new{background:var(--gradient-boton);color:#fff}
+.foru-experience.foru-experience .area-progress-track{background:#ffffffb3}.foru-experience.foru-experience .area-progress-track>span{background:linear-gradient(90deg,#7751B8,#A98BCF)}
+.foru-experience.foru-experience .area-modal-dialog{border:1px solid var(--foru-line);box-shadow:0 18px 64px #24232A26}
+.foru-experience.foru-experience .foru-auth-card{width:min(100%,480px)}
+.foru-experience.foru-experience :is(.foru-auth-page,.world-onboarding) h1{color:var(--foru-ink);letter-spacing:-.03em}
+.foru-experience.foru-experience :is(.ds-label,.tk-muted){color:var(--foru-muted)}
+.foru-experience.foru-experience .ai-suggestion{border:1px solid #CDBDDD;background:#F5F0FA;border-radius:18px;padding:18px;margin:16px 0}.ai-suggestion label{display:grid;gap:6px;margin:10px 0}.ai-suggestion input,.ai-suggestion textarea{width:100%}.ai-suggestion-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.foru-presentation-v2{--site-radius:24px;color:var(--foru-ink)}
+.foru-presentation-v2 :is(.ds-button,button[type=submit]){border-radius:16px;min-height:44px}
+.foru-presentation-v2 .ds-button-secondary{background:#EDE7F7;border:1px solid #CDBDDD;color:#513477}
+.foru-presentation-v2 :is(.tk-site-block,.restaurant-menu,.public-tour){border-radius:24px}
+.foru-presentation-v2.tk-landing-preview{border-radius:24px;overflow:hidden;border:1px solid #DDD6E5;background:#fff}
+.foru-presentation-v2.tk-landing-preview .tk-site-hero{background:linear-gradient(130deg,#F4F0EA,#EDE7F7);padding:clamp(24px,5vw,72px)}
+.foru-presentation-v2 .tk-public-offers>article{border:1px solid #DDD6E5;border-radius:20px;padding:20px;background:#fff}
+.foru-presentation-v2 :is(input,select,textarea){border-radius:12px}
+.presentation-review{border:1px solid #CDBDDD;border-radius:18px;background:#F5F0FA;padding:18px;margin:16px 0}.presentation-review>header{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}.presentation-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.presentation-comparison>div{min-width:0;max-height:440px;overflow:auto;border:1px solid #D8D0E2;border-radius:16px;padding:12px;background:white}
+@media(max-width:767px){.foru-experience.foru-experience .ds-card{padding:20px}.foru-experience.foru-experience .module-navigation{overflow:auto;flex-wrap:nowrap}.foru-experience.foru-experience .module-navigation>*{flex-shrink:0}.presentation-comparison{grid-template-columns:1fr}.foru-experience.foru-experience .ds-button{padding:12px 16px}}
+@media(prefers-reduced-motion:reduce){.foru-experience.foru-experience *,.foru-experience.foru-experience *::before,.foru-experience.foru-experience *::after{scroll-behavior:auto!important}.foru-experience.foru-experience :is(button,.ds-button,.magic-button-primary){transition:none!important;animation:none!important}.foru-experience.foru-experience :is(button,.ds-button,.magic-button-primary):hover,.foru-experience.foru-experience button:active:not(:disabled){transform:none!important}}
+/* Dedicated circular control keeps its geometry and readable labels. */
+.foru-experience.foru-experience button.floating-pomodoro-toggle.ds-button{border-radius:50%;padding:0;background:#513477;border:0;color:#fff;box-shadow:0 6px 20px #51347730}
+.foru-experience.foru-experience button.floating-pomodoro-toggle.ds-button:hover{background:#442A65;color:#fff;transform:none}
+.foru-experience.foru-experience .floating-pomodoro-toggle :is(small,.pomodoro-orbit-time){color:#fff}
+.foru-experience.foru-experience .ds-button.magic-button-primary,.foru-experience.foru-experience .ds-button.magic-button-primary:hover:not(:disabled){background:var(--gradient-boton);color:#fff;border-color:var(--foru-violet)}
+.foru-experience.foru-experience .module-header h1{font-size:clamp(25px,3vw,36px);font-weight:650;letter-spacing:-.025em}
+.foru-experience.foru-experience .component-card>h2{font-size:clamp(21px,2.5vw,28px);font-weight:650}
+.foru-experience.foru-experience :is(.cs-primary,.cs-empty a){background:var(--gradient-boton);color:#fff;min-height:44px}
+.foru-experience.foru-experience .tk-toolbar a,.foru-experience.foru-experience .pe-context-links a{color:#513477}
+.foru-experience.foru-experience .component-card .ds-input{border-color:#A89DB5}
+.presentation-comparison .presentation-legacy .ds-button-secondary{background:#fff;color:#374151;border-color:#E5E7EB}
+/* FOR U: luminous, playful surfaces; controls disclose only the current work. */
+.foru-experience.foru-experience{background:radial-gradient(ellipse at 85% 8%,#A9E8D744,transparent 48%),radial-gradient(ellipse at 15% 35%,#C8B1E94D,transparent 48%),#FAF9FC}
+.foru-experience.foru-experience .workspace-shell{background:transparent;--paper:#FAF9FC}
+.foru-experience.foru-experience .workspace-sidebar{background:linear-gradient(160deg,#FFFFFFF5,#F2EBFBF5);border-right:1px solid #DED2EE}
+.foru-experience.foru-experience .workspace-top{background:#FAF9FCED;border-bottom:1px solid #E7DEEF;backdrop-filter:blur(12px)}
+.foru-experience.foru-experience .workspace-body{padding-top:22px}
+.foru-experience.foru-experience .world-intro{margin-bottom:22px}
+.foru-experience.foru-experience .world-intro h1{font-size:clamp(28px,3vw,36px);font-weight:650;margin:8px 0}
+.foru-experience.foru-experience .world-intro p{margin:6px 0;color:#625D6C}
+.foru-experience.foru-experience .dashboard-home .workspace-back{display:none}
+.foru-experience.foru-experience .project-area-intro{display:flex;justify-content:flex-end;margin:0 0 18px;min-height:44px}
+.foru-experience.foru-experience :is(.workspace-home-link,.project-area-intro a,.pe-context-links a,.cs-footer a,.area-task-detail>a){display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 16px;border-radius:14px;text-decoration:none;background:#FFFFFFD9;border:1px solid #D8C9E8;color:#513477;font-weight:650}
+.foru-experience.foru-experience .project-area-intro nav{display:flex;gap:10px;flex-wrap:wrap;font-size:0}
+.foru-experience.foru-experience .project-area-intro nav a{font-size:14px}
+.foru-experience.foru-experience .workspace-home-link{background:#EDE7F7}
+.foru-experience.foru-experience .workspace-brand{letter-spacing:-2px;color:#24232A}
+.foru-experience.foru-experience .workspace-sidebar nav{gap:6px}
+.foru-experience.foru-experience .workspace-sidebar nav a{text-decoration:none}
+.foru-experience.foru-experience :is(.workspace-more-tools,.area-tool-options,.area-add-options,.task-edit-options,.task-ai-options,.module-more-actions,.cs-route-overview){border:1px solid #DED2EB;border-radius:16px;padding:0;background:#FFFFFFB3;margin:12px 0;overflow:clip}
+.foru-experience.foru-experience :is(.workspace-more-tools,.area-tool-options,.area-add-options,.task-edit-options,.task-ai-options,.module-more-actions,.cs-route-overview)>summary{cursor:pointer;min-height:44px;padding:12px 16px;font-weight:600;color:#513477;list-style-position:inside}
+.foru-experience.foru-experience :is(.area-tool-options,.area-add-options,.task-edit-options,.task-ai-options,.module-more-actions,.cs-route-overview)[open]>*:not(summary){margin:12px 16px}
+.foru-experience.foru-experience .workspace-more-tools{margin:8px 0;background:transparent}
+.foru-experience.foru-experience .workspace-more-tools a{margin:4px 6px}
+.foru-experience.foru-experience .dashboard-home .area-open{background:#fff;min-height:215px;padding:24px;position:relative;isolation:isolate;border:1px solid #D8CAE8;box-shadow:0 8px 25px #7751B80A}
+.foru-experience.foru-experience .dashboard-home .dashboard-area-marketing{background:linear-gradient(130deg,#FFF6DC,#F2E8FB)}
+.foru-experience.foru-experience .dashboard-home .dashboard-area-finance{background:linear-gradient(130deg,#D7F4EB,#F0FCF8)}
+.foru-experience.foru-experience .dashboard-home .dashboard-area-logistics{background:linear-gradient(130deg,#E3D4F6,#F4EDFD)}
+.foru-experience.foru-experience .dashboard-home .dashboard-area-operations{background:linear-gradient(130deg,#D9F1EE,#E8E0F7)}
+.foru-experience.foru-experience .dashboard-home .area-open .area-icon{background:linear-gradient(150deg,#FFFFFFF5,#FFFFFF70);border:1px solid #FFFFFFE6;box-shadow:0 4px 14px #7751B814}
+.foru-experience.foru-experience .area-open h2{margin:4px 0}
+.foru-experience.foru-experience .area-open p{font-size:13px}
+.foru-experience.foru-experience .area-modal-dialog{background:linear-gradient(145deg,#fff,#F7F3FC);border:1px solid #D9C9EB}
+.foru-experience.foru-experience .area-modal-dialog .area-panel{padding:18px;margin-top:10px;box-shadow:none;background:transparent;border:0}
+.foru-experience.foru-experience .area-panel>p{margin:10px 0;font-size:14px}
+.foru-experience.foru-experience .area-task-list{margin:12px 0}
+.foru-experience.foru-experience .area-task-list li{border:0;gap:10px;padding:6px 0}
+.foru-experience.foru-experience .area-task-list .area-task-open{text-align:left;display:grid;gap:4px;flex:1;background:#fff;border:1px solid #DED2EB;color:#24232A;box-shadow:0 2px 5px #7751B805}
+.foru-experience.foru-experience .area-task-open[aria-expanded=true]{border-color:#7751B8;background:#EDE7F7}
+.foru-experience.foru-experience .area-task-list .area-task-open small{font-size:12px;color:#625D6C}
+.foru-experience.foru-experience .area-task-list li>button:last-child{padding:8px;min-width:44px;background:transparent;border-color:transparent;color:#625D6C}
+.foru-experience.foru-experience .area-task-detail>a{background:linear-gradient(110deg,#7751B8,#6845A5);color:#fff;border-color:#7751B8}
+.foru-experience.foru-experience .area-save-status{font-size:13px;padding-top:12px;margin-top:12px}
+.foru-experience.foru-experience .editor-next-step{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:20px 0}
+.foru-experience.foru-experience .editor-next-step small{color:#625D6C}
+.foru-experience.foru-experience [hidden]{display:none!important}
+.foru-experience.foru-experience .restaurant-module>.ds-steps{margin-bottom:20px}
+.foru-experience.foru-experience .module-more-actions{display:inline-block;vertical-align:top;margin:4px 0}
+.foru-experience.foru-experience .cs-route-overview{margin:22px 0}
+.foru-experience.foru-experience .cs-hero{background:linear-gradient(120deg,#EDE7F7,#F7F3FC 50%,#D7F4EB);margin:20px 0}
+.foru-experience.foru-experience .cs-preview{border:1px solid #DBCCEB;background:#FFFFFFBD;box-shadow:0 8px 24px #7751B80D}
+.foru-experience.foru-experience .cs-art{background:linear-gradient(135deg,#D9B46B44,#EDE7F7,#A9E8D777)}
+.foru-experience.foru-experience .dashboard-pro{padding:18px 22px;background:#EDE7F7;border:1px solid #D8C9E8;color:#24232A}
+.foru-experience.foru-experience .dashboard-pro p{color:#625D6C}
+.foru-experience.foru-experience .dashboard-pro a{display:inline-flex;align-items:center;min-height:44px;text-decoration:none;color:#513477;font-weight:650}
+.foru-experience.foru-experience .world-invitation{background:linear-gradient(115deg,#EDE7F7,#D7F4EB);border:1px solid #CDBDDD;font-weight:650;text-decoration:none}
+@media(max-width:767px){.foru-experience.foru-experience .project-area-intro{justify-content:flex-start}.foru-experience.foru-experience .project-area-intro nav{width:100%}.foru-experience.foru-experience .project-area-intro nav a{flex:1;justify-content:center}.foru-experience.foru-experience .dashboard-home .area-open{min-height:200px}.foru-experience.foru-experience .module-header h1{font-size:25px}.foru-experience.foru-experience .area-modal-dialog .area-panel{padding:8px 0}.foru-experience.foru-experience .workspace-more-tools{width:100%}}
+.foru-experience.foru-experience .module-identity{border:1px solid #DED2EB;border-radius:18px;background:#FFFFFFB3;margin:14px 0}
+.foru-experience.foru-experience .module-identity>summary{cursor:pointer;padding:14px 18px;min-height:48px;font-weight:650;color:#513477}
+.foru-experience.foru-experience .module-identity>.ds-card{margin:0;border:0;box-shadow:none}
+.foru-experience.foru-experience .piece-work-section{border:1px solid #DED2EB;border-radius:16px;padding:0;background:#FFFFFFB3;margin:12px 0}
+.foru-experience.foru-experience .piece-work-section>summary{padding:14px 18px;min-height:44px;cursor:pointer;font-weight:650;color:#513477}
+.foru-experience.foru-experience .piece-work-section[open]>*:not(summary){margin:14px 18px}
+.foru-experience.foru-experience :is(.proposal-actions a,.cs-tools nav a,.cs-tools>nav a,.tk-toolbar>a,.pe-context-links>a){display:inline-flex;align-items:center;min-height:44px;padding:10px 16px;border-radius:14px;border:1px solid #CDBDDD;text-decoration:none;background:#EDE7F7;color:#513477;font-weight:650}
+.foru-experience.foru-experience .workspace-tool-search{width:100%;text-align:left;font-size:13px}
+.foru-experience.foru-experience .workspace-sidebar .workspace-tool-dialog{color:#24232A}
+.foru-experience.foru-experience .workspace-sidebar .workspace-tool-dialog .workspace-tool-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}
+.foru-experience.foru-experience .workspace-sidebar .workspace-tool-grid a{display:flex;align-items:center;gap:12px;min-height:56px;background:#F4EFFA;border:1px solid #D8C9E8;border-radius:16px;color:#513477;text-decoration:none;font-weight:650;padding:12px 16px}
+.foru-experience.foru-experience .workspace-tool-grid a>span:first-child{display:grid;place-items:center;width:34px;height:34px;border-radius:12px;background:#fff;font-size:20px}
+.foru-experience.foru-experience .workspace-tool-grid a>span:last-child{margin-left:auto}
+.foru-experience.foru-experience .workspace-sidebar .workspace-tool-grid a:hover{background:#EDE2F7;border-color:#7751B8}
+.foru-experience.foru-experience .workspace-tool-dialog header p{margin:6px 0;color:#625D6C}
+@media(max-width:767px){.foru-experience.foru-experience .workspace-sidebar .workspace-tool-dialog .workspace-tool-grid{grid-template-columns:1fr}.foru-experience.foru-experience .workspace-sidebar .workspace-tool-dialog nav{display:grid!important;overflow:visible}.foru-experience.foru-experience .workspace-sidebar .workspace-tool-dialog .ds-field{margin:10px 0}}
+.foru-experience.foru-experience .workspace-sidebar{z-index:40}
+.foru-experience.foru-experience .workspace-mobile-tools{display:none}
+.foru-experience.foru-experience .workspace-tool-dialog .workspace-tool-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}
+.foru-experience.foru-experience .workspace-tool-dialog .workspace-tool-grid a{display:flex;align-items:center;gap:12px;min-height:56px;background:#F4EFFA;border:1px solid #D8C9E8;border-radius:16px;color:#513477;text-decoration:none;font-weight:650;padding:12px 16px}
+@media(max-width:767px){.foru-experience.foru-experience .workspace-mobile-tools{display:block;order:4}.foru-experience.foru-experience .workspace-top>label{order:3}.foru-experience.foru-experience .workspace-mobile-tools .ds-button{min-height:44px;font-size:12px;padding:10px}.foru-experience.foru-experience .workspace-tool-dialog .workspace-tool-grid{grid-template-columns:1fr}}
+
+.foru-presentation-v2 .ds-button-primary{background:#7751B8;border:1px solid #7751B8;color:#fff}
+.foru-presentation-v2 .ds-button-primary:hover:not(:disabled){background:#614096;color:#fff}
+.foru-experience.foru-experience .presentation-legacy .ds-button-secondary{background:#fff;color:#374151;border-color:#E5E7EB}
+.foru-experience.foru-experience.foru-tools-portal{position:fixed;inset:0;z-index:7000;min-height:0;background:transparent}

@@ -1,3 +1,5 @@
+import { Card as DSCard } from './ui/DesignSystem';
+import { ButtonSecondary as DSButtonSecondary } from './ui/DesignSystem';
 import { useMemo, useState, type CSSProperties } from 'react';
 import { motion } from 'framer-motion';
 import { baseBranches, type ForUActiveProject, type ForUBranchKey, useActiveProjectsStore } from '../stores/useActiveProjectsStore';
@@ -63,7 +65,7 @@ export default function ProjectDashboard({ onEnterProject }: ProjectDashboardPro
           <h1>Elige dónde quieres aterrizar</h1>
           <p>Todos tus proyectos activos en una sola vista, con sus áreas, pendientes y avance.</p>
         </div>
-        <button type="button" onClick={createProject}>+ Nuevo Proyecto</button>
+        <DSButtonSecondary type="button" onClick={createProject}>+ Nuevo Proyecto</DSButtonSecondary>
       </header>
 
       {projects.length ? (
@@ -73,7 +75,7 @@ export default function ProjectDashboard({ onEnterProject }: ProjectDashboardPro
             const isMenuOpen = openMenuProjectId === project.id;
 
             return (
-              <article key={project.id} className="foru-project-card">
+              <DSCard as="article" key={project.id} className="foru-project-card">
                 <div className="foru-project-island" aria-hidden="true">
                   <span>{index + 1}</span>
                 </div>
@@ -84,17 +86,17 @@ export default function ProjectDashboard({ onEnterProject }: ProjectDashboardPro
                     <h2>{project.name}</h2>
                   </div>
                   <div className="foru-project-menu">
-                    <button
+                    <DSButtonSecondary
                       type="button"
                       aria-label={`Opciones de ${project.name}`}
                       onClick={() => setOpenMenuProjectId(isMenuOpen ? null : project.id)}
                     >
                       ...
-                    </button>
+                    </DSButtonSecondary>
                     {isMenuOpen ? (
                       <div>
-                        <button type="button" onClick={() => editProject(project)}>Renombrar</button>
-                        <button
+                        <DSButtonSecondary type="button" onClick={() => editProject(project)}>Renombrar</DSButtonSecondary>
+                        <DSButtonSecondary
                           type="button"
                           onClick={() => {
                             updateProjectStatus(project.id, project.status === 'paused' ? 'active' : 'paused');
@@ -102,8 +104,8 @@ export default function ProjectDashboard({ onEnterProject }: ProjectDashboardPro
                           }}
                         >
                           {project.status === 'paused' ? 'Activar' : 'Pausar'}
-                        </button>
-                        <button type="button" onClick={() => deleteProject(project)}>Eliminar</button>
+                        </DSButtonSecondary>
+                        <DSButtonSecondary type="button" onClick={() => deleteProject(project)}>Eliminar</DSButtonSecondary>
                       </div>
                     ) : null}
                   </div>
@@ -133,10 +135,10 @@ export default function ProjectDashboard({ onEnterProject }: ProjectDashboardPro
                   <span>{metrics.coins} monedas</span>
                 </div>
 
-                <button type="button" className="foru-project-enter" onClick={() => onEnterProject(project.id)}>
+                <DSButtonSecondary type="button" className="foru-project-enter" onClick={() => onEnterProject(project.id)}>
                   Entrar
-                </button>
-              </article>
+                </DSButtonSecondary>
+              </DSCard>
             );
           })}
         </div>
@@ -144,7 +146,7 @@ export default function ProjectDashboard({ onEnterProject }: ProjectDashboardPro
         <div className="foru-project-empty">
           <strong>No hay proyectos activos</strong>
           <p>Crea uno para empezar tu archipiélago.</p>
-          <button type="button" onClick={createProject}>+ Nuevo Proyecto</button>
+          <DSButtonSecondary type="button" onClick={createProject}>+ Nuevo Proyecto</DSButtonSecondary>
         </div>
       )}
     </motion.section>

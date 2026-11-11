@@ -1,0 +1,7 @@
+.module-workspace { max-width: 1280px; margin: 0 auto; padding: 24px; }
+.module-workspace .module-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.module-workspace .module-navigation { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 20px 0; }
+.module-workspace .module-navigation a { padding: 10px 16px; color: inherit; }
+.module-workspace .module-navigation a[aria-current=page] { background: #ecfdf5; color: #047857; border-radius: 8px; }
+.module-workspace .module-editing-area { min-width: 0; border: 0; padding: 0; margin: 20px 0; }
+@media (max-width: 600px) { .module-workspace { padding: 16px; } }

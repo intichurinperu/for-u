@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary, Textarea as DSTextarea } from './ui/DesignSystem';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from '../lib/icons';
@@ -141,9 +142,9 @@ export default function NodeDetailPanel() {
             <h2>{selectedNode.title}</h2>
             <p>{meta.title}</p>
           </div>
-          <button type="button" onClick={deselectNode} aria-label="Cerrar panel de detalles">
+          <DSButtonSecondary type="button" onClick={deselectNode} aria-label="Cerrar panel de detalles">
             <X size={18} />
-          </button>
+          </DSButtonSecondary>
         </header>
 
         {selectedNode.reasoning ? (
@@ -181,7 +182,7 @@ export default function NodeDetailPanel() {
 
         <label className="foru-node-panel-field">
           <span>Descripcion / notas</span>
-          <textarea
+          <DSTextarea
             value={draftDescription}
             onChange={(event) => setDraftDescription(event.target.value)}
             onBlur={() => updateNode(activeProjectId, selectedNode.id, { description: draftDescription })}
@@ -193,16 +194,16 @@ export default function NodeDetailPanel() {
           <span>Acciones rápidas</span>
           <div>
             {selectedNode.role === 'free' ? (
-              <button type="button" onClick={() => setIsSplitModalOpen(true)}>
+              <DSButtonSecondary type="button" onClick={() => setIsSplitModalOpen(true)}>
                 <span aria-hidden="true">✂️</span>
                 Dividir en subtareas
-              </button>
+              </DSButtonSecondary>
             ) : null}
             {actionButtons.map((action) => (
-              <button key={action.label} type="button" onClick={action.onClick}>
+              <DSButtonSecondary key={action.label} type="button" onClick={action.onClick}>
                 <span aria-hidden="true">{action.icon}</span>
                 {action.label}
-              </button>
+              </DSButtonSecondary>
             ))}
           </div>
           {actionButtons.length === 0 && selectedNode.role !== 'free' ? (

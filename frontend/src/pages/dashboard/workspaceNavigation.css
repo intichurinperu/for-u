@@ -1,0 +1,30 @@
+/* One project header: identity, four shared views, contextual workspaces. */
+.foru-experience .workspace-project-bar{display:flex;align-items:center;gap:20px;flex-wrap:wrap;min-width:0;padding:12px 28px;background:#fff9;border-bottom:1px solid #e7deef;position:relative;z-index:45}
+.workspace-project-identity{display:flex;align-items:center;gap:16px;min-width:0;flex:1}
+.workspace-project-logo{display:flex;align-items:center;justify-content:center;min-height:44px;flex:none;text-decoration:none}
+.workspace-project-logo .foru-original-logo{width:84px;height:44px;overflow:hidden;position:relative;display:block}
+.workspace-project-logo .foru-original-logo img{width:152%!important;height:auto!important;left:-20%;top:-108%}
+.workspace-project-identity>label{min-width:0;max-width:250px;flex:1}
+.workspace-project-identity select{width:100%;min-height:44px;padding:10px 28px 10px 12px;border:1px solid #e2d9ec;border-radius:14px;color:#494052;background:#fff;font:600 13px Inter,system-ui,sans-serif;text-overflow:ellipsis}
+.foru-experience .workspace-project-bar .workspace-view-switch{display:flex;align-items:center;gap:2px;margin:0;padding:4px;border:1px solid #e7dfef;border-radius:40px;background:#fff;overflow:auto;flex:none}
+.foru-experience .workspace-project-bar .workspace-view-switch>a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 15px;border-radius:28px;text-decoration:none;font-size:13px;font-weight:600;color:#6b6176;white-space:nowrap}
+.foru-experience .workspace-project-bar .workspace-view-switch>a[aria-current=page]{background:#ede7f7;color:#513477}
+.workspace-project-menu{position:relative;flex:none;margin-left:auto}
+.workspace-project-menu>summary{display:flex;align-items:center;justify-content:center;gap:12px;min-height:44px;padding:10px 16px;border:1px solid #ded2eb;border-radius:16px;background:#f4effa;color:#513477;cursor:pointer;font-size:13px;font-weight:600;list-style:none}
+.workspace-project-menu>summary::-webkit-details-marker{display:none}
+.workspace-project-menu>nav{position:absolute;top:calc(100% + 8px);right:0;display:flex;flex-direction:column;gap:2px;min-width:230px;max-width:calc(100vw - 32px);padding:8px;border:1px solid #e4dceb;border-radius:20px;background:#fff;box-shadow:0 15px 45px #36204820}
+.workspace-project-menu>nav>a{display:flex;align-items:center;min-height:44px;padding:10px 14px;border-radius:12px;text-decoration:none;color:#513477;font-size:13px;font-weight:550}
+.workspace-project-menu>nav>a:hover{background:#f4effa}
+.workspace-project-menu .workspace-tool-search{width:100%;font-size:13px!important;background:#f4effa!important;color:#513477!important;min-height:44px}
+.workspace-project-bar a:focus-visible,.workspace-project-bar summary:focus-visible,.workspace-project-bar select:focus-visible{outline:3px solid #7751b8;outline-offset:3px}
+@media(max-width:950px){.foru-experience .workspace-project-bar{gap:10px;padding:10px 16px}.workspace-project-identity{flex:1}.workspace-project-identity>label{max-width:none}.foru-experience .workspace-project-bar .workspace-view-switch{order:3;width:100%;justify-content:center;box-sizing:border-box}.foru-experience .workspace-project-bar .workspace-view-switch>a{flex:1;padding:10px 8px;font-size:12px}.workspace-project-logo .foru-original-logo{width:64px;height:36px}.workspace-project-menu>summary{font-size:12px;padding:10px 12px}.workspace-project-identity{gap:8px}}
+
+.foru-experience .workspace-project-bar.is-route-header,
+.workspace-home-bar {
+  background: linear-gradient(110deg, #fffdf9 20%, #faf4fb 72%, #f4fbfc);
+}
+@media (max-width: 600px) {
+  .workspace-project-bar.is-route-header .workspace-project-identity { justify-content: space-between; }
+  .workspace-project-bar.is-route-header .workspace-project-identity > label { display: none; }
+  .workspace-project-bar.is-route-header .workspace-project-identity:has(.workspace-project-back) .workspace-project-logo { display: inline-flex; }
+}

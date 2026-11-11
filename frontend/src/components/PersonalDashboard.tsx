@@ -1,3 +1,4 @@
+import { getBusinessTemplate } from '../data/templates';
 import { motion } from 'framer-motion';
 import {
   type ForUActiveProject,
@@ -21,7 +22,7 @@ type PersonalDashboardProps = {
 };
 
 export default function PersonalDashboard({
-  name = 'Nicole',
+  name = 'emprendedora',
   projects,
   onViewProject,
   onCreateIndustryProject,
@@ -79,7 +80,7 @@ export default function PersonalDashboard({
             </div>
 
             <div className="foru-personal-project-actions">
-              <MagicButton type="button" onClick={() => onViewProject(project.id)}>
+              <MagicButton type="button" variant="soft" onClick={() => onViewProject(project.id)}>
                 Ver ruta
               </MagicButton>
             </div>
@@ -102,7 +103,8 @@ export default function PersonalDashboard({
 }
 
 function getIndustryLabel(industryKey: NonNullable<ForUActiveProject['industryKey']>) {
-  if (industryKey === 'gastronomy') return 'Gastronomía';
+  const template = getBusinessTemplate(industryKey);
+  if (template) return template.name;
   return 'Turismo';
 }
 

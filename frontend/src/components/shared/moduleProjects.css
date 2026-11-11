@@ -1,0 +1,32 @@
+.module-projects { max-width: 1180px; margin: auto; padding: 32px 24px; font-family: Inter,sans-serif; color: #0f172a; }
+.module-projects header { display: flex; justify-content: space-between; align-items: start; gap: 24px; }
+.module-projects h1,.module-projects h2 { background: transparent; color: inherit; letter-spacing: normal; line-height: 1.25; }
+.module-projects h1 { font-size: clamp(28px,5vw,44px); margin: 12px 0; }
+.module-projects h2 { font-size: 23px; margin: 14px 0; }
+.module-projects p { color: #64748b; line-height: 1.6; }
+.module-projects button,.module-projects summary { padding: 12px 18px; border: 1px solid #e2e8f0; border-radius: 10px; background: white; color: inherit; cursor: pointer; }
+.module-projects button:disabled { opacity: .45; cursor: not-allowed; }
+.module-projects nav { display: grid; gap: 12px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 12px; }
+.module-projects nav a { color: inherit; }
+.module-projects .module-project-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 24px; margin: 32px 0; }
+.module-projects .module-project-card { padding: 28px; border: 1px solid #e2e8f0; border-radius: 22px; background: linear-gradient(145deg,#fff,#f8fafc); }
+.module-projects .module-project-card > span { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: .08em; }
+.module-projects .module-project-restaurant { border-top: 4px solid #f9a8d4; }
+.module-projects .module-project-ecommerce { border-top: 4px solid #93c5fd; }
+.module-projects .module-project-hospitality { border-top: 4px solid #6ee7b7; }
+.module-projects .module-project-tourism { border-top: 4px solid #c4b5fd; }
+.module-projects .module-project-courses { border-top: 4px solid #fde68a; }
+.module-projects .module-create-project { border-style: dashed; margin: 20px 0; }
+.module-projects .module-create-content { display: inline-flex; padding: 12px 18px; border-radius: 10px; background: #0f172a; color: white; text-decoration: none; margin-top: 20px; }
+.module-projects form { display: grid; gap: 18px; max-width: 520px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; }
+.module-projects label { display: grid; gap: 8px; }
+.module-projects input,.module-projects select { width: 100%; box-sizing: border-box; min-width: 0; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: white; color: inherit; }
+.module-projects .module-project-actions { display: flex; gap: 12px; }
+.module-projects :focus-visible { outline: 3px solid #059669; outline-offset: 3px; }
+@media(max-width:650px){.module-projects{padding:20px 16px}.module-projects header{flex-direction:column}.module-projects .module-project-grid{grid-template-columns:minmax(0,1fr)}}
+
+.module-projects .module-launch-steps { display: flex; flex-wrap: wrap; gap: 12px 32px; padding: 20px 24px; background: #f8fafc; border-radius: 12px; }
+.module-projects .module-coming-soon { background: #f8fafc; border-style: dashed; }
+.module-projects .module-coming-soon > span { display: inline-block; padding: 6px 10px; background: #e2e8f0; border-radius: 20px; color: #334155; }
+.module-projects h3 { font-size: 20px; margin: 12px 0; }
+.module-projects .module-project-actions { flex-wrap: wrap; }

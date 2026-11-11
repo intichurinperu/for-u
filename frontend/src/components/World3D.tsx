@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary } from './ui/DesignSystem';
 import { useMemo } from 'react';
 import { type ForUActiveProject, useActiveProjectsStore } from '../stores/useActiveProjectsStore';
 import MagicBadge from './ui/MagicBadge';
@@ -36,7 +37,7 @@ export default function World3D({ onBackToMap, onOpenProject }: World3DProps) {
   return (
     <section className="foru-world3d-shell foru-world-lite-shell" aria-label="Mi Mundo de proyectos">
       <div className="foru-world-house-ui">
-        <button type="button" onClick={onBackToMap}>← Volver al tablero</button>
+        <DSButtonSecondary type="button" onClick={onBackToMap}>← Volver al tablero</DSButtonSecondary>
         <span className="foru-world-lite-status">Vista ligera activa</span>
       </div>
 

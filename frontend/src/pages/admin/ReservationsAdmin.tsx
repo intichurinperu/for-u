@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary } from '../../components/ui/DesignSystem';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CalendarCheck, Clock, MessageCircle, RefreshCw, Store } from '../../lib/icons';
@@ -49,9 +50,9 @@ export default function ReservationsAdmin() {
         <Link to="/" className="foru-logo">FOR <span>U</span></Link>
         <div className="foru-admin-nav-actions">
           <Link to="/mundo-digital" className="foru-btn foru-btn--outline">Ver landing</Link>
-          <button type="button" className="foru-btn" onClick={refreshRequests} disabled={isLoading}>
+          <DSButtonSecondary type="button" className="foru-btn" onClick={refreshRequests} disabled={isLoading}>
             <RefreshCw size={17} /> Actualizar
-          </button>
+          </DSButtonSecondary>
         </div>
       </nav>
 

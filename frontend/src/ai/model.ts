@@ -1,0 +1,3 @@
+export type Guidance={description:string;steps:string[];estimatedMinutes:number|null;playfulTitle:string|null};
+export type Suggestion=Guidance&{sourceId:string;title:string;icon:string};
+export function validGuidance(v:unknown):v is Guidance {const g=v as Guidance;return !!g&&typeof g.description==='string'&&g.description.trim().length>0&&g.description.length<=700&&Array.isArray(g.steps)&&g.steps.length>=1&&g.steps.length<=3&&g.steps.every(s=>typeof s==='string'&&s.trim().length>0&&s.length<=250)&&(g.estimatedMinutes===null||(Number.isInteger(g.estimatedMinutes)&&g.estimatedMinutes>=1&&g.estimatedMinutes<=480))&&(g.playfulTitle===null||(typeof g.playfulTitle==='string'&&g.playfulTitle.length<=200));}

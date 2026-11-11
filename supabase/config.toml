@@ -1,0 +1,14 @@
+[functions.reservations]
+verify_jwt = false
+
+[functions.toolkit-ai]
+# The function authenticates the access token with auth.getUser, including modern keys.
+verify_jwt = false
+
+[functions.integrations]
+verify_jwt = false
+
+[functions.mercado-pago]
+# OAuth callback and signed webhooks are public. Owner actions validate auth.getUser;
+# customer actions require authenticated ownership or the private order secret.
+verify_jwt = false

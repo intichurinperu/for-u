@@ -1,0 +1,108 @@
+/* Home has its own explicit hierarchy, independent of legacy link/button styles. */
+.foru-home{display:flex;flex-direction:column;gap:32px;--home-ink:#24232a;--home-muted:#6b6476}
+.foru-home .workspace-today{padding:22px 26px!important;border:1px solid #e4dced!important;border-radius:26px!important;box-shadow:none!important;background:linear-gradient(110deg,#fff,#f3eef9)!important}
+.foru-home .workspace-today header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0}
+.foru-home small{font-size:11px;letter-spacing:.12em;font-weight:700;color:#715099}
+.foru-home .workspace-today h2{font-size:22px;line-height:1.25;margin:6px 0 0;letter-spacing:-.03em}
+.foru-home .workspace-today header>span{font-size:12px;color:var(--home-muted);white-space:nowrap}
+.foru-home .workspace-today .home-today-help{font-size:13px;margin:8px 0 12px;line-height:1.5;color:var(--home-muted)}
+.foru-home .focus-list{margin:0;padding:0;display:grid;gap:8px;list-style:none}
+.foru-home .focus-list>li{display:flex;align-items:center;gap:16px;border:0!important;background:#ffffffa8!important;padding:12px 16px!important;border-radius:16px!important;min-height:0!important}
+.foru-home .focus-list>li>div{flex:1;min-width:0;display:grid;gap:4px}
+.foru-home .focus-list small{font-size:10px;letter-spacing:.04em;color:var(--home-muted)}
+.foru-home .home-next-step{display:flex!important;align-items:center;justify-content:space-between;gap:16px;color:#513477!important;text-decoration:none!important;font-size:15px!important;font-weight:650;line-height:1.5;min-height:44px}
+.foru-home .focus-list>li>div>span{font-size:11px!important;color:var(--home-muted)}
+.foru-home .focus-list>li>button{width:44px!important;height:44px!important;min-width:44px!important;padding:0!important;flex:none;border:0!important;background:transparent!important;color:#6b6476!important;font-size:22px!important}
+.foru-home .focus-picker{margin-top:10px!important;padding:0!important;border:0!important}
+.foru-home .focus-picker>summary{font-size:12px;font-weight:600;color:#6b6476;min-height:44px;align-content:center;cursor:pointer}
+.foru-home .focus-empty{font-size:14px!important;margin:8px 0!important;color:var(--home-muted)}
+.foru-home .workspace-projects>header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}
+.foru-home .workspace-projects h2{font-size:32px;line-height:1.1;letter-spacing:-.04em;margin:6px 0 0}
+.foru-home .home-new-project{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:10px 18px;border-radius:18px;background:#7751b8;color:#fff!important;text-decoration:none!important;font-size:14px;font-weight:650;white-space:nowrap}
+.foru-home .workspace-project-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.foru-home .workspace-project-card{min-width:0;display:flex;flex-direction:column;padding:22px!important;border-radius:24px!important;background:#fff!important;border:1px solid #e5deed!important;box-shadow:0 8px 28px #4c306508!important;gap:0}
+.foru-home .home-project-heading{display:flex;align-items:center;gap:10px}
+.foru-home .home-project-symbol{display:grid;place-items:center;width:42px;height:42px;background:#ede7f7;color:#7751b8;border-radius:15px;font-size:22px;flex:none}
+.foru-home .home-project-restaurant .home-project-symbol{background:#f5ead4;color:#735012}
+.foru-home .home-project-hospitality .home-project-symbol{background:#dcf3ed;color:#286655}
+.foru-home .home-project-tourism .home-project-symbol{background:#e0eef3;color:#355c6c}
+.foru-home .workspace-project-card h3{font-size:20px!important;line-height:1.3;margin:18px 0 8px!important;overflow-wrap:anywhere;color:var(--home-ink)}
+.foru-home .workspace-project-card>p{font-size:12px!important;line-height:1.5;color:var(--home-muted);margin:0 0 20px!important}
+.foru-home .workspace-project-card nav{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:auto}
+.foru-home .home-project-open{display:inline-flex!important;align-items:center;justify-content:center;gap:20px;min-height:44px;padding:10px 16px;border-radius:14px;background:#ede7f7;color:#513477!important;text-decoration:none!important;font-size:13px!important;font-weight:700}
+.foru-home .home-project-studio{display:inline-flex!important;align-items:center;justify-content:center;min-height:44px;color:#655175!important;text-decoration:none!important;font-size:12px!important;font-weight:600}
+.foru-home .home-see-all{display:flex;margin:20px auto 0;min-height:44px}
+.foru-home .home-project-search{width:100%;min-height:48px;padding:12px 16px;border:1px solid #d5c6e7;border-radius:16px;margin-bottom:16px;background:white}
+.foru-home a:focus-visible,.foru-home button:focus-visible,.foru-home summary:focus-visible,.foru-home input:focus-visible{outline:3px solid #7751b8;outline-offset:3px}
+@media(max-width:1000px){.foru-home .workspace-project-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.foru-home{gap:26px}.foru-home .workspace-today{padding:18px!important}.foru-home .workspace-today h2{font-size:20px}.foru-home .workspace-projects h2{font-size:27px}.foru-home .workspace-project-grid{grid-template-columns:1fr}.foru-home .home-new-project{font-size:12px;padding:10px 12px}.foru-home .workspace-projects>header{align-items:flex-end}.foru-home .workspace-project-card{padding:20px!important}.foru-home .workspace-project-card h3{margin-top:12px!important}.foru-home .focus-list>li{padding:10px 12px!important}}
+
+.foru-home .focus-list>li{flex-direction:row!important;align-items:center!important;flex-wrap:nowrap!important}.foru-home .focus-list>li>div{width:auto!important}.foru-home .focus-list>li>button{align-self:center!important}
+body:has(.foru-home) .floating-pomodoro:not(.is-open){width:48px!important;height:48px!important;right:14px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important}body:has(.foru-home) .floating-pomodoro:not(.is-open) .floating-pomodoro-toggle{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;padding:0!important}body:has(.foru-home) .floating-pomodoro:not(.is-open) .pomodoro-orbit-time{font-size:11px!important}body:has(.foru-home) .floating-pomodoro:not(.is-open) .pomodoro-orbit-label{display:none!important}body:has(.foru-home) .foru-companion-launch{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;right:72px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important;padding:0!important}body:has(.foru-home) .foru-companion-launch small{display:none!important}
+
+.foru-home .home-recovery-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 12px;border-radius:12px;background:#ede7f7;color:#513477!important;text-decoration:none!important;font-size:13px;font-weight:650;margin:4px 0}
+
+/* Entry asks for one decision; priorities remain available on demand. */
+.foru-home .workspace-projects>header{margin-bottom:18px}.foru-home .workspace-projects h2{font-size:26px}.foru-home .workspace-projects>header p{font-size:14px;color:#6b6476;margin:8px 0 0;line-height:1.5}.foru-home .workspace-project-card nav{display:block}.foru-home .home-project-open{width:100%;justify-content:space-between!important;background:#7751b8;color:#fff!important}.foru-home .home-today-fold{padding:0!important;background:#fff!important;border-radius:18px!important;margin:0!important}.home-today-fold>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;min-height:58px;padding:16px 20px;font-weight:600;font-size:14px;color:#554761;list-style:none}.home-today-fold>summary::-webkit-details-marker{display:none}.home-today-fold>summary>span:last-child{font-size:12px;color:#766d7f}.home-today-content{padding:0 20px 18px}.dashboard-home:has(.foru-home)>.world-intro{margin-bottom:22px}.dashboard-home:has(.foru-home)>.world-intro h1{font-size:30px!important}.dashboard-home:has(.foru-home)>.world-intro p{font-size:15px!important;margin:8px 0!important}.dashboard-home:has(.foru-home)>.local-draft-notice{margin:0 0 18px!important;padding:0!important;border:0!important;background:transparent!important;font-size:12px!important}.foru-home{padding-bottom:76px}.foru-home .workspace-projects>header{flex-wrap:wrap}.foru-home .workspace-project-card{overflow:hidden}.foru-home .home-project-open{box-sizing:border-box}
+
+.foru-home .workspace-projects>header{align-items:flex-start!important;text-align:left!important;justify-content:flex-start!important}.foru-home .workspace-projects>header>div{width:100%}
+
+.foru-experience .is-home .dashboard-home > .workspace-project-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 195px;
+  width: 100%;
+  max-width: none;
+  overflow: hidden;
+  padding: clamp(20px, 4vw, 46px);
+  border: 1px solid #e7dce9;
+  border-radius: 32px;
+  background: #fffdfc;
+}
+.workspace-project-hero > div { position: relative; z-index: 1; }
+.workspace-project-hero > img {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 52%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 46%;
+  mask-image: linear-gradient(90deg, transparent, #000 20%);
+}
+.foru-home .home-project-search { margin-bottom: 18px; }
+.foru-home .workspace-project-grid .workspace-project-card { display: flex; flex-direction: column; padding: 16px; }
+.foru-home .home-project-art {
+  height: 116px;
+  margin-bottom: 12px;
+  border-radius: 17px;
+  background: #fffcfa url('/brand/foru-workspace-archipelago.jpg') var(--home-art-position, 52% 28%) / 210% auto no-repeat;
+}
+.foru-home .home-project-ecommerce .home-project-art { --home-art-position: 100% 59%; }
+.foru-home .home-project-hospitality .home-project-art { --home-art-position: 50% 80%; }
+.foru-home .home-project-courses .home-project-art { --home-art-position: 0% 55%; }
+.foru-home .home-project-tourism .home-project-art { background-image: url('/brand/foru-landing-islands.png'); background-size: cover; }
+.foru-home .home-project-heading { gap: 6px; }
+.foru-home .workspace-project-card progress { width: 100%; height: 7px; accent-color: #9b83bb; }
+.foru-home .workspace-project-card nav { margin-top: auto; }
+.foru-home .workspace-project-card nav a { text-decoration: none; }
+@media (max-width: 620px) {
+  .foru-experience .is-home .dashboard-home > .workspace-project-hero { display: grid; min-height: 0; padding: 20px; }
+  .workspace-project-hero > img { position: static; width: 100%; height: 112px; mask-image: none; }
+  .foru-home .home-project-art { height: 108px; }
+}
+
+.foru-experience .is-home .local-draft-notice > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #e7dceb;
+  border-radius: 99px;
+  background: #fffdfb;
+  color: #51425e;
+  list-style: none;
+  cursor: pointer;
+}
+.foru-experience .is-home .local-draft-notice > summary::-webkit-details-marker { display: none; }

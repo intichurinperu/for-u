@@ -1,3 +1,4 @@
+import { Textarea as DSTextarea } from './ui/DesignSystem';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useActiveProjectsStore, type ForUNextAction } from '../stores/useActiveProjectsStore';
@@ -32,7 +33,7 @@ export default function AutonomousOrganizer({ projectId }: AutonomousOrganizerPr
       </div>
       <h3>Soltar ideas sin orden</h3>
       <p>Pega todo como venga. For U lo sostiene un momento y te devuelve una próxima acción amable.</p>
-      <textarea
+      <DSTextarea
         value={text}
         onChange={(event) => setText(event.target.value)}
         placeholder="Suelta aquí: taller de velas, comprar cera, campaña de navidad, buscar proveedores..."

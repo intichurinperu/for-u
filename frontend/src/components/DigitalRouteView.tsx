@@ -1,8 +1,12 @@
+import { Card as DSCard } from './ui/DesignSystem';
+import { ButtonSecondary as DSButtonSecondary } from './ui/DesignSystem';
+import { downloadBlob } from '../toolkit/api';
 import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import type { ForUActiveProject } from '../stores/useActiveProjectsStore';
 import { useActiveProjectsStore } from '../stores/useActiveProjectsStore';
 import { getDigitalRouteTemplate } from '../templates/digitalRouteTemplates';
+import { useRewardBurst, type RewardKey } from '../hooks/useRewardBurst';
 import MagicBadge from './ui/MagicBadge';
 import MagicButton from './ui/MagicButton';
 import MagicCard from './ui/MagicCard';
@@ -25,6 +29,10 @@ export default function DigitalRouteView({
   const getCurrentDigitalRouteStep = useActiveProjectsStore((state) => state.getCurrentDigitalRouteStep);
   const createTasksForDigitalRouteStep = useActiveProjectsStore((state) => state.createTasksForDigitalRouteStep);
   const completeDigitalRouteStep = useActiveProjectsStore((state) => state.completeDigitalRouteStep);
+  const reward = useRewardBurst();
+
+  // Map step index to reward key
+  const stepRewardKeys: RewardKey[] = ['station1Complete', 'station2Complete', 'station3Complete', 'station4Complete', 'station5Complete'];
 
   const routeTemplate = useMemo(() => getDigitalRouteTemplate(project?.industryKey), [project?.industryKey]);
   const steps = project ? getDigitalRouteSteps(project.id) : [];
@@ -70,8 +78,13 @@ export default function DigitalRouteView({
 
   function handleCompleteStep(stepId: string) {
     if (!project) return;
+    const stepIndex = steps.findIndex((s) => s.id === stepId);
     const completed = completeDigitalRouteStep(project.id, stepId);
-    if (completed) toast.success('Estación lista. Avanzamos la ruta ✨');
+    if (completed) {
+      const rewardKey = stepRewardKeys[stepIndex] ?? 'station1Complete';
+      reward.trigger(rewardKey);
+      toast.success('Estación lista. Avanzamos la ruta ✨');
+    }
   }
 
   return (
@@ -82,11 +95,11 @@ export default function DigitalRouteView({
           <h1>{project.name}</h1>
           <p>{routeTemplate.description}</p>
         </div>
-        <div className="foru-digital-route-progress-card">
+        <DSCard as="div" className="foru-digital-route-progress-card">
           <span>{progress}%</span>
           <strong>{readySteps}/{steps.length} estaciones listas</strong>
           <i><b style={{ width: `${progress}%` }} /></i>
-        </div>
+        </DSCard>
       </header>
 
       {currentStep ? (
@@ -98,7 +111,7 @@ export default function DigitalRouteView({
             <small>{currentStep.why}</small>
           </div>
           <div className="foru-digital-route-current-actions">
-            <MagicButton type="button" onClick={() => handlePrimaryAction(currentStep.id)}>
+            <MagicButton type="button" variant="soft" onClick={() => handlePrimaryAction(currentStep.id)}>
               {currentStep.primaryAction}
             </MagicButton>
             <MagicButton type="button" variant="soft" onClick={() => handleOpenStep(currentStep.id)}>
@@ -116,7 +129,7 @@ export default function DigitalRouteView({
               as="article"
               className={`foru-digital-route-step is-${step.status} is-priority-${step.priority} ${currentStep?.id === step.id ? 'is-current' : ''} ${activeStep?.id === step.id ? 'is-selected' : ''}`}
             >
-              <button
+              <DSButtonSecondary
                 type="button"
                 className="foru-digital-route-step-marker"
                 onClick={() => handleOpenStep(step.id)}
@@ -124,7 +137,7 @@ export default function DigitalRouteView({
               >
                 <span>{step.status === 'ready' ? '✓' : index + 1}</span>
                 {index < steps.length - 1 ? <i /> : null}
-              </button>
+              </DSButtonSecondary>
 
               <div className="foru-digital-route-step-body">
                 <div className="foru-digital-route-step-top">
@@ -143,10 +156,10 @@ export default function DigitalRouteView({
                   <i><b style={{ width: `${step.totalTasks ? Math.round((step.completedTasks / step.totalTasks) * 100) : 0}%` }} /></i>
                 </div>
                 <div className="foru-digital-route-step-actions">
-                  <button type="button" onClick={() => handleOpenStep(step.id)}>Ver guía</button>
-                  <button type="button" onClick={() => handlePrimaryAction(step.id)}>
+                  <DSButtonSecondary type="button" onClick={() => handleOpenStep(step.id)}>Ver guía</DSButtonSecondary>
+                  <DSButtonSecondary type="button" onClick={() => handlePrimaryAction(step.id)}>
                     {step.id === 'landing' ? 'Abrir landing' : step.createdTasks > 0 ? 'Continuar' : 'Crear acciones'}
-                  </button>
+                  </DSButtonSecondary>
                 </div>
               </div>
             </MagicCard>
@@ -157,9 +170,9 @@ export default function DigitalRouteView({
           <aside className="foru-digital-route-panel" aria-label={`Guia de ${activeStep.title}`}>
             <div className="foru-digital-route-panel-header">
               <MagicBadge>{activeStep.badge}</MagicBadge>
-              <button type="button" onClick={() => setSelectedStepId(null)} aria-label="Volver a la estacion actual">
+              <DSButtonSecondary type="button" onClick={() => setSelectedStepId(null)} aria-label="Volver a la estacion actual">
                 Actual
-              </button>
+              </DSButtonSecondary>
             </div>
             <h2>{activeStep.title}</h2>
             <p>{activeStep.why}</p>
@@ -193,6 +206,7 @@ export default function DigitalRouteView({
                   <div>
                     <strong>{resource.text}</strong>
                     <p>{resource.description}</p>
+                    {resource.content && <DSButtonSecondary onClick={() => downloadBlob(new Blob([resource.content!], {type:'text/markdown;charset=utf-8'}),resource.filename ?? 'recurso.md')}>Descargar recurso</DSButtonSecondary>}
                   </div>
                 </article>
               ))}
@@ -206,7 +220,7 @@ export default function DigitalRouteView({
                 Marcar estación lista
               </MagicButton>
               {activeStep.createdTasks > 0 ? (
-                <button type="button" onClick={onOpenTasks}>Ver tareas creadas</button>
+                <DSButtonSecondary type="button" onClick={onOpenTasks}>Ver tareas creadas</DSButtonSecondary>
               ) : null}
             </div>
           </aside>

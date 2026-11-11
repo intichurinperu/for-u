@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary } from '../components/ui/DesignSystem';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Compass, LayoutDashboard, Sailboat, Sparkles, Store } from '../lib/icons';
@@ -10,7 +11,7 @@ export default function Home() {
   const draft = loadLocalDraft();
 
   return (
-    <main className="foru-reference-hub text-[#171717]">
+    <main className="foru-reference-hub text-[#0A0A0A]">
       <div className="foru-reference-blur foru-reference-blur--gold" />
       <div className="foru-reference-blur foru-reference-blur--green" />
       <div className="foru-reference-blur foru-reference-blur--pink" />
@@ -30,7 +31,7 @@ export default function Home() {
           <span className="foru-reference-tag">Ver servicio →</span>
         </Link>
 
-        <button
+        <DSButtonSecondary
           type="button"
           onClick={() => {
             playUiTone('tap');
@@ -43,7 +44,7 @@ export default function Home() {
           <h2>Studio Digital <span className="foru-reference-gradient-text">FOR U</span></h2>
           <p>Tu futuro centro para contenido, calendario, web y campanas. Todavia privado, pero ya se siente cerca.</p>
           <span className="foru-reference-tag">Preview privado</span>
-        </button>
+        </DSButtonSecondary>
 
         <Link to="/aventura" onClick={() => playUiTone('next')} className="foru-reference-card foru-reference-card--premium">
           <span className="foru-reference-card-icon"><Sailboat size={31} /></span>
@@ -65,7 +66,7 @@ export default function Home() {
       {studioModalOpen && (
         <div className="foru-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="studio-modal-title">
           <div className="foru-coming-modal">
-            <button type="button" className="foru-modal-close" onClick={() => setStudioModalOpen(false)} aria-label="Cerrar">x</button>
+            <DSButtonSecondary type="button" className="foru-modal-close" onClick={() => setStudioModalOpen(false)} aria-label="Cerrar">x</DSButtonSecondary>
             <span className="foru-lp-badge"><Sparkles size={16} /> Muy pronto</span>
             <h2 id="studio-modal-title">Studio Digital FOR U</h2>
             <p>

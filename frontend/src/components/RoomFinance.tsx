@@ -9,10 +9,10 @@ type RoomFinanceProps = {
 export default function RoomFinance({ nodes, progress }: RoomFinanceProps) {
   return (
     <group position={[5.4, 0, -2.4]}>
-      <RoomBase color="#FFDAB9" />
+      <RoomBase color="#EAEAEA" />
       <mesh position={[0, 0.64, -0.35]} castShadow>
         <boxGeometry args={[1.15, 1, 0.72]} />
-        <meshPhysicalMaterial color="#E6E6FA" roughness={0.65} metalness={0.16} clearcoat={0.32} />
+        <meshPhysicalMaterial color="#EAEAEA" roughness={0.65} metalness={0.16} clearcoat={0.32} />
       </mesh>
       <mesh position={[0, 0.72, 0.03]} castShadow>
         <torusGeometry args={[0.22, 0.035, 12, 24]} />

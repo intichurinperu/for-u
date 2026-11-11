@@ -1,0 +1,392 @@
+/* Video Timeline - FOR U Luminous Pastel Design */
+.tk-app .video-timeline {
+  border: 1px solid #ebdfee;
+  border-radius: 20px;
+  padding: 12px 16px;
+  background: #ffffff;
+  margin: 10px 0 6px;
+  box-shadow: 0 4px 18px rgba(116, 58, 162, 0.04);
+  min-width: 0;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.tk-app .video-timeline > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.tk-app .video-timeline > header strong {
+  font-size: 13px;
+  font-weight: 650;
+  color: #4b3d57;
+  letter-spacing: -0.01em;
+}
+
+.tk-app .timeline-zoom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #685b75;
+  font-size: 11px;
+}
+
+.tk-app .timeline-zoom button {
+  min-height: 32px;
+  min-width: 32px;
+  border: 1px solid #ebdfee;
+  border-radius: 9px;
+  background: #fbf9fc;
+  color: #554466;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.tk-app .timeline-zoom button:hover:not(:disabled) {
+  background: #f3edf8;
+  border-color: #d8c6e6;
+  color: #743aa2;
+}
+
+.tk-app .timeline-zoom button[aria-pressed=true] {
+  background: #ebdcf5;
+  border-color: #caaee0;
+  color: #683096;
+}
+
+.tk-app .timeline-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  padding: 4px 0 10px;
+  scrollbar-color: #d8c6e6 #f7f3fa;
+  min-width: 0;
+}
+
+.tk-app .timeline-surface {
+  position: relative;
+  user-select: none;
+  min-height: 154px;
+}
+
+.tk-app .timeline-ruler {
+  height: 24px;
+  position: relative;
+  cursor: crosshair;
+  margin-bottom: 8px;
+}
+
+.tk-app .timeline-ruler > span {
+  position: absolute;
+  font: 500 10px/1 ui-monospace, monospace;
+  color: #8b7999;
+  transform: translateX(-50%);
+  top: 4px;
+  pointer-events: none;
+}
+
+.tk-app .timeline-ruler > span:first-child { transform: none; }
+.tk-app .timeline-ruler > span:last-child { transform: translateX(-100%); }
+
+/* Lanes */
+.tk-app .timeline-lane {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.tk-app .timeline-lane-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: #fbf8fd;
+  border: 1px solid #ebdfee;
+  color: #63437a;
+  font-size: 11px;
+  font-weight: 600;
+  flex: none;
+  width: 104px;
+  box-sizing: border-box;
+}
+
+.tk-app .timeline-lane-badge svg {
+  flex: none;
+  color: #7b4ea6;
+}
+
+.tk-app .timeline-lane-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Track backgrounds */
+.tk-app .timeline-track {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  border-radius: 12px;
+  height: 52px;
+  background: #faf6fc;
+  border: 1px solid #ebdfee;
+  box-sizing: border-box;
+}
+
+.tk-app .timeline-clips {
+  height: 52px;
+}
+
+.tk-app .timeline-captions {
+  height: 44px;
+  background: #fdfaff;
+}
+
+.tk-app .timeline-layers {
+  background: #fdfbfe;
+}
+
+/* Clips */
+.tk-app .timeline-clip {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  min-width: 8px;
+  border: 2px solid #caaee0;
+  border-radius: 10px;
+  background: #f0e6f8;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.tk-app .timeline-clip.is-selected {
+  border-color: #894fb2;
+  box-shadow: 0 0 0 2px rgba(137, 79, 178, 0.28);
+}
+
+.tk-app .timeline-clip.is-drop-target {
+  outline: 3px solid #894fb2;
+  outline-offset: 2px;
+}
+
+.tk-app .timeline-clip-body {
+  border: 0;
+  width: 100%;
+  height: 100%;
+  padding: 4px 8px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  color: #29292f;
+  font: 500 11px/1.3 Inter, sans-serif;
+  text-align: left;
+  min-height: 0 !important;
+  display: block;
+}
+
+.tk-app .timeline-thumbnails {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  opacity: 0.92;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.tk-app .timeline-thumbnails img {
+  height: 100%;
+  flex: 1;
+  min-width: 0;
+  object-fit: cover;
+}
+
+.tk-app .timeline-clip-name {
+  position: absolute;
+  bottom: 4px;
+  left: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #3b284c;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(235, 223, 238, 0.6);
+}
+
+/* Captions */
+.tk-app .timeline-caption {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  min-width: 8px;
+  border: 1.5px solid #d8bee8;
+  border-radius: 10px;
+  background: #f2e7fa;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.tk-app .timeline-caption.is-selected {
+  border-color: #894fb2;
+  background: #ebd5f7;
+  box-shadow: 0 0 0 2px rgba(137, 79, 178, 0.28);
+}
+
+.tk-app .timeline-caption.is-proposal {
+  border-style: dashed;
+  background: #fbf3e5;
+  border-color: #e5cd9d;
+}
+
+.tk-app .timeline-caption-body {
+  border: 0;
+  width: 100%;
+  height: 100%;
+  padding: 10px 14px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  color: #3b284c;
+  font: 600 11px/1.3 Inter, sans-serif;
+  text-align: left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.tk-app .timeline-caption-body:hover {
+  background: rgba(235, 213, 247, 0.5);
+}
+
+/* Playhead with circular badge */
+.tk-app .timeline-playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.tk-app .timeline-playhead-badge {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #9a6ebd;
+  color: #ffffff;
+  font: 600 10px/1 ui-monospace, monospace;
+  padding: 4px 7px;
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(154, 110, 189, 0.45);
+}
+
+.tk-app .timeline-playhead-line {
+  position: absolute;
+  top: 22px;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: #9a6ebd;
+  border-radius: 1px;
+}
+
+.tk-app .timeline-playhead i {
+  display: none;
+}
+
+/* Handles */
+.tk-app .timeline-handle {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 12px;
+  min-height: 0 !important;
+  padding: 0;
+  border: 0;
+  background: rgba(154, 110, 189, 0.7);
+  z-index: 3;
+  cursor: ew-resize;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tk-app .timeline-handle.is-start {
+  left: -1px;
+  border-radius: 8px 0 0 8px;
+}
+
+.tk-app .timeline-handle.is-end {
+  right: -1px;
+  border-radius: 0 8px 8px 0;
+}
+
+.tk-app .timeline-handle i {
+  width: 2px;
+  height: 14px;
+  border-radius: 2px;
+  background: #ffffff;
+}
+
+.tk-app .timeline-caption .timeline-handle {
+  background: rgba(154, 110, 189, 0.6);
+}
+
+.tk-app .timeline-empty {
+  font-size: 11px;
+  color: #92849e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.tk-app .video-timeline small {
+  font-size: 11px;
+  color: #8b7999;
+  line-height: 1.5;
+  margin-top: 4px;
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .tk-app .timeline-lane-title {
+    display: none;
+  }
+  .tk-app .timeline-lane-badge {
+    width: 36px;
+    padding: 6px 0;
+    justify-content: center;
+    border-radius: 10px;
+  }
+  .tk-app .timeline-lane {
+    gap: 8px;
+  }
+  .tk-app .timeline-clips {
+    height: 42px;
+  }
+  .tk-app .timeline-captions {
+    height: 36px;
+  }
+  .tk-app .timeline-caption-body {
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+}

@@ -1,0 +1,14 @@
+.project-create-overlay { position: fixed; inset: 0; z-index: 6000; overflow: auto; overscroll-behavior: contain; background: #fff; }
+.project-name-page { outline: none; padding-bottom: env(safe-area-inset-bottom); }
+.project-name-page .project-name-eyebrow { margin: 0 0 22px; font-size: 17px; line-height: 1.5; }
+.project-name-page h1 { max-width: 450px; font-size: clamp(36px, 3.3vw, 46px); font-weight: 450; }
+.project-name-page .project-name-field-hint { font-size: 13px; line-height: 1.5; margin-top: 3px; }
+.project-name-page .public-register-form { gap: 22px; }
+.project-name-page .public-register-hint { font-size: 13px; }
+.project-name-page .public-register-art img { width: 110%; max-width: none; margin-left: -5%; }
+@media (max-width: 760px) {
+  .project-name-page .project-name-eyebrow { margin-bottom: 16px; font-size: 15px; }
+  .project-name-page h1 { font-size: clamp(32px, 8.6vw, 39px); }
+  .project-name-page .public-register-main { gap: 24px; }
+  .project-name-page .public-register-art { width: min(260px, 75%); }
+}

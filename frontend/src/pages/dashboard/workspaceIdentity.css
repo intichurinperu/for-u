@@ -1,0 +1,140 @@
+/* Shared workspace identity. Scoped so published customer pages keep their branding. */
+.workspace-shell {
+  --color-fondo: #F4F0EA;
+  --color-superficie: #fff;
+  --color-superficie-fuerte: #fff;
+  --color-texto: #24232A;
+  --color-texto-suave: #625D6C;
+  --gradient-iridiscente: linear-gradient(115deg,#D9B46B,#EDE7F7 38%,#7751B8 65%,#A9E8D7);
+  --gradient-boton: linear-gradient(#7751B8,#7751B8);
+  --gradient-fondo: linear-gradient(135deg,#F4F0EA,#EDE7F7);
+  --color-marketing: #fbbf24;
+  --color-finanzas: #f472b6;
+  --color-logistica: #a78bfa;
+  --color-operaciones: #22d3ee;
+  --sombra-suave: 0 16px 50px rgb(0 0 0 / 6%);
+  --sombra-media: 0 16px 42px rgb(0 0 0 / 7.5%);
+  --sombra-magica: 0 22px 70px rgb(0 0 0 / 8%);
+  --border-radius: 16px;
+  --border-radius-grande: 24px;
+  --font-titulos: Inter,system-ui,sans-serif;
+  --ink: var(--color-texto);
+  --muted: var(--color-texto-suave);
+  --paper: #F4F0EA;
+  background: var(--paper);
+  color: var(--ink);
+}
+.workspace-shell .workspace-sidebar {background:var(--color-superficie);border-color:rgb(0 0 0 / 6%);gap:24px}
+.workspace-shell .workspace-brand {background:var(--gradient-iridiscente);background-clip:text;-webkit-background-clip:text;color:transparent}
+.workspace-shell .workspace-brand span,.workspace-shell .workspace-sidebar p {color:var(--muted)}
+.workspace-shell .workspace-sidebar nav a,.workspace-shell .workspace-sidebar>button,.workspace-shell .workspace-pending {color:var(--ink)}
+.workspace-shell .workspace-sidebar nav a {min-height:48px;border:1px solid transparent;position:relative;padding:13px 14px;border-radius:16px}
+.workspace-shell .workspace-sidebar nav a:hover {background:#f5f3ff;color:var(--ink)}
+.workspace-shell .workspace-sidebar nav a[aria-current] {background:#EDE7F7;border-color:#DCD2EB;color:#513477;font-weight:700}
+/* Keep one orientation icon rather than repeating six decorative icons. */
+.workspace-shell .workspace-sidebar nav .workspace-nav-icon {display:none}
+.workspace-shell .workspace-sidebar nav a[aria-current] .workspace-nav-icon {display:grid;background:var(--gradient-fondo);box-shadow:none;flex-shrink:0}
+.workspace-shell .magic-button-primary {background:var(--gradient-boton);color:white;border:0;border-radius:999px;box-shadow:var(--sombra-media);font-weight:650;text-decoration:none;transition:transform .2s,box-shadow .2s}
+.workspace-shell .magic-button-primary:hover {transform:translateY(-1px);box-shadow:var(--sombra-magica)}
+.workspace-shell .workspace-new {display:block;text-align:center;min-height:46px}
+.workspace-shell .workspace-top {background:rgb(244 240 234 / 96%);backdrop-filter:blur(18px);border-bottom:1px solid rgb(212 212 212 / 10%);flex-wrap:wrap;gap:16px;position:sticky;top:0}
+.workspace-top .workspace-breadcrumbs {background:none;padding:0;align-items:center;gap:10px;flex:1;min-width:0;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.workspace-top .workspace-breadcrumbs a {padding:0;color:var(--muted);min-height:44px;display:flex;align-items:center}
+.workspace-top .workspace-breadcrumbs [aria-current] {color:var(--ink);font-weight:700;overflow-wrap:anywhere}
+.workspace-top .workspace-view-switch {background:white;border:1px solid #eaeaea;border-radius:999px}
+.workspace-top .workspace-view-switch a {border-radius:999px;color:var(--ink)}
+.workspace-top .workspace-view-switch a[aria-current] {background:var(--gradient-fondo);color:var(--ink);box-shadow:none}
+.workspace-shell .workspace-top select {border:1px solid #d4d4d4;border-radius:12px;padding:8px 12px;background:white;min-height:44px;max-width:220px}
+.workspace-shell .workspace-body {padding:2rem 2rem 110px;width:100%}
+.workspace-shell .magic-card {background:white;border:1px solid #d4d4d4;border-radius:24px;box-shadow:var(--sombra-suave);transition:transform .3s,box-shadow .3s}
+.workspace-shell a.magic-card:hover {background:#EDE7F7;border-color:transparent;transform:translateY(-2px);box-shadow:var(--sombra-magica)}
+.workspace-shell .cs-home {color:var(--ink)}
+.workspace-shell .cs-heading>span,.workspace-shell .cs-kicker,.workspace-shell .cs-home p,.workspace-shell .cs-preview>span,.workspace-shell .cs-journey small,.workspace-shell .cs-step-top>span:last-child {color:var(--muted)}
+.workspace-shell .cs-hero,.workspace-shell .cs-art {background:var(--gradient-fondo);border-radius:24px}
+.workspace-shell .cs-art span {font-size:28px;text-align:center;font-weight:800;line-height:1.3}
+.workspace-shell .cs-journey {gap:24px}
+.workspace-shell .cs-journey li {background:transparent;overflow:visible;border:0;box-shadow:none}
+.workspace-shell .cs-step-icon {background:var(--gradient-fondo)}
+.workspace-shell .cs-step-action,.workspace-shell .cs-tools a,.workspace-shell .cs-footer a {color:var(--ink)}
+.workspace-shell .cs-tools a,.workspace-shell .cs-footer a {border:1px solid #d4d4d4;border-radius:999px}
+.workspace-shell .cs-home :focus-visible {outline:3px solid var(--ink);outline-offset:4px}
+@media(max-width:767px) {
+  .workspace-shell .workspace-body {padding:24px 16px 100px}
+  .workspace-shell .workspace-top {gap:12px;padding:12px 16px}
+  .workspace-top .workspace-breadcrumbs {flex-basis:100%}
+  .workspace-shell .workspace-top select {max-width:155px}
+  .workspace-top .workspace-view-switch a {padding:10px 12px}
+  .workspace-shell .workspace-sidebar>.workspace-menu-toggle {background:white;color:var(--ink);border-color:#d4d4d4;border-radius:16px}
+}
+@media(prefers-reduced-motion:reduce) {
+  .workspace-shell a.magic-card:hover,.workspace-shell .magic-button-primary:hover {transform:none}
+}
+
+/* Brandbook 15–20: quiet Google-inspired structure, FOR U palette.
+   Scope stays private: published customer pages retain their own identity. */
+.workspace-shell{font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+.workspace-shell .workspace-brand{background:none;color:#24232A;font-weight:500;letter-spacing:-2px}
+.workspace-shell .workspace-brand span{letter-spacing:0;color:var(--muted)}
+.workspace-shell .workspace-home-link{color:#513477}
+.workspace-shell .workspace-sidebar nav .workspace-nav-icon{display:grid;place-items:center;width:28px;flex-shrink:0}
+.workspace-shell .workspace-sidebar nav a[aria-current] .workspace-nav-icon{background:#fff;border-radius:8px}
+.workspace-shell .workspace-top .workspace-view-switch a[aria-current]{background:#EDE7F7;color:#513477}
+.workspace-shell .magic-card{box-shadow:0 2px 10px #24232A05;border-color:#E1DCE6}
+.workspace-shell .world-intro h1{color:#24232A;font-weight:650;letter-spacing:-.035em}
+.workspace-shell .dashboard-home .dashboard-area-marketing{background:#F3E7CE;color:#24232A}
+.workspace-shell .dashboard-home .dashboard-area-finance{background:#DDF3EC;color:#24232A}
+.workspace-shell .dashboard-home .dashboard-area-logistics{background:#EDE7F7;color:#24232A}
+.workspace-shell .dashboard-home .dashboard-area-operations{background:#E4F0EF;color:#24232A}
+.workspace-shell .area-tabs button[aria-pressed=true],.workspace-shell .area-save>button:first-child{background:#7751B8;color:#fff}
+.workspace-shell :focus-visible{outline-color:#7751B8}
+.workspace-shell .workspace-sidebar .foru-route-progress-bar{background:#EDE7F7;color:#24232A}
+.workspace-shell .workspace-sidebar .foru-route-progress-bar progress{accent-color:#7751B8}
+
+/* Material-inspired hierarchy: one clear action, stable icon, quiet surface. */
+.workspace-shell .dashboard-home .area-open{gap:12px;border:1px solid #24232A0A;box-shadow:0 3px 14px #24232A06;transition:transform .18s ease,box-shadow .18s ease}
+.workspace-shell .dashboard-home .area-open .area-icon{display:grid;place-items:center;width:56px;height:56px;flex-shrink:0;border-radius:18px;background:#ffffffb3;font-size:28px}
+.workspace-shell .dashboard-home .area-open h2{font-size:24px;font-weight:650;letter-spacing:-.025em}
+.workspace-shell .dashboard-home .area-open:hover{transform:translateY(-3px);box-shadow:0 9px 24px #24232A0D}
+.workspace-shell .dashboard-home .area-open button{min-height:44px}
+.workspace-shell .dashboard-home .area-open button:active{transform:scale(.98)}
+.workspace-shell .area-modal-dialog{border:1px solid #E1DCE6;box-shadow:0 18px 64px #24232A1F}
+.workspace-shell .world-invitation{background:#EDE7F7;color:#513477}
+@media(prefers-reduced-motion:reduce){.workspace-shell .dashboard-home .area-open:hover,.workspace-shell .dashboard-home .area-open button:active{transform:none}.workspace-shell .dashboard-home .area-open{transition:none}}
+
+.workspace-shell .workspace-sidebar{overflow-y:auto;gap:18px}
+.workspace-shell .workspace-sidebar>*{flex-shrink:0}
+.workspace-shell .workspace-sidebar nav{gap:3px}
+.workspace-shell .workspace-sidebar nav a{min-height:44px;padding:10px 12px}
+.workspace-shell .workspace-new{height:auto;line-height:1.4;padding:12px;font-size:13px;white-space:normal}
+.workspace-shell .world-page .world-intro{margin-bottom:18px}
+.workspace-shell .world-page .world-intro p{margin:8px 0 14px}
+.workspace-shell .world-island-picker button{font-size:13px;padding:10px 14px;min-height:64px}
+@media(max-width:767px){.workspace-shell .workspace-sidebar{overflow:visible}.workspace-shell .world-island-picker button{max-width:180px}.workspace-shell .world-page .world-intro h1{font-size:30px}}
+/* Shared project navigation: destinations are available before a landing exists. */
+.workspace-shell .workspace-spaces{display:flex;gap:8px;flex-wrap:wrap;padding:12px 24px;background:#F4F0EA;border-bottom:1px solid #E2D9EC}
+.workspace-shell .workspace-spaces a,.workspace-map-return{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;text-decoration:none;border-radius:18px;color:#513477;font-weight:600}
+.workspace-shell .workspace-spaces a[aria-current]{background:#EDE7F7}
+.workspace-shell .workspace-view-switch{flex-wrap:wrap;max-width:100%}
+.workspace-map-return{margin-bottom:16px;background:#EDE7F7}
+@media(max-width:600px){.workspace-shell .workspace-spaces{padding:8px 12px;gap:4px}.workspace-shell .workspace-spaces a{padding:8px 10px;font-size:13px;flex:1 0 auto}.workspace-shell .workspace-top .workspace-view-switch{width:100%;justify-content:space-between;border-radius:18px}.workspace-shell .workspace-top .workspace-view-switch a{font-size:13px;padding:10px 8px}}
+
+/* The editor keeps orientation close without stacking the full dashboard chrome above the page. */
+.workspace-shell.is-page-editor>.workspace-sidebar{display:none!important}
+.workspace-shell.is-page-editor>.workspace-main{margin-left:0!important;width:100%}
+.workspace-shell.is-page-editor .workspace-top{padding:8px 16px;gap:8px;min-height:0;align-items:center}
+.workspace-shell.is-page-editor .workspace-breadcrumbs,.workspace-shell.is-page-editor .workspace-mobile-tools{display:none!important}
+.workspace-shell.is-page-editor .workspace-top .workspace-view-switch{width:auto;flex:1;gap:2px;justify-content:flex-start;background:transparent;border:0;padding:0}
+.workspace-shell.is-page-editor .workspace-top .workspace-view-switch a{min-height:44px;padding:10px 12px;font-size:12px}
+.workspace-shell.is-page-editor .workspace-spaces{padding:0 16px;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;gap:4px}
+.workspace-shell.is-page-editor .workspace-spaces a{white-space:nowrap;flex:0 0 auto;min-height:44px;padding:10px;font-size:12px}
+.workspace-shell.is-page-editor .workspace-body{padding:8px 12px 90px}
+.workspace-shell.is-page-editor .workspace-map-return{margin:0 0 6px;min-height:44px;font-size:12px}
+@media(max-width:600px){.workspace-shell.is-page-editor .workspace-top{display:grid;grid-template-columns:1fr;padding:6px 12px}.workspace-shell.is-page-editor .workspace-top>label{display:none}.workspace-shell.is-page-editor .workspace-top .workspace-view-switch{width:100%;justify-content:space-between}.workspace-shell.is-page-editor .workspace-spaces{padding:0 8px}.workspace-shell.is-page-editor .workspace-body{padding:4px 4px 80px}}
+
+.workspace-shell.is-tool-focused>.workspace-sidebar{display:none!important}.workspace-shell.is-tool-focused>.workspace-main{margin:0!important;width:100%}.workspace-focus-bar{display:flex;align-items:center;gap:16px;padding:8px 18px;background:#fcfaf8;border-bottom:1px solid #e6deee;position:relative;z-index:30;min-height:60px}.workspace-focus-bar>a{display:flex;align-items:center;min-height:44px;color:#513477;text-decoration:none;font-weight:650;font-size:13px;flex:none}.workspace-focus-bar>span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;color:#625d6c}.workspace-focus-menu>summary{list-style:none;display:grid;place-items:center;width:44px;height:44px;background:#ede7f7;color:#513477;border-radius:50%;font-size:19px;cursor:pointer}.workspace-focus-menu>summary::-webkit-details-marker{display:none}.workspace-focus-menu>nav{position:absolute;right:12px;top:62px;background:#fffdfb;border:1px solid #ded2ec;border-radius:20px;box-shadow:0 16px 48px #24232a22;padding:12px;display:grid;gap:4px;width:min(320px,calc(100vw - 24px));max-height:75dvh;overflow:auto}.workspace-focus-menu:not([open])>nav{display:none}.workspace-focus-menu nav>a{display:flex;align-items:center;min-height:44px;text-decoration:none;color:#513477;border-radius:12px;padding:8px 12px;font-size:14px}.workspace-focus-menu nav>a:hover{background:#ede7f7}.workspace-focus-menu label{display:grid;gap:8px;font-size:12px;padding:12px}.workspace-focus-menu select{width:100%;min-height:44px;max-width:100%;border:1px solid #ded2ec;border-radius:12px}.workspace-focus-bar :focus-visible{outline:3px solid #7751b8;outline-offset:3px}.workspace-shell.is-tool-focused .workspace-body{padding:16px 20px 90px}@media(max-width:600px){.workspace-focus-bar{padding:6px 12px;gap:10px}.workspace-shell.is-tool-focused .workspace-body{padding:12px 10px 88px}}
+
+body:has(.is-tool-focused) .foru-companion-launch{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;padding:0!important;right:72px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important}body:has(.is-tool-focused) .foru-companion-launch small{display:none!important}body:has(.is-tool-focused) .floating-pomodoro:not(.is-open){width:48px!important;height:48px!important;right:14px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important}body:has(.is-tool-focused) .floating-pomodoro:not(.is-open) .floating-pomodoro-toggle{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;padding:0!important}body:has(.is-tool-focused) .floating-pomodoro:not(.is-open) .pomodoro-orbit-time{font-size:11px!important}body:has(.is-tool-focused) .floating-pomodoro:not(.is-open) .pomodoro-orbit-label{display:none!important}
+.workspace-shell.is-tool-focused .workspace-focus-bar{position:sticky;top:0}
+.workspace-focus-bar.is-studio-focus-bar { position: relative; }
+.workspace-focus-center-logo { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; pointer-events: none; }
+@media (max-width: 600px) { .workspace-focus-center-logo { display: none; } }

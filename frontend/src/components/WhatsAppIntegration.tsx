@@ -1,4 +1,5 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { Input as DSInput } from './ui/DesignSystem';
+import { type FormEvent, useEffect, useState } from 'react';
 import MagicBadge from './ui/MagicBadge';
 import MagicButton from './ui/MagicButton';
 import MagicCard from './ui/MagicCard';
@@ -44,7 +45,7 @@ export default function WhatsAppIntegration() {
         <form className="foru-auth-form" onSubmit={handleSubmit}>
           <label>
             Tu número de WhatsApp
-            <input
+            <DSInput
               type="tel"
               value={whatsappNumber}
               onChange={(event) => setWhatsappNumber(event.target.value)}
@@ -53,7 +54,7 @@ export default function WhatsAppIntegration() {
           </label>
 
           <label className="foru-whatsapp-toggle">
-            <input
+            <DSInput
               type="checkbox"
               checked={whatsappEnabled}
               onChange={(event) => setWhatsappEnabled(event.target.checked)}

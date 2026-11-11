@@ -1,6 +1,7 @@
 import type { ForUBranchKey, ForUFeelingType, ForUNodePriority } from '../stores/useActiveProjectsStore';
 
-export type ForUIndustryKey = 'tourism' | 'gastronomy';
+import { businessTemplates, type TemplateKey } from '../data/templates';
+export type ForUIndustryKey = 'tourism' | TemplateKey;
 
 export type ForUIndustryTemplateNode = {
   idSuffix: string;
@@ -229,7 +230,11 @@ export const gastronomyTemplate: ForUIndustryTemplate = {
   ],
 };
 
-export const industryTemplates: Record<ForUIndustryKey, ForUIndustryTemplate> = {
-  tourism: tourismTemplate,
-  gastronomy: gastronomyTemplate,
-};
+const thinkingTemplates = Object.fromEntries(businessTemplates.map<[TemplateKey,ForUIndustryTemplate]>(template => [template.key, {
+  key: template.key, name: template.name, source: 'foru-design-thinking-v1', description: template.entry,
+  defaultProjectName: 'Mi negocio de ' + template.name.toLowerCase(), tangibleGoal: template.entry,
+  targetFeelings: ['connection','confidence'], strategyProfile: {primaryChannel:'Web',offerType:template.offer,idealTraveler:template.audience,strategicAssets:template.steps.map(step=>step.title),salesEntry:template.entry},
+  nodes: template.steps.map((step,index)=>({idSuffix:step.id,title:step.title,description:step.tasks.join('\n'),branchKey:'actions',icon:String(index+1),priority:'high',x:index%2?700:260,y:120+index*140})),
+  route: template.steps.map(step=>({idSuffix:step.id,title:step.title,linkedNodeSuffix:step.id})),
+}])) as Record<TemplateKey,ForUIndustryTemplate>;
+export const industryTemplates: Record<ForUIndustryKey, ForUIndustryTemplate> = {tourism:tourismTemplate,...thinkingTemplates};

@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary } from './ui/DesignSystem';
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -69,7 +70,7 @@ export default function TaskBoard({ branchKey, onBackToMap }: TaskBoardProps) {
           <h1>{branch.icon} {branch.title}</h1>
           <p>{tasks.length} tareas de esta rama, ordenadas por prioridad.</p>
         </div>
-        <button type="button" onClick={onBackToMap}>Volver al Mapa</button>
+        <DSButtonSecondary type="button" onClick={onBackToMap}>Volver al Mapa</DSButtonSecondary>
       </header>
 
       <div className="foru-task-board-grid">
@@ -81,7 +82,7 @@ export default function TaskBoard({ branchKey, onBackToMap }: TaskBoardProps) {
 
           <div className="foru-task-items">
             {tasks.length ? tasks.map((task) => (
-              <button
+              <DSButtonSecondary
                 key={task.id}
                 type="button"
                 className={`${selectedTask?.id === task.id ? 'is-selected' : ''} ${task.completedAt ? 'is-done' : ''}`}
@@ -95,7 +96,7 @@ export default function TaskBoard({ branchKey, onBackToMap }: TaskBoardProps) {
                   <strong>{task.title}</strong>
                   <small>{task.completedAt ? `Completada · +${task.rewardCoins ?? 10} monedas` : getPriorityLabel(task.priority)}</small>
                 </div>
-              </button>
+              </DSButtonSecondary>
             )) : (
               <div className="foru-task-empty">
                 <strong>No hay tareas todavía</strong>

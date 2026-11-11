@@ -1,0 +1,181 @@
+.foru-professional-editor.pe-wide-editor.landing-editor-workspace {
+  align-items: stretch;
+  gap: 8px;
+  padding: 0;
+  height: calc(100dvh - 24px);
+  min-height: 440px;
+  color: #342c35;
+}
+
+.landing-editor-header {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+  padding: 8px 14px;
+  border: 1px solid #e9e0e8;
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at 100% -145%, transparent 62%, #ebdff2 63%, #fff1dc 65%, transparent 67%) top right / 190px 34px no-repeat,
+    #fffdfd;
+}
+.landing-editor-header .foru-original-logo { width: 112px; height: 49px; background: transparent; }
+.landing-editor-header .foru-original-logo img { width: 169px !important; height: 169px !important; left: -22px; top: -60px; }
+.landing-editor-identity { min-width: 92px; flex: 1; }
+.landing-editor-identity h1, .landing-editor-identity small { display: block; }
+.landing-editor-identity h1 { margin: 0; font-size: 18px; font-weight: 650; }
+.landing-editor-identity small { color: #655968; font-size: 11px; }
+.landing-editor-viewport { display: flex; gap: 2px; padding: 3px; border: 1px solid #e7dce7; border-radius: 999px; }
+.tk-app .landing-editor-viewport button {
+  min-height: 38px;
+  padding: 5px 9px;
+  border: 0;
+  border-radius: 999px;
+  color: #483d4c;
+  font-size: 13px;
+}
+.tk-app .landing-editor-viewport button[aria-pressed=true] { background: #eee5f2; }
+
+.tk-app .landing-editor-workspace .foru-pearl-button,
+.landing-section-actions .foru-pearl-button {
+  min-height: 44px;
+  border: 1px solid #e5dce5;
+  border-radius: 999px;
+  padding: 7px 13px;
+  font-size: 13px;
+  color: #3f3544;
+  background: #fff;
+}
+.tk-app .landing-editor-workspace .foru-pearl-button > span,
+.landing-section-actions .foru-pearl-button > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.tk-app .landing-editor-workspace .landing-editor-publish {
+  padding-inline: 20px;
+  border-color: #d7c8ba;
+  background: var(--foru-pearl-finish);
+  font-weight: 650;
+}
+
+.landing-editor-main {
+  display: grid;
+  grid-template-columns: minmax(160px, 208px) minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+  gap: 8px;
+}
+.landing-editor-sidebar {
+  overflow: auto;
+  padding: 16px 12px;
+  border: 1px solid #eae2eb;
+  border-radius: 16px;
+  background: #fffdfd;
+}
+.landing-editor-sidebar h2 { margin: 0 0 14px; font-size: 19px; font-weight: 650; }
+.landing-section-list { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.landing-section-list li { min-width: 0; }
+.tk-app .landing-section-list button, .pe-sheet-content .landing-section-list button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  justify-content: flex-start;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: #fff;
+  color: #403546;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.landing-section-list button svg { flex: none; color: #786681; }
+.tk-app .landing-section-list button:hover, .pe-sheet-content .landing-section-list button:hover { background: #faf5fa; }
+.tk-app .landing-section-list button[aria-current], .pe-sheet-content .landing-section-list button[aria-current] {
+  border-color: #e4d8eb;
+  background: #f2e9f5;
+  font-weight: 650;
+}
+.landing-section-actions { display: grid; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #eee5ed; }
+
+.landing-editor-workspace .pe-live-stage {
+  min-width: 0;
+  padding: 0 !important;
+  margin: 0;
+  border: 1px solid #eae0e9;
+  border-radius: 16px;
+  background: #f8f4f7;
+}
+.landing-editor-canvas-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 10px;
+  color: #514556;
+  font-size: 13px;
+}
+.landing-editor-workspace .pe-live-stage .pe-canvas { min-height: 0; padding: 5px; }
+.landing-editor-workspace .pe-live-stage .pe-canvas iframe { border: 0; border-radius: 11px; }
+.landing-editor-mobile-bar { display: none; }
+body:has(.landing-editor-workspace) .workspace-utilities { visibility: hidden; }
+
+.pe-editable-page .pe-editable-section.pe-selected { outline: 2px solid #c7a8d9; outline-offset: -2px; }
+.pe-editable-page .pe-editable-section > .landing-frame-edit {
+  position: absolute;
+  inset: 10px 10px auto auto;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 5px 12px;
+  border: 1px solid #dcc6e6;
+  border-radius: 999px;
+  background: #fffdfd;
+  color: #513d59;
+  box-shadow: 0 2px 8px #55405f20;
+  font: 600 12px/1.3 Inter, sans-serif;
+  cursor: pointer;
+}
+.pe-editable-page .pe-editable-section:not(.tk-site-hero) > .landing-frame-edit { inset: 10px auto auto 12px; }
+
+@media (max-width: 650px) {
+  .pe-editable-page.tk-landing-preview .tk-site-hero.pe-selected { padding-top: 58px !important; }
+}
+
+@media (max-width: 740px) {
+  .landing-editor-workspace .landing-editor-header { gap: 6px; padding: 5px 8px; }
+  .landing-editor-header .foru-original-logo { display: none !important; }
+  .landing-editor-header .landing-editor-viewport,
+  .landing-editor-header .landing-editor-save,
+  .landing-editor-sidebar, .landing-editor-canvas-bar { display: none; }
+  .tk-app .landing-editor-workspace .landing-editor-back,
+  .tk-app .landing-editor-workspace .landing-editor-more { width: 44px; padding-inline: 0; }
+  .tk-app .landing-editor-workspace .landing-editor-publish { padding-inline: 12px; }
+  .landing-editor-header .landing-editor-back > span > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .landing-editor-identity { min-width: 0; }
+  .landing-editor-identity h1 { margin: 0; font-size: 15px; }
+  .landing-editor-main { grid-template-columns: minmax(0,1fr); }
+  .landing-editor-workspace .pe-live-stage .pe-canvas { padding: 3px; }
+  .landing-editor-mobile-bar {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 4px;
+    flex: none;
+    padding: 5px 5px max(5px,env(safe-area-inset-bottom));
+    border: 1px solid #e9e0e8;
+    border-radius: 14px;
+    background: #fffdfd;
+  }
+  .tk-app .landing-editor-mobile-bar .foru-pearl-button { padding: 5px 2px; border-color: transparent; }
+  .tk-app .landing-editor-mobile-bar .foru-pearl-button > span { flex-direction: column; gap: 2px; }
+  .tk-app .landing-editor-mobile-bar .foru-pearl-button[aria-pressed=true] { background: #f2e9f5; }
+}

@@ -1,0 +1,33 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>FOR U · Prueba de medios</title>
+<style>body{font:16px system-ui;margin:40px;max-width:900px}button{padding:14px}video{max-width:380px}pre{white-space:pre-wrap}</style>
+<h1>Prueba local de grabación y exportación</h1><p>Genera un video y audio sintéticos. No usa cámara, micrófono ni servicios externos.</p>
+<button id="download-source" disabled>Descargar toma sintética para probar el editor</button><button id="run">Probar grabación, cortes y subtítulos</button><pre id="result" role="status">Lista para empezar.</pre><canvas id="source" width="480" height="270"></canvas><button id="review" disabled>Ver video exportado</button><video id="output" controls muted></video>
+<script type="module">
+import { recordingMime, exportVideo, decodeAudio } from '../src/toolkit/media.ts';
+import { detectSilences, keptSegments } from '../src/toolkit/engine.ts';
+let generatedSource;const sourceDownload=document.querySelector('#download-source');sourceDownload.addEventListener('click',()=>{if(!generatedSource)return;const link=document.createElement('a');link.href=URL.createObjectURL(generatedSource);link.download='foru-prueba-editor.webm';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),10000);});
+const run = document.querySelector('#run'), result = document.querySelector('#result');
+const review = document.querySelector('#review');review.addEventListener('click',()=>document.querySelector('#output').play());
+run.addEventListener('click', async () => {
+  run.disabled = true; result.textContent = 'Generando archivo de prueba…';
+  const audio = new AudioContext(); await audio.resume(); const oscillator = audio.createOscillator(); const gain = audio.createGain(); const destination = audio.createMediaStreamDestination(); oscillator.connect(gain); gain.connect(destination);
+  oscillator.frequency.value = 440; const now = audio.currentTime; gain.gain.setValueAtTime(.1,now); gain.gain.setValueAtTime(0,now + .9); gain.gain.setValueAtTime(.1,now + 1.9); oscillator.start();
+  const canvas = document.querySelector('#source'), ctx = canvas.getContext('2d');
+  let frame = 0; const started = performance.now();
+  function draw() { const t = (performance.now() - started)/1000; ctx.fillStyle = t < 1.5 ? '#edb785' : '#b8ca9f'; ctx.fillRect(0,0,480,270); ctx.fillStyle = '#222'; ctx.font = '28px sans-serif'; ctx.fillText(`FOR U · ${t.toFixed(1)}s`,25,130); frame = requestAnimationFrame(draw); }
+  draw(); const stream = new MediaStream([...canvas.captureStream(30).getVideoTracks(), ...destination.stream.getAudioTracks()]);
+  try {
+    const mime = recordingMime(); const recorder = new MediaRecorder(stream, { mimeType: mime }); const chunks = [];
+    recorder.ondataavailable = event => chunks.push(event.data); const stopped = new Promise(resolve => { recorder.onstop = resolve; }); recorder.start(100); await new Promise(resolve => setTimeout(resolve,3000)); recorder.stop(); await stopped;
+    const file = new File(chunks,'foru-test.webm',{type:recorder.mimeType});generatedSource=file;sourceDownload.disabled=false; const buffer = await decodeAudio(file); const silences = detectSilences([buffer.getChannelData(0)], buffer.sampleRate); if (!silences.length) throw new Error('No se detectó la pausa de prueba.');
+    const segments = keptSegments(2.8, silences); const output = await exportVideo(file, segments, [{start:0,end:2.8,text:'Subtítulo de prueba FOR U'}], p => { result.textContent = `Exportando ${Math.round(p*100)}%`; }, new AbortController().signal);
+    if (output.size < 1000) throw new Error('El video exportado está vacío.');
+    const video = document.querySelector('#output'); video.src = URL.createObjectURL(output);
+    const decoded = await decodeAudio(new File([output],'export.webm',{type:output.type})); const expected = segments.reduce((sum,s)=>sum+s.end-s.start,0);
+    if (Math.abs(decoded.duration - expected) > .35) throw new Error(`Duración incorrecta: ${decoded.duration.toFixed(2)} frente a ${expected.toFixed(2)}`);
+    review.disabled=false;
+    result.textContent = `OK · Grabación ${file.size} bytes. ${silences.length} silencio detectado. Exportación ${output.size} bytes. Duración ${decoded.duration.toFixed(2)} s; esperada ${expected.toFixed(2)} s. Verifica el subtítulo en el video.`;
+  } catch(error) { result.textContent = `ERROR · ${error.message}`; }
+  finally { cancelAnimationFrame(frame); stream.getTracks().forEach(t=>t.stop()); oscillator.stop(); await audio.close(); run.disabled=false; }
+});
+</script></html>

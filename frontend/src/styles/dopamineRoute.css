@@ -1,0 +1,858 @@
+/* ============================================================
+   DOPAMINE ROUTE — Styles for the gamified ADHD-friendly flow
+   ============================================================ */
+
+/* ---------------------------------------------------------------------------
+   RewardCelebration — Floating reward burst
+   --------------------------------------------------------------------------- */
+
+.foru-reward-celebration {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transform: translateX(-50%);
+}
+
+.foru-reward-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: rgba(10, 10, 10, 0.88);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 10px 20px;
+  white-space: nowrap;
+}
+
+.foru-reward-celebration.is-milestone .foru-reward-content,
+.foru-reward-celebration.is-major .foru-reward-content {
+  background: linear-gradient(135deg, rgba(20, 10, 40, 0.94), rgba(40, 10, 60, 0.94));
+  border-color: rgba(200, 160, 255, 0.25);
+  padding: 14px 28px;
+}
+
+.foru-reward-content strong {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.foru-reward-content span {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.foru-reward-content em {
+  font-size: 13px;
+  font-style: normal;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Particles */
+.foru-reward-particles {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+}
+
+.foru-reward-particles i {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: hsl(calc(var(--particle-index, 0) * 30), 80%, 70%);
+  animation: foru-particle-burst 0.8s ease-out forwards;
+  animation-delay: calc(var(--particle-index, 0) * 0.02s);
+}
+
+@keyframes foru-particle-burst {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% {
+    transform: translate(
+      calc(cos(calc(var(--particle-index, 0) * 45deg)) * 60px),
+      calc(sin(calc(var(--particle-index, 0) * 45deg)) * 60px)
+    ) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Coin rain for milestones */
+.foru-reward-coin-rain {
+  position: absolute;
+  top: -40px;
+  left: -80px;
+  width: 160px;
+  height: 200px;
+  pointer-events: none;
+}
+
+.foru-reward-coin-rain span {
+  position: absolute;
+  font-size: 16px;
+}
+
+/* ---------------------------------------------------------------------------
+   MilestoneCelebration — Full-screen celebration (Point B)
+   --------------------------------------------------------------------------- */
+
+.foru-milestone-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  background: rgba(4, 2, 12, 0.92);
+  backdrop-filter: blur(16px);
+  overflow: hidden;
+}
+
+.foru-milestone-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.foru-milestone-particles i {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: hsl(calc(var(--hue, 0) * 1deg), 80%, 65%);
+}
+
+.foru-milestone-coin-rain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.foru-milestone-coin-rain span {
+  position: absolute;
+  top: 0;
+  font-size: 20px;
+}
+
+.foru-milestone-card {
+  position: relative;
+  z-index: 1;
+  max-width: 520px;
+  width: 90%;
+  padding: 48px 40px;
+  background: linear-gradient(160deg, rgba(20, 14, 38, 0.96), rgba(12, 8, 28, 0.98));
+  border: 1px solid rgba(200, 160, 255, 0.18);
+  border-radius: 28px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.foru-milestone-emoji {
+  font-size: 56px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.foru-milestone-card h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.foru-milestone-subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+.foru-milestone-ai-message {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px;
+  text-align: left;
+  margin: 8px 0;
+}
+
+.foru-milestone-ai-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #a78bfa, #818cf8);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: #fff;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.foru-milestone-ai-message p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.foru-milestone-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.foru-milestone-badge {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #fff;
+}
+
+.foru-milestone-continue {
+  margin-top: 8px;
+  padding: 14px 32px;
+  border-radius: 16px;
+  border: none;
+  background: linear-gradient(135deg, #a78bfa, #818cf8);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.foru-milestone-continue:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(129, 140, 248, 0.35);
+}
+
+/* ---------------------------------------------------------------------------
+   EnergyCheck — Daily energy interceptor
+   --------------------------------------------------------------------------- */
+
+.foru-energy-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: grid;
+  place-items: center;
+  background: rgba(4, 2, 12, 0.88);
+  backdrop-filter: blur(12px);
+}
+
+.foru-energy-card {
+  max-width: 440px;
+  width: 90%;
+  padding: 40px 32px;
+  background: linear-gradient(160deg, rgba(18, 12, 35, 0.97), rgba(10, 8, 22, 0.98));
+  border: 1px solid rgba(200, 160, 255, 0.12);
+  border-radius: 28px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.foru-energy-header small {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.foru-energy-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin: 8px 0 0;
+}
+
+.foru-energy-header p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 4px 0 0;
+}
+
+.foru-energy-wave {
+  font-size: 36px;
+  display: inline-block;
+}
+
+.foru-energy-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.foru-energy-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.foru-energy-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.foru-energy-option.is-selected {
+  background: rgba(167, 139, 250, 0.12);
+  border-color: rgba(167, 139, 250, 0.35);
+}
+
+.foru-energy-emoji {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.foru-energy-option div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.foru-energy-option strong {
+  font-size: 15px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.foru-energy-option span {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.foru-energy-check {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #a78bfa;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.foru-energy-footer {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+  margin: 4px 0 0;
+}
+
+/* ---------------------------------------------------------------------------
+   DopamineOnboarding — Full-screen 4-step flow
+   --------------------------------------------------------------------------- */
+
+.foru-dopamine-onboarding {
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(160deg, #080414 0%, #0c0820 40%, #10082e 100%);
+  overflow: hidden;
+}
+
+/* Progress dots */
+.foru-onboarding-progress {
+  position: fixed;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.foru-onboarding-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  transition: all 0.35s ease;
+}
+
+.foru-onboarding-dot.is-current {
+  background: #a78bfa;
+  box-shadow: 0 0 12px rgba(167, 139, 250, 0.5);
+  transform: scale(1.2);
+}
+
+.foru-onboarding-dot.is-done {
+  background: #818cf8;
+}
+
+.foru-onboarding-progress small {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-left: 4px;
+}
+
+/* Ambient floating particles */
+.foru-onboarding-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.foru-onboarding-ambient i {
+  position: absolute;
+  width: var(--float-size, 4px);
+  height: var(--float-size, 4px);
+  border-radius: 50%;
+  background: rgba(167, 139, 250, 0.3);
+  left: var(--float-x, 50%);
+  top: 50%;
+  animation: foru-onboarding-float 6s ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+}
+
+@keyframes foru-onboarding-float {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
+  50% { transform: translateY(-30px) scale(1.3); opacity: 0.6; }
+}
+
+/* Step container */
+.foru-onboarding-step {
+  position: relative;
+  z-index: 1;
+  max-width: 560px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.foru-onboarding-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+  width: 100%;
+}
+
+.foru-onboarding-icon {
+  font-size: 48px;
+  display: block;
+}
+
+.foru-onboarding-content h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.foru-onboarding-kicker {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.foru-onboarding-lead {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.foru-onboarding-promise {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px 20px;
+  text-align: left;
+}
+
+.foru-onboarding-promise span {
+  font-size: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.foru-onboarding-promise p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Industry grid */
+.foru-onboarding-industry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.foru-onboarding-industry-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  text-align: center;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.foru-onboarding-industry-card:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.foru-onboarding-industry-card.is-selected {
+  background: rgba(167, 139, 250, 0.1);
+  border-color: rgba(167, 139, 250, 0.35);
+  box-shadow: 0 0 20px rgba(167, 139, 250, 0.15);
+}
+
+.foru-industry-card-emoji {
+  font-size: 28px;
+}
+
+.foru-onboarding-industry-card strong {
+  font-size: 14px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.foru-onboarding-industry-card small {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.3;
+}
+
+.foru-industry-card-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #a78bfa;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Name input */
+.foru-onboarding-name-label {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.foru-onboarding-name-label span {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.foru-onboarding-name-label small {
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 400;
+}
+
+.foru-onboarding-name-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.foru-onboarding-name-input:focus {
+  border-color: rgba(167, 139, 250, 0.4);
+}
+
+.foru-onboarding-name-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Compass/Goal */
+.foru-onboarding-goal-label {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.foru-onboarding-goal-label span {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.foru-onboarding-goal-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.foru-onboarding-goal-input:focus {
+  border-color: rgba(167, 139, 250, 0.4);
+}
+
+.foru-onboarding-goal-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Emotions grid */
+.foru-onboarding-emotions {
+  width: 100%;
+  text-align: left;
+}
+
+.foru-onboarding-emotions strong {
+  display: block;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 10px;
+}
+
+.foru-onboarding-emotion-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.foru-onboarding-emotion {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.foru-onboarding-emotion:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.foru-onboarding-emotion.is-selected {
+  background: rgba(167, 139, 250, 0.12);
+  border-color: rgba(167, 139, 250, 0.35);
+}
+
+.foru-onboarding-emotion span {
+  font-size: 18px;
+}
+
+.foru-onboarding-emotion em {
+  font-style: normal;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Skip button */
+.foru-onboarding-skip {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+
+.foru-onboarding-skip:hover {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* First Mission card */
+.foru-onboarding-mission-card {
+  width: 100%;
+  text-align: left;
+  padding: 20px;
+}
+
+.foru-onboarding-mission-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.foru-onboarding-ai-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #a78bfa, #818cf8);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: #fff;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.foru-onboarding-mission-header strong {
+  color: #fff;
+  font-size: 14px;
+}
+
+.foru-onboarding-mission-card p {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.55;
+  margin: 0 0 8px;
+}
+
+.foru-onboarding-mission-card p strong {
+  color: #fff;
+}
+
+.foru-onboarding-mission-card small {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.foru-onboarding-reassurance {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.35);
+  margin: 0;
+}
+
+/* Confetti */
+.foru-onboarding-confetti {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  width: 0;
+  height: 0;
+}
+
+.foru-onboarding-confetti i {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: hsl(calc(var(--hue, 0) * 1deg), 75%, 65%);
+}
+
+/* ---------------------------------------------------------------------------
+   RouteProgressBar — Persistent progress in the workspace
+   --------------------------------------------------------------------------- */
+
+.foru-route-progress-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  margin: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.foru-route-progress-bar small {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+}
+
+.foru-route-progress-track {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.foru-route-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #818cf8, #a78bfa);
+  transition: width 0.6s ease;
+}
+
+.foru-route-progress-bar strong {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+   Sidebar locked link style
+   --------------------------------------------------------------------------- */
+
+.workspace-nav-locked {
+  opacity: 0.35;
+  pointer-events: none;
+  position: relative;
+}
+
+.workspace-nav-locked::after {
+  content: '🔒';
+  font-size: 10px;
+  margin-left: 4px;
+}

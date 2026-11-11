@@ -20,6 +20,8 @@ const pricingCards: Array<{
       '1 proyecto activo',
       '5 acciones al mes',
       'Tablero personal',
+      'Mi mundo · islas y mascotas',
+      'Estadísticas básicas',
       'Acción del momento',
     ],
   },
@@ -30,7 +32,6 @@ const pricingCards: Array<{
     features: [
       'Proyectos ilimitados',
       'Acciones ilimitadas',
-      'Mundo 3D',
       'IA avanzada',
       'Kanban y mapa mental',
       'Estadísticas de progreso',
@@ -53,41 +54,33 @@ const pricingCards: Array<{
 export default function PricingPage() {
   const navigate = useNavigate();
   const userPlan = useActiveProjectsStore((state) => state.userPlan);
-  const setUserPlan = useActiveProjectsStore((state) => state.setUserPlan);
 
-  function choosePlan(plan: ForUUserPlan) {
-    setUserPlan(plan);
-    window.alert(plan === 'free' ? 'Plan Gratis activado.' : `Stripe simulado: ${planConfigs[plan].label} activado.`);
-    navigate('/workspace');
-  }
 
   return (
     <main className="foru-pricing-page">
       <header className="foru-pricing-header">
-        <Link to="/workspace" className="foru-shell-logo" aria-label="FOR U">
+        <Link to="/dashboard" className="foru-shell-logo" aria-label="FOR U">
           <Logo />
         </Link>
         <div>
           <MagicBadge>Planes For U</MagicBadge>
-          <h1><GradientText>Elige cuánto apoyo quieres hoy, Nicole.</GradientText></h1>
-          <p>Gratis te ayuda a empezar. Pro y Premium desbloquean el sistema completo.</p>
+          <h1><GradientText>Elige cuánto apoyo quieres hoy.</GradientText></h1>
+          <p>Tablero, Mi mundo y estadísticas básicas están disponibles gratis. Modo Pro es un logro de tu proyecto, no una suscripción.</p>
         </div>
       </header>
 
-      <section className="foru-pricing-grid">
+      <p>La contratación comercial y las cuotas de almacenamiento están pendientes de habilitación. Esta pantalla no activa planes ni realiza cobros.</p><section className="foru-pricing-grid">
         {pricingCards.map((card) => (
           <MagicCard key={card.plan} className={card.plan === 'pro' ? 'foru-pricing-card is-featured' : 'foru-pricing-card'}>
-            {card.plan === userPlan ? <MagicBadge className="foru-pricing-current">Plan actual</MagicBadge> : null}
-            {card.plan === 'pro' ? <MagicBadge className="foru-pricing-best">Recomendado</MagicBadge> : null}
+            {card.plan === userPlan ? <MagicBadge className="foru-pricing-current">Selección anterior</MagicBadge> : null}
+            {card.plan !== 'free' ? <MagicBadge>En preparación</MagicBadge> : null}
             <h2>{planConfigs[card.plan].label}</h2>
-            <strong>{card.price}<small>/mes</small></strong>
+            <strong>{card.plan==='free'?card.price:'Por definir'}<small>{card.plan==='free'?'/mes':''}</small></strong>
             <p>{card.description}</p>
             <ul>
               {card.features.map((feature) => <li key={feature}>✓ {feature}</li>)}
             </ul>
-            <MagicButton type="button" onClick={() => choosePlan(card.plan)}>
-              {card.plan === userPlan ? 'Mantener plan' : card.plan === 'free' ? 'Usar Gratis' : `Elegir ${planConfigs[card.plan].label}`}
-            </MagicButton>
+            <MagicButton type="button" disabled={card.plan!=='free'} onClick={() => navigate('/dashboard')}>{card.plan==='free'?'Abrir mi espacio':'Contratación pendiente'}</MagicButton>
           </MagicCard>
         ))}
       </section>

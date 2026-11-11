@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary } from './DesignSystem';
 import type { ButtonHTMLAttributes, AnchorHTMLAttributes, ReactNode } from 'react';
 import { Link, type LinkProps } from 'react-router-dom';
 
@@ -26,5 +27,5 @@ export default function MagicButton(props: MagicButtonProps) {
     return <a className={classes} {...anchorRest}>{children}</a>;
   }
 
-  return <button type="button" className={classes} {...(rest as ButtonHTMLAttributes<HTMLButtonElement>)}>{children}</button>;
+  return <DSButtonSecondary type="button" className={classes} {...(rest as ButtonHTMLAttributes<HTMLButtonElement>)}>{children}</DSButtonSecondary>;
 }

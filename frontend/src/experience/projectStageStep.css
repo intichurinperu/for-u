@@ -1,0 +1,14 @@
+.project-stage-wordmark { display: inline-flex; padding: 0; border: 0; border-radius: 14px; background: transparent; color: inherit; cursor: pointer; }
+.project-stage-wordmark:disabled { cursor: default; opacity: .6; }
+.project-stage-page .public-register-field label { line-height: 1.5; }
+.project-stage-page .public-register-form > .guide-error { margin: 0; border-radius: 10px; border-color: #dcc8b9; background: #fff9f5; color: #713723; }
+.project-stage-page .public-register-form > .guide-save-note { color: #555 !important; }
+.project-stage-page .public-register-form > .ds-button-secondary { color: #222; border: 1px solid #d8d0c4; background: #faf8f5; }
+.project-question-secondary-actions { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 12px; }
+.project-question-secondary-actions .foru-pearl-button { min-height: 48px; margin: 0; padding-inline: 12px; font-size: 16px; }
+@media (max-width: 760px) {
+  .project-stage-page h1 { font-size: clamp(30px, 8vw, 36px); }
+  .project-stage-page .public-register-art { width: min(220px, 60%); }
+  .project-stage-page .public-register-field select { min-height: 52px; font-size: 16px; }
+  .project-question-secondary-actions { gap: 10px; }
+}

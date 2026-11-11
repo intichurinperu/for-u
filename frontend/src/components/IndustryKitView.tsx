@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary } from './ui/DesignSystem';
 import { useMemo, type ReactNode } from 'react';
 import toast from 'react-hot-toast';
 import type { ForUActiveProject, ForUBranchKey, ForUNodePriority } from '../stores/useActiveProjectsStore';
@@ -5,6 +6,8 @@ import { useActiveProjectsStore } from '../stores/useActiveProjectsStore';
 import MagicBadge from './ui/MagicBadge';
 import MagicButton from './ui/MagicButton';
 import MagicCard from './ui/MagicCard';
+import { getBusinessTemplate } from '../data/templates';
+import { downloadBlob } from '../toolkit/api';
 
 type IndustryKitViewProps = {
   project: ForUActiveProject | null;
@@ -49,8 +52,37 @@ export default function IndustryKitView({ project, onStart, onOpenTasks }: Indus
         <MagicCard as="div">
           <MagicBadge>Kit del rubro</MagicBadge>
           <h1>Este proyecto todavía no tiene kit estratégico.</h1>
-          <p>El kit aparece cuando el proyecto se crea desde un rubro, empezando por turismo y gastronomía.</p>
+          <p>Elige el rubro de tu negocio al crear el proyecto para preparar tu kit.</p>
         </MagicCard>
+      </section>
+    );
+  }
+
+  const template = getBusinessTemplate(project.industryKey);
+  if (template) {
+    return (
+      <section className="foru-industry-kit-view">
+        <MagicCard as="section">
+          <MagicBadge>{template.name}</MagicBadge>
+          <h1>Tu siguiente venta empieza aquí</h1>
+          <p>{template.entry}</p>
+          <MagicButton onClick={onStart}>Continuar mi ruta</MagicButton>
+        </MagicCard>
+        {template.steps.map((step, index) => (
+          <MagicCard as="section" key={step.id}>
+            <details>
+              <summary>{index + 1}. {step.title}</summary>
+              <ol>{step.tasks.map((task) => <li key={task}>{task}</li>)}</ol>
+              <p><strong>Herramientas:</strong> {step.tools.join(' · ')}</p>
+              <p>{step.tip}</p>
+              <p><strong>Ejemplo:</strong> {step.example}</p>
+              <MagicButton variant="soft" onClick={() => downloadBlob(
+                new Blob([step.resource.content], { type: 'text/markdown;charset=utf-8' }),
+                step.resource.name,
+              )}>Descargar hoja de trabajo</MagicButton>
+            </details>
+          </MagicCard>
+        ))}
       </section>
     );
   }
@@ -355,9 +387,9 @@ export default function IndustryKitView({ project, onStart, onOpenTasks }: Indus
                   {isCreated ? 'Ver tareas' : 'Crear tareas'}
                 </MagicButton>
                 {isCreated ? (
-                  <button type="button" className="foru-kit-secondary-action" onClick={onOpenTasks}>
+                  <DSButtonSecondary type="button" className="foru-kit-secondary-action" onClick={onOpenTasks}>
                     Abrir Kanban
-                  </button>
+                  </DSButtonSecondary>
                 ) : null}
               </div>
             </MagicCard>

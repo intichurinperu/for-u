@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary, Textarea as DSTextarea } from '../components/ui/DesignSystem';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, BookOpen, Bot, CalendarDays, CheckCircle2, Clapperboard, Clock, Edit3, Mic2, Send, Sparkles } from '../lib/icons';
@@ -30,37 +31,37 @@ const aiStatusCopy: Record<AiStatus, { label: string; detail: string; dotClass: 
   idle: {
     label: 'Guía local lista',
     detail: 'For U puede recomendar pasos con la metodología local. La IA en vivo se intentará al enviar tu pregunta.',
-    dotClass: 'bg-amber-300',
+    dotClass: 'bg-gray-50',
   },
   thinking: {
     label: 'Conectando IA',
     detail: 'Estoy intentando usar la función live de Supabase antes de responder.',
-    dotClass: 'bg-blue-400',
+    dotClass: 'bg-gray-50',
   },
   live: {
     label: 'IA en vivo',
     detail: 'Respuesta generada por Gemini desde la función chat de Supabase.',
-    dotClass: 'bg-emerald-400',
+    dotClass: 'bg-gray-50',
   },
   local_config: {
     label: 'Guía local',
     detail: 'La app publicada no tiene VITE_SUPABASE_URL y una clave pública VITE_ de Supabase disponibles en el build, así que no puede llamar a chat.',
-    dotClass: 'bg-amber-300',
+    dotClass: 'bg-gray-50',
   },
   missing_secret: {
     label: 'Guía local',
     detail: 'La función chat respondió, pero falta GEMINI_API_KEY en Supabase Edge Functions > Secrets.',
-    dotClass: 'bg-amber-300',
+    dotClass: 'bg-gray-50',
   },
   function_error: {
     label: 'Guía local',
     detail: 'No pude llegar a la función chat. Puede ser red, CORS, URL/key pública de Supabase o un error temporal.',
-    dotClass: 'bg-amber-300',
+    dotClass: 'bg-gray-50',
   },
   provider_error: {
     label: 'Guía local',
     detail: 'La función chat respondió, pero Gemini no entregó una respuesta utilizable.',
-    dotClass: 'bg-amber-300',
+    dotClass: 'bg-gray-50',
   },
 };
 
@@ -170,7 +171,7 @@ export default function AiForU() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f7f5] text-[#171717]">
+    <div className="min-h-screen bg-[#FAFAFA] text-[#0A0A0A]">
       <header className="border-b border-black/8 bg-white">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
           <Link to="/" className="inline-flex items-center gap-2 text-sm font-black">
@@ -198,9 +199,9 @@ export default function AiForU() {
               {quickQuestions.map((prompt, index) => {
                 const icons = [Sparkles, CalendarDays, Mic2, Edit3];
                 const Icon = icons[index];
-                const colors = ['#FDE68A', '#93C5FD', '#F9A8D4', '#6EE7B7'];
+                const colors = ['#EAEAEA', '#9A9A9A', '#9A9A9A', '#9A9A9A'];
                 return (
-                <button
+                <DSButtonSecondary
                   key={prompt}
                   type="button"
                   onClick={() => askAiForU(prompt)}
@@ -208,7 +209,7 @@ export default function AiForU() {
                 >
                   <span className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: colors[index] }}><Icon size={17} /></span>
                   <span>{prompt}</span>
-                </button>
+                </DSButtonSecondary>
                 );
               })}
             </div>
@@ -222,11 +223,11 @@ export default function AiForU() {
 
           <div className="rounded-2xl border border-black/8 bg-white p-5 shadow-sm">
             <div className="flex gap-3">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F3F0FF] text-[#6D4AFF]">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FAFAFA] text-[#6B6B6B]">
                 <Sparkles size={17} />
               </span>
               <div>
-                <p className="text-xs font-black uppercase text-[#6D4AFF]">For U recomienda</p>
+                <p className="text-xs font-black uppercase text-[#6B6B6B]">For U recomienda</p>
                 <p className="mt-2 text-base font-semibold leading-7 text-gray-800">
                   {isThinking ? 'Pensando en el siguiente paso más útil...' : answer}
                 </p>
@@ -254,29 +255,29 @@ export default function AiForU() {
                     to="/metodologia"
                     onClick={() => playUiTone('tap')}
                     className={`tap-boost flex min-h-48 flex-col rounded-xl border p-4 ${
-                      index === 0 ? 'border-[#7C5CFF] bg-[#F5F2FF]' : 'border-black/8 bg-white'
+                      index === 0 ? 'border-[#6B6B6B] bg-[#FAFAFA]' : 'border-black/8 bg-white'
                     }`}
                   >
                     <div className="flex items-center justify-between text-xs font-black text-gray-500">
                       <span>{index === 0 ? 'EMPIEZA AQUÍ' : material.format.toUpperCase()}</span>
                       <span className="inline-flex items-center gap-1"><Clock size={13} /> {material.minutes} min</span>
                     </div>
-                    <BookOpen className="mt-5 text-[#7C5CFF]" size={22} />
+                    <BookOpen className="mt-5 text-[#6B6B6B]" size={22} />
                     <h2 className="mt-3 font-serif text-xl font-bold leading-tight">{material.title}</h2>
                     <p className="mt-2 line-clamp-3 text-xs font-semibold leading-5 text-gray-600">{material.summary}</p>
-                    <span className="mt-auto pt-4 text-xs font-black text-[#6D4AFF]">Abrir contenido →</span>
+                    <span className="mt-auto pt-4 text-xs font-black text-[#6B6B6B]">Abrir contenido →</span>
                   </Link>
                 ))}
               </div>
-              <div className="mt-3 flex items-center gap-2 rounded-xl bg-[#ECFDF5] p-3 text-sm font-bold text-[#087F5B]">
+              <div className="mt-3 flex items-center gap-2 rounded-xl bg-[#FAFAFA] p-3 text-sm font-bold text-[#6B6B6B]">
                 <CheckCircle2 size={17} /> Haz primero: {primaryMaterial.deliverable}
               </div>
             </section>
           )}
 
-          <div className="sticky bottom-0 mt-auto bg-[#f7f7f5] pb-2 pt-5">
+          <div className="sticky bottom-0 mt-auto bg-[#FAFAFA] pb-2 pt-5">
             <div className="flex items-end gap-2 rounded-2xl border border-black/10 bg-white p-2 shadow-xl">
-              <textarea
+              <DSTextarea
                 value={question}
                 onChange={(event) => setQuestion(event.target.value)}
                 onKeyDown={(event) => {
@@ -288,7 +289,7 @@ export default function AiForU() {
                 className="min-h-12 max-h-28 flex-1 resize-none bg-transparent px-3 py-3 text-sm font-semibold outline-none"
                 placeholder="Escribe aquí lo que no sabes cómo resolver..."
               />
-              <button
+              <DSButtonSecondary
                 type="button"
                 onClick={() => askAiForU()}
                 disabled={!question.trim() || isThinking}
@@ -296,7 +297,7 @@ export default function AiForU() {
                 title="Enviar"
               >
                 <Send size={18} />
-              </button>
+              </DSButtonSecondary>
             </div>
             <div className="mt-2 flex justify-center">
               <div className="flex gap-4">

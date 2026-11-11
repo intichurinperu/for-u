@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { ButtonSecondary as DSButtonSecondary } from './ui/DesignSystem';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { usePomodoro } from '../contexts/PomodoroContext';
 
 type PomodoroTimerProps = {
   taskTitle?: string;
@@ -8,39 +9,20 @@ type PomodoroTimerProps = {
 };
 
 export default function PomodoroTimer({
-  taskTitle,
+  taskTitle = 'Una cosa a la vez',
   durationSeconds = 25 * 60,
   onComplete,
 }: PomodoroTimerProps) {
-  const [isRunning, setIsRunning] = useState(false);
-  const [remainingSeconds, setRemainingSeconds] = useState(durationSeconds);
-  const [hasCompleted, setHasCompleted] = useState(false);
-
+  const { remainingSeconds, running: isRunning, completed: hasCompleted, start, pause, reset, soundEnabled, setSoundEnabled, legacyAvailable, restoreLegacy } = usePomodoro();
+  const [minutesInput,setMinutesInput]=useState("25");
+  const completionReported = useRef(false);
   useEffect(() => {
-    setIsRunning(false);
-    setRemainingSeconds(durationSeconds);
-    setHasCompleted(false);
-  }, [durationSeconds, taskTitle]);
-
-  useEffect(() => {
-    if (!isRunning || hasCompleted) return;
-
-    const intervalId = window.setInterval(() => {
-      setRemainingSeconds((current) => {
-        if (current <= 1) {
-          window.clearInterval(intervalId);
-          setIsRunning(false);
-          setHasCompleted(true);
-          onComplete();
-          return 0;
-        }
-
-        return current - 1;
-      });
-    }, 1000);
-
-    return () => window.clearInterval(intervalId);
-  }, [hasCompleted, isRunning, onComplete]);
+    if (hasCompleted && !completionReported.current) {
+      completionReported.current = true;
+      onComplete();
+    }
+    if (!hasCompleted) completionReported.current = false;
+  }, [hasCompleted, onComplete]);
 
   const progress = useMemo(() => {
     return Math.max(0, Math.min(1, 1 - remainingSeconds / durationSeconds));
@@ -52,22 +34,21 @@ export default function PomodoroTimer({
 
   return (
     <section className={`foru-pomodoro ${isRunning ? 'is-running' : ''}`} aria-label="Pomodoro de enfoque">
-      <div className="foru-pomodoro-ring">
+      <div className={`foru-pomodoro-ring ${isRunning ? 'is-iridescent motion-safe:animate-pulse' : ''}`} >
         <svg viewBox="0 0 128 128" role="img" aria-label={`${minutes}:${seconds}`}>
           <circle cx="64" cy="64" r="54" className="foru-pomodoro-track" />
-          <motion.circle
+          <circle
             cx="64"
             cy="64"
             r="54"
             className="foru-pomodoro-progress"
             strokeDasharray={circumference}
-            animate={{ strokeDashoffset: circumference * (1 - progress) }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
+            style={{ strokeDashoffset: circumference * (1 - progress), transition: 'stroke-dashoffset 350ms ease-out' }}
           />
         </svg>
         <div>
           <strong>{hasCompleted ? 'BINGO' : `${minutes}:${seconds}`}</strong>
-          <span>{hasCompleted ? '+10 monedas' : '25 min'}</span>
+          <span>{hasCompleted ? 'Un paso a tu ritmo' : `${Math.ceil(durationSeconds / 60)} min`}</span>
         </div>
       </div>
 
@@ -76,25 +57,22 @@ export default function PomodoroTimer({
         <p>{taskTitle ?? 'Selecciona una tarea pendiente para empezar con calma.'}</p>
       </div>
 
-      <div className="foru-pomodoro-actions">
-        <button
+      {legacyAvailable && <DSButtonSecondary type="button" disabled={isRunning} onClick={restoreLegacy}>Recuperar mi temporizador anterior de este dispositivo</DSButtonSecondary>}<label>Duración (minutos)<input aria-label="Duración del Pomodoro en minutos" type="number" min="0.1" max="120" step="0.1" disabled={isRunning} value={minutesInput} onChange={e=>setMinutesInput(e.target.value)}/></label><label><input type="checkbox" checked={soundEnabled} onChange={e=>setSoundEnabled(e.target.checked)}/> Sonido suave al terminar</label><div className="foru-pomodoro-actions">
+        <DSButtonSecondary
           type="button"
-          onClick={() => setIsRunning(true)}
-          disabled={!taskTitle || isRunning || hasCompleted}
+          onClick={() => start(hasCompleted || remainingSeconds === durationSeconds ? Number(minutesInput)*60 : remainingSeconds)}
+          disabled={isRunning}
         >
-          Empezar Pomodoro
-        </button>
-        <button
+          {isRunning ? 'En foco' : hasCompleted ? 'Empezar otro Pomodoro' : 'Empezar Pomodoro'}
+        </DSButtonSecondary>
+        <DSButtonSecondary
           type="button"
           onClick={() => {
-            setIsRunning(false);
-            setRemainingSeconds(durationSeconds);
-            setHasCompleted(false);
+            if (isRunning) pause(); else reset();
           }}
-          disabled={!taskTitle || (!isRunning && remainingSeconds === durationSeconds && !hasCompleted)}
         >
-          Reiniciar
-        </button>
+          {isRunning ? 'Pausar' : 'Reiniciar'}
+        </DSButtonSecondary>
       </div>
 
       {isRunning ? <div className="foru-pomodoro-dim" aria-hidden="true" /> : null}

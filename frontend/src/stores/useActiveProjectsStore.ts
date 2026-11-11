@@ -1,6 +1,9 @@
+import { clearSessionCaches } from '../lib/sessionPrivacy';
 import { create, type StateCreator } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabaseClient';
+import { explorationProjectsAreUnlimited } from '../modules/validationLaunch';
+import { projectModuleType } from '../modules/moduleProjects';
 import { getDigitalRouteTemplate, getStepCompletionStatus } from '../templates/digitalRouteTemplates';
 import { industryTemplates, type ForUIndustryKey } from '../templates/industryTemplates';
 import type { ForUDigitalRouteStepStatus, ForUDigitalRouteStepTemplate } from '../templates/digitalRouteTemplates';
@@ -86,6 +89,7 @@ export type ForURouteStep = {
 };
 
 export type ForUActiveProject = {
+  cloudPending?: boolean;
   id: string;
   name: string;
   tangibleGoal?: string;
@@ -216,6 +220,7 @@ type ActiveProjectsState = {
   whatsappEnabled: boolean;
   cloudUserId: string | null;
   isCloudSyncing: boolean;
+  projectLoadError: string;
   hydrateFromSupabase: (userId: string) => Promise<void>;
   clearCloudUser: () => void;
   updateWhatsappSettings: (input: { whatsappNumber: string; whatsappEnabled: boolean }) => Promise<boolean>;
@@ -293,6 +298,15 @@ type ActiveProjectsState = {
 };
 
 function createId(prefix: string) {
+  // Production stores project IDs as UUID, without the UI-only "project-" prefix.
+  if (prefix === 'project') {
+    if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+  }
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return `${prefix}-${crypto.randomUUID()}`;
   }
@@ -504,36 +518,31 @@ function getBranchPosition(branchKey: ForUBranchKey, index: number) {
 async function upsertCloudProject(userId: string | null, project: ForUActiveProject) {
   if (!canSyncCloud(userId) || !supabase) return;
 
-  const payload = {
+  const basePayload = {
     id: project.id,
     user_id: userId,
     name: project.name,
-    description: '',
+    business_type: projectModuleType(project) ?? 'restaurant',
     tangible_goal: project.tangibleGoal ?? '',
-    industry_key: project.industryKey ?? null,
-    strategy_profile: project.strategyProfile ?? {},
-    template_source: project.templateSource ?? null,
     status: project.status,
     created_at: project.createdAt,
   };
+  const payloads = [
+    { ...basePayload, description: '', industry_key: project.industryKey ?? null, strategy_profile: project.strategyProfile ?? {}, template_source: project.templateSource ?? null },
+    { ...basePayload, industry_key: project.industryKey ?? null, strategy_profile: project.strategyProfile ?? {}, template_source: project.templateSource ?? null },
+  ];
 
-  const { error } = await supabase.from('projects').upsert(payload);
-  if (!error) return;
-
-  if (error.message.includes('industry_key') || error.message.includes('strategy_profile') || error.message.includes('template_source')) {
-    await supabase.from('projects').upsert({
-      id: project.id,
-      user_id: userId,
-      name: project.name,
-      description: '',
-      tangible_goal: project.tangibleGoal ?? '',
-      status: project.status,
-      created_at: project.createdAt,
-    });
-    return;
+  let lastError = '';
+  for (const payload of payloads) {
+    const { error } = await supabase.from('projects').upsert(payload);
+    if (!error) {
+      if (useActiveProjectsStore.getState().cloudUserId === userId) useActiveProjectsStore.setState(state => ({ projectsById: { ...state.projectsById, [project.id]: { ...(state.projectsById[project.id] ?? project), cloudPending: false } } }));
+      return;
+    }
+    lastError = error.message;
   }
 
-  console.warn('No se pudo guardar el proyecto en Supabase:', error.message);
+  console.warn('No se pudo guardar el proyecto en Supabase:', lastError);
 }
 
 async function deleteCloudProject(userId: string | null, projectId: string) {
@@ -844,7 +853,7 @@ function applyIndustryTemplate(project: ForUActiveProject, timestamp: string): F
 
   const existingNodeIds = new Set((project.nodes ?? []).map((node) => node.id));
   const existingTaskIds = new Set((project.tasks ?? []).map((task) => task.id));
-  const templateNodes: ForUProjectNode[] = template.nodes.map((node) => {
+  const templateNodes: ForUProjectNode[] = template.nodes.map((node): ForUProjectNode => {
     const nodeId = `${project.id}-${node.idSuffix}`;
 
     return {
@@ -913,6 +922,7 @@ function createProject(input: CreateProjectInput): ForUActiveProject {
 
   const project: ForUActiveProject = {
     id: projectId,
+    cloudPending: true,
     name,
     tangibleGoal: input.tangibleGoal?.trim() || template?.tangibleGoal,
     targetFeelings: input.targetFeelings ?? template?.targetFeelings ?? [],
@@ -1045,11 +1055,11 @@ export const baseBranches: Array<{
   y: number;
   color: string;
 }> = [
-  { key: 'ideas', title: 'Ideas', icon: '💡', x: 240, y: 210, color: '#F4D03F' },
-  { key: 'actions', title: 'Acciones', icon: '✅', x: 760, y: 210, color: '#58D68D' },
-  { key: 'finances', title: 'Finanzas', icon: '💰', x: 830, y: 400, color: '#8E7CC3' },
-  { key: 'marketing', title: 'Marketing', icon: '📱', x: 760, y: 590, color: '#F9A8D4' },
-  { key: 'resources', title: 'Recursos', icon: '📚', x: 240, y: 590, color: '#F5B041' },
+  { key: 'ideas', title: 'Ideas', icon: '💡', x: 240, y: 210, color: '#EAEAEA' },
+  { key: 'actions', title: 'Acciones', icon: '✅', x: 760, y: 210, color: '#9A9A9A' },
+  { key: 'finances', title: 'Finanzas', icon: '💰', x: 830, y: 400, color: '#6B6B6B' },
+  { key: 'marketing', title: 'Marketing', icon: '📱', x: 760, y: 590, color: '#9A9A9A' },
+  { key: 'resources', title: 'Recursos', icon: '📚', x: 240, y: 590, color: '#9A9A9A' },
 ];
 
 export function getCenterNodeId(projectId: string) {
@@ -1140,14 +1150,19 @@ const createActiveProjectsState = (set: any, get: any): ActiveProjectsState => (
       whatsappEnabled: false,
       cloudUserId: null,
       isCloudSyncing: false,
+      projectLoadError: '',
 
       hydrateFromSupabase: async (userId) => {
+        // Never import a previous account's persisted workspace into another tenant.
+        if (get().cloudUserId !== userId) {
+          get().resetWorkspace();
+        }
         if (!supabase) {
-          set({ cloudUserId: userId, isCloudSyncing: false });
+          set({ cloudUserId: userId, isCloudSyncing: false, projectLoadError: 'Supabase no está configurado. No se pudieron consultar tus proyectos.' });
           return;
         }
 
-        set({ cloudUserId: userId, isCloudSyncing: true });
+        set({ cloudUserId: userId, isCloudSyncing: true, projectLoadError: '' });
 
         const [{ data: profileRow }, { data: projectRows, error: projectsError }] = await Promise.all([
           supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
@@ -1158,9 +1173,11 @@ const createActiveProjectsState = (set: any, get: any): ActiveProjectsState => (
             .order('created_at', { ascending: true }),
         ]);
 
+        if (get().cloudUserId !== userId) return;
+
         if (projectsError) {
           console.warn('No se pudieron cargar los proyectos:', projectsError.message);
-          set({ isCloudSyncing: false });
+          set({ isCloudSyncing: false, projectLoadError: `No se pudieron cargar tus proyectos: ${projectsError.message}` });
           return;
         }
 
@@ -1173,9 +1190,11 @@ const createActiveProjectsState = (set: any, get: any): ActiveProjectsState => (
           const state = get();
           const localProjects = state.getAllProjects();
           await Promise.all(localProjects.map((project) => upsertCloudProject(userId, normalizeProject(project))));
+          if (get().cloudUserId !== userId) return;
           set({
             cloudUserId: userId,
             isCloudSyncing: false,
+          projectLoadError: '',
             userPlan: profilePlan,
             maxProjects: profilePlanConfig.maxProjects,
             maxActionsPerMonth: profilePlanConfig.maxActionsPerMonth,
@@ -1190,9 +1209,9 @@ const createActiveProjectsState = (set: any, get: any): ActiveProjectsState => (
 
         const projectIds = cleanProjects.map((project) => project.id);
         const [{ data: taskRows }, { data: ideaRows }, { data: feelingRows }, { data: moodRows }, { data: habitRows }] = await Promise.all([
-          supabase.from('tasks').select('*').in('project_id', projectIds),
-          supabase.from('ideas').select('*').in('project_id', projectIds),
-          supabase.from('project_feelings').select('*').in('project_id', projectIds),
+          supabase.from('tasks').select('*, projects!inner(user_id)').eq('projects.user_id', userId).in('project_id', projectIds),
+          supabase.from('ideas').select('*, projects!inner(user_id)').eq('projects.user_id', userId).in('project_id', projectIds),
+          supabase.from('project_feelings').select('*, projects!inner(user_id)').eq('projects.user_id', userId).in('project_id', projectIds),
           supabase.from('daily_mood').select('*').eq('user_id', userId).order('date', { ascending: false }).limit(30),
           supabase.from('rewiring_habits').select('*').eq('user_id', userId).order('date', { ascending: false }).limit(14),
         ]);
@@ -1251,6 +1270,7 @@ const createActiveProjectsState = (set: any, get: any): ActiveProjectsState => (
           }));
           const project: ForUActiveProject = normalizeProject({
             id: row.id,
+            cloudPending: false,
             name: row.name,
             tangibleGoal: row.tangible_goal ?? '',
             targetFeelings: rowFeelings,
@@ -1276,18 +1296,26 @@ const createActiveProjectsState = (set: any, get: any): ActiveProjectsState => (
           return [project.id, applyIndustryTemplate(project, timestamp)];
         }));
 
-        const firstProjectId = cleanProjects[0]?.id ?? null;
+        const previousId = get().activeProjectId;
+        const firstProjectId = previousId && nextProjects[previousId] ? previousId : cleanProjects[0]?.id ?? null;
+
+        if (get().cloudUserId !== userId) return;
+
+        const pendingProjects = Object.fromEntries(Object.entries(get().projectsById as Record<string, ForUActiveProject>)
+          .filter(([id]) => !nextProjects[id])
+          .map(([id, project]) => [id, { ...project, cloudPending: true }]));
 
         set({
           activeProjectIds: projectIds,
           activeProjectId: firstProjectId,
           currentProjectId: firstProjectId,
-          projectsById: nextProjects,
+          projectsById: { ...pendingProjects, ...nextProjects },
           rawNotes: [],
           selectedNodeId: null,
           focusedBranch: null,
           cloudUserId: userId,
           isCloudSyncing: false,
+          projectLoadError: '',
           userPlan: profilePlan,
           maxProjects: profilePlanConfig.maxProjects,
           maxActionsPerMonth: profilePlanConfig.maxActionsPerMonth,
@@ -1318,7 +1346,7 @@ const createActiveProjectsState = (set: any, get: any): ActiveProjectsState => (
         });
       },
 
-      clearCloudUser: () => set({ cloudUserId: null, isCloudSyncing: false }),
+      clearCloudUser: () => { get().resetWorkspace(); clearSessionCaches(); },
 
       updateWhatsappSettings: async ({ whatsappNumber, whatsappEnabled }) => {
         const cleanNumber = whatsappNumber.trim().replace(/[^\d+]/g, '');
@@ -2024,7 +2052,7 @@ const createActiveProjectsState = (set: any, get: any): ActiveProjectsState => (
       openProject: (input) => {
         const state = get();
         const config = getPlanConfig(state.userPlan ?? 'free');
-        if (state.getActiveProjects().length >= config.maxProjects) {
+        if (!explorationProjectsAreUnlimited && state.getActiveProjects().length >= config.maxProjects) {
           set({
             planLimitNotice: {
               title: 'Upgrade a Pro para proyectos ilimitados',
@@ -2709,6 +2737,7 @@ const createActiveProjectsState = (set: any, get: any): ActiveProjectsState => (
           whatsappEnabled: false,
           cloudUserId: null,
           isCloudSyncing: false,
+          projectLoadError: '',
         });
       },
 });
@@ -2769,6 +2798,7 @@ export const useActiveProjectsStore = create<ActiveProjectsState>()(
           whatsappEnabled: state.whatsappEnabled ?? false,
           cloudUserId: state.cloudUserId ?? null,
           isCloudSyncing: false,
+          projectLoadError: '',
         };
       },
     },

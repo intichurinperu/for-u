@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-21",
+  "scope": "independent prototype; not production",
+  "visualApproval": "pending",
+  "latestCorrection": "one question or editing decision at a time across all prototype forms",
+  "measuredWidths": [
+    {
+      "clientWidth": 360,
+      "scrollWidth": 360,
+      "view": "campaign single question"
+    },
+    {
+      "clientWidth": 768,
+      "scrollWidth": 768,
+      "view": "campaign single question"
+    },
+    {
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "view": "prepared map"
+    }
+  ],
+  "automatedTests": {
+    "runtime": "Node 20",
+    "passed": 6,
+    "javascriptSyntax": "passed",
+    "applicationBuild": "not run; no application changes"
+  },
+  "browserFlows": [
+    "no materials",
+    "starter",
+    "existing business",
+    "six representative routes at 360",
+    "campaign save/reload",
+    "product edit/save",
+    "promotion separate landing",
+    "profile biography save",
+    "calendar one-question panel",
+    "map/kanban/calendar/world navigation",
+    "manual: activity first, destination next, services page, return restaurant retains campaign"
+  ],
+  "simulated": [
+    "audio",
+    "Gemini",
+    "video",
+    "export",
+    "publication",
+    "orders"
+  ],
+  "physicalPhone": "not tested",
+  "finalFragmentSha256": "037ebc4c9f45bedbf4bc99c87a53e4c4e0bc16026ea22e819541844cb0c2eaf9",
+  "notes": [
+    "Prior proposals screenshot measured 696 and renamed honestly.",
+    "No real application, backend, secrets, SQL or business changes.",
+    "Screenshots and local transport do not imply real provider acceptance."
+  ],
+  "consoleErrorsFinal": []
+}

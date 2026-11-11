@@ -1,0 +1,164 @@
+.pe-sheet-backdrop:has(.foru-video-template-sheet) {
+  align-items: center;
+  justify-content: center;
+  padding: clamp(8px, 3vw, 28px);
+}
+
+.pe-context-sheet.foru-experience.foru-video-template-sheet {
+  width: min(100%, 1080px);
+  height: auto;
+  max-height: calc(100dvh - 32px);
+  border: 1px solid #e8dfeb;
+  border-radius: 27px;
+  background: #fffdfd;
+  box-shadow: 0 24px 80px #33243b33;
+  color: #29232e;
+}
+
+.foru-video-template-sheet > header {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  padding: 15px clamp(12px, 3vw, 28px);
+  border-color: #eee7ee;
+}
+
+.foru-video-template-sheet > header::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto auto;
+  width: 21%;
+  height: 100%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 100% -90%, transparent 67%, #eadcf1 68%, #fff3df 70%, transparent 72%),
+    radial-gradient(ellipse at 100% -90%, transparent 74%, #dcecea 75%, #f2e2ed 76%, transparent 78%);
+}
+
+.foru-video-template-sheet > header::after { content: ''; width: 68px; }
+.foru-video-template-sheet > header h2 {
+  grid-column: 2;
+  grid-row: 1;
+  text-align: center;
+  font-size: clamp(23px, 3vw, 38px);
+  font-weight: 540;
+  letter-spacing: -.035em;
+  line-height: 1.12;
+}
+
+.foru-video-template-sheet > header .ds-button-secondary {
+  grid-column: 1;
+  grid-row: 1;
+  min-height: 44px;
+  border-radius: 999px;
+  background: #fff !important;
+  color: #352b3a !important;
+  border-color: #e2d9e5 !important;
+}
+
+.foru-video-template-sheet .pe-sheet-content { padding-top: 14px; }
+.foru-template-idea {
+  margin: 0 auto 16px;
+  max-width: 46ch;
+  text-align: center;
+  overflow-wrap: anywhere;
+  color: #59515d;
+}
+
+.foru-template-grid {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.foru-template-card {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 11px;
+  border: 2px solid #eee8ee;
+  border-radius: 18px;
+  background: #fff;
+  color: #29232e;
+  cursor: pointer;
+}
+
+.foru-template-card input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.foru-template-card:has(input:checked) {
+  border-color: transparent;
+  background: linear-gradient(#fff,#fffbfd) padding-box, var(--foru-pearl-finish) border-box;
+  box-shadow: 0 4px 16px #b396b62e;
+}
+
+.foru-template-card:has(input:focus-visible) { outline: 2px solid #785b86; outline-offset: 2px; }
+.foru-template-card:has(input:disabled) { cursor: default; }
+.foru-template-preview {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 11px;
+  background: #f4e9df url('/brand/foru-video-template-previews.jpg') no-repeat;
+  background-size: auto 200%;
+}
+
+.foru-template-preview-story { background-position: 14% 0; }
+.foru-template-preview-product { background-position: 86% 0; }
+.foru-template-preview-flash { background-position: 14% 100%; }
+.foru-template-preview-review { background-position: 86% 100%; }
+
+.foru-template-preview > span {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 3px 7px;
+  border-radius: 9px;
+  background: #241d26bd;
+  color: #fff;
+  font-size: 12px;
+}
+
+.foru-template-name { display: block; font-weight: 630; line-height: 1.25; }
+.foru-template-name small { display: block; margin-top: 5px; color: #645a68; font-size: 13px; font-weight: 400; }
+.foru-template-check {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid #ddd2dd;
+  border-radius: 50%;
+  background: #fff;
+}
+.foru-template-card:has(input:checked) .foru-template-check { background: var(--foru-pearl-finish); }
+.foru-template-actions {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid transparent;
+  background: linear-gradient(#fffdfd,#fffdfd) padding-box, var(--foru-pearl-finish) border-box;
+}
+.foru-template-actions > button { width: min(100%, 360px); min-height: 48px; }
+.foru-template-actions p { margin: 0; color: #823b4a; }
+
+@media (max-width: 650px) {
+  .foru-video-template-sheet > header { grid-template-columns: auto minmax(0,1fr); gap: 10px; }
+  .foru-video-template-sheet > header::after { display: none; }
+  .foru-video-template-sheet > header h2 { text-align: left; }
+  .foru-template-grid { grid-template-columns: 1fr; gap: 8px; }
+  .foru-template-card { grid-template-columns: 65px minmax(0,1fr) 24px; align-items: center; padding: 6px 8px; }
+  .foru-template-preview { aspect-ratio: 1; }
+  .foru-template-name small { display: none; }
+  .foru-template-check { position: static; }
+  .foru-template-actions { position: sticky; bottom: -1px; z-index: 1; padding-bottom: 4px; }
+}

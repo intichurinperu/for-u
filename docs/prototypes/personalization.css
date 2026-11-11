@@ -1,0 +1,124 @@
+#foru-experience-review .review-label{font-size:11px;line-height:1.5}
+#foru-experience-review .question-wrap.personalized{max-width:820px;padding:28px 0 18px}
+#foru-experience-review .personalized h1{max-width:700px;margin:14px auto;font-size:clamp(25px,4vw,38px);line-height:1.17;letter-spacing:-1px}
+#foru-experience-review .personalized .explain{max-width:560px;line-height:1.6;margin:0 auto 20px}
+#foru-experience-review .journey-top{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:8px 0 20px}
+#foru-experience-review .journey-top span{font-size:11px;color:var(--fu-muted);padding:4px 7px}
+#foru-experience-review .journey-top .current{color:var(--fu-violet);font-weight:600;background:var(--fu-lav);border-radius:20px}
+#foru-experience-review .option-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:24px auto 14px;width:100%;text-align:left}
+#foru-experience-review .option-card{display:flex;align-items:flex-start;flex-direction:column;gap:10px;min-height:108px;white-space:normal;text-align:left;padding:18px;border:1px solid var(--fu-line);border-radius:20px;background:var(--fu-white);color:var(--fu-ink)}
+#foru-experience-review .option-card strong{font-size:15px;line-height:1.4;font-weight:600}
+#foru-experience-review .option-card .option-symbol{display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--fu-lav);color:var(--fu-violet);border-radius:11px}
+#foru-experience-review .option-card.active{border-color:var(--fu-violet);background:var(--fu-lav);box-shadow:inset 0 0 0 1px var(--fu-violet)}
+#foru-experience-review .option-card.active .option-symbol{background:var(--fu-violet);color:var(--fu-white)}
+#foru-experience-review .answer-note{margin:14px auto;max-width:600px;padding:13px 18px;display:flex;align-items:center;gap:10px;background:linear-gradient(110deg,#ede7f7,#e6f4ed);border-radius:15px;color:#4c3c63;text-align:left;font-size:13px;line-height:1.55}
+#foru-experience-review .guide-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+#foru-experience-review .guide-exit{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:10px}
+#foru-experience-review .question-counter{font-size:11px;color:var(--fu-muted);margin:10px}
+#foru-experience-review .manual-choices{max-width:820px;margin:40px auto 60px}
+#foru-experience-review .manual-choices .option-card{min-height:160px;justify-content:center}
+#foru-experience-review .route-intro{max-width:850px;margin:0 auto}
+#foru-experience-review .route-intro>h1{font-size:clamp(27px,4vw,38px);margin:18px 0 12px}
+#foru-experience-review .review-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:start}
+#foru-experience-review .review-item{display:flex;gap:12px;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--fu-line)}
+#foru-experience-review .review-item>div{flex:1;min-width:0}
+#foru-experience-review .review-item p{font-size:13px;line-height:1.55;margin:6px 0 0;color:var(--fu-muted)}
+#foru-experience-review .review-item .ghost{font-size:12px;min-width:65px;padding:7px}
+#foru-experience-review .preview-route{padding:23px;background:linear-gradient(140deg,#ede7f7,#f4f0ea 55%,#daf1e9);border:1px solid var(--fu-line);border-radius:26px}
+#foru-experience-review .preview-page{background:#fffdf9;border-radius:17px;overflow:hidden;box-shadow:0 12px 25px #42334912;margin:18px 0;padding:20px}
+#foru-experience-review .preview-page h3{font-size:22px;line-height:1.25;margin:14px 0}
+#foru-experience-review .preview-page p{font-size:12px;line-height:1.6}
+#foru-experience-review .preview-bars{display:flex;gap:5px;flex-wrap:wrap;margin-top:15px}
+#foru-experience-review .preview-bars span{padding:6px 8px;border-radius:9px;background:var(--fu-lav);font-size:10px}
+#foru-experience-review .route-reasons{list-style:none;padding:0;display:grid;gap:12px;font-size:13px;line-height:1.5;color:var(--fu-muted)}
+#foru-experience-review .route-reasons li{display:flex;align-items:flex-start;gap:9px}
+#foru-experience-review .route-reasons svg{flex-shrink:0;color:var(--fu-violet);margin-top:2px}
+#foru-experience-review .route-ready{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}
+#foru-experience-review .ready-result{display:flex;flex-direction:column;gap:8px;text-align:left;background:var(--fu-white);border:1px solid var(--fu-line);padding:18px;border-radius:18px;min-height:120px;white-space:normal}
+#foru-experience-review .ready-result strong{font-size:15px}
+#foru-experience-review .ready-result small{font-size:12px;line-height:1.5;color:var(--fu-muted)}
+#foru-experience-review .route-banner{padding:18px 22px;display:flex;gap:15px;align-items:center;justify-content:space-between;margin-bottom:20px;border-radius:20px;background:linear-gradient(115deg,var(--fu-lav),#e3f2eb)}
+#foru-experience-review .route-banner p{font-size:13px;line-height:1.5;margin:5px 0}
+#foru-experience-review .route-banner button{flex-shrink:0}
+#foru-experience-review .fact-label{font-size:11px;color:var(--fu-muted);margin:12px 0 4px}
+#foru-experience-review .suggested-tag{font-size:10px;display:inline-flex;background:var(--fu-lav);color:#573585;border-radius:20px;padding:4px 8px}
+#foru-experience-review .step-reason{font-size:12px;color:var(--fu-muted);line-height:1.5}
+#foru-experience-review .source-filters{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+#foru-experience-review .source-filters label{margin:0}
+#foru-experience-review .section-mini{height:46px;display:grid;gap:4px;align-content:center;width:100%;border-radius:10px;background:#f8f5fc;padding:8px}
+#foru-experience-review .section-mini:before{content:'';height:7px;width:60%;background:#b69bd7;border-radius:3px}
+#foru-experience-review .section-mini:after{content:'';height:4px;width:85%;background:#d9cce9;border-radius:3px}
+#foru-experience-review .offer-selector{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+#foru-experience-review .offer-page .web-hero{background:linear-gradient(135deg,#ede7f7,#f4f0ea 70%);padding:54px 40px}
+#foru-experience-review .offer-page .offer-condition{font-size:12px;line-height:1.5;color:var(--fu-muted)}
+#foru-experience-review .offer-page .benefit-badge{display:inline-flex;padding:8px 13px;background:var(--fu-mint);border-radius:20px;font-size:12px;margin-bottom:20px;color:var(--fu-ink)}
+#foru-experience-review .offer-page h1{font-size:clamp(30px,4vw,48px);line-height:1.12;letter-spacing:-1px}
+#foru-experience-review .promotion-row{padding:18px;border:1px solid var(--fu-line);border-radius:18px;background:var(--fu-white);display:flex;justify-content:space-between;align-items:center;gap:14px;margin:12px 0}
+#foru-experience-review .promotion-row p{color:var(--fu-muted);font-size:12px;margin:7px 0;line-height:1.5}
+#foru-experience-review .review-examples{margin-top:26px;border-top:1px solid var(--fu-line);padding-top:20px;font-size:12px;color:var(--fu-muted)}
+#foru-experience-review .review-examples summary{min-height:44px;display:list-item;align-content:center}
+#foru-experience-review .question-art{margin-bottom:16px}
+#foru-experience-review .pin{font-size:10px}
+#foru-experience-review .poster.typography-only .poster-art{height:28px;min-height:0;background:linear-gradient(90deg,#d9b46b,#be9ad5,#a9e8d7);border-radius:30px;width:50%;align-self:flex-start;opacity:.7}
+#foru-experience-review .typography-only .poster-art>*{display:none}
+#foru-experience-review .poster.typography-only{justify-content:space-between}
+#foru-experience-review .website.no-resources .web-hero{grid-template-columns:1fr;min-height:300px}
+#foru-experience-review .website.no-resources .web-hero>div:first-child{max-width:700px}
+#foru-experience-review .website.no-resources .cup-scene{display:none}
+#foru-experience-review .template-choice .poster h2{font-size:clamp(17px,2.1vw,26px);line-height:1.16;letter-spacing:-.5px}
+#foru-experience-review .template-choice .poster p{font-size:12px;line-height:1.45}
+#foru-experience-review .template-choice .poster strong{font-size:11px;line-height:1.4}
+#foru-experience-review .template-choice .poster .poster-art{height:25%;min-height:35px;margin:7px 0}
+#foru-experience-review .template-choice .poster.typography-only .poster-art{height:18px;min-height:18px;width:50%;border-radius:30px}
+#foru-experience-review .template-choice>.template-label{display:grid;gap:6px;text-align:left}
+#foru-experience-review .template-choice>.template-label strong{white-space:normal;overflow-wrap:normal}
+#foru-experience-review .template-choice>.template-label>span{font-size:11px;line-height:1.5}
+@media(max-width:680px){
+  #foru-experience-review .question-wrap.personalized{padding:8px 0 15px}
+  #foru-experience-review .option-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:18px}
+  #foru-experience-review .option-card{padding:13px;min-height:105px;border-radius:16px}
+  #foru-experience-review .option-card strong{font-size:13px}
+  #foru-experience-review .review-grid{grid-template-columns:1fr}
+  #foru-experience-review .route-ready{grid-template-columns:1fr}
+  #foru-experience-review .route-banner{align-items:flex-start;flex-direction:column;padding:17px}
+  #foru-experience-review .source-filters{grid-template-columns:1fr}
+  #foru-experience-review .offer-page .web-hero{padding:30px 20px}
+  #foru-experience-review .promotion-row{flex-direction:column;align-items:flex-start}
+  #foru-experience-review .manual-choices{margin:20px auto}
+  #foru-experience-review .manual-choices .option-grid{grid-template-columns:1fr}
+  #foru-experience-review .manual-choices .option-card{min-height:105px}
+  #foru-experience-review .guide-exit button{font-size:12px}
+  #foru-experience-review .journey-top{gap:0;margin:0 0 12px}
+  #foru-experience-review .journey-top span{font-size:10px;padding:4px 5px}
+}
+@media(max-width:470px){
+  #foru-experience-review .template-choice{display:block!important}
+  #foru-experience-review .template-choice .poster{height:auto;aspect-ratio:4/5;max-width:280px;margin:auto}
+  #foru-experience-review .template-choice .poster.square{aspect-ratio:1}
+  #foru-experience-review .template-choice .poster.story{aspect-ratio:9/16}
+  #foru-experience-review .template-choice .template-label{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
+}
+@media(prefers-reduced-motion:reduce){#foru-experience-review *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+#foru-experience-review .single-question-flow {max-width:780px;margin:24px auto 0}
+#foru-experience-review .single-question-stage {display:grid;gap:20px;min-width:0}
+#foru-experience-review .single-question-stage h2 {font-size:clamp(24px,3vw,34px);line-height:1.15;max-width:24ch}
+#foru-experience-review .single-question-stage .option-card {min-height:76px;justify-content:center;text-align:center}
+#foru-experience-review .single-question-stage .field {margin:0}
+#foru-experience-review .single-question-flow .guide-actions {margin-top:26px;flex-wrap:wrap}
+#foru-experience-review .single-question-stage .review-item {margin:0}
+#foru-experience-review [hidden] {display:none!important}
+#foru-experience-review .context-choice {background:var(--fu-white,#fff);padding:14px 18px;border-radius:18px;min-width:0}
+#foru-experience-review .context-choice summary {color:var(--fu-purple,#7751B8);font-weight:600}
+#foru-experience-review .context-choice[open] h3 {margin:20px 0 12px}
+#foru-experience-review .content.focused-edit {max-width:900px}
+#foru-experience-review .focused-edit .bottom-panel,#foru-experience-review .focused-edit .edit-panel {width:100%;max-width:800px;margin:20px auto;position:static}
+#foru-experience-review .focused-edit .editor-layout {display:block}
+#foru-experience-review .single-question-stage h2,#foru-experience-review .single-question-stage > p {margin:0}
+@media(max-width:470px){
+ #foru-experience-review .focused-edit .bottom-panel,#foru-experience-review .focused-edit .edit-panel{padding:20px}
+ #foru-experience-review .single-question-stage{gap:14px}
+ #foru-experience-review .single-question-stage .option-grid{gap:10px}
+ #foru-experience-review .single-question-stage .option-card{min-height:64px;padding:12px}
+ #foru-experience-review .single-question-flow .guide-actions{margin-top:18px;gap:8px}
+}
+#foru-experience-review .sr-label {position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}

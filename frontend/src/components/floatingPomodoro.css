@@ -1,0 +1,23 @@
+.floating-pomodoro{position:fixed;right:20px;bottom:20px;z-index:80;display:grid;justify-items:end;gap:12px;--focus-color:#2563eb}
+.floating-pomodoro-toggle{position:relative;width:96px;height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:0;border-radius:50%;background:#17243c;color:#fff;box-shadow:0 10px 30px #15284a35;font:700 18px/1 system-ui;cursor:pointer;isolation:isolate}
+.floating-pomodoro-toggle svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);pointer-events:none}
+.floating-pomodoro-toggle circle{fill:none;stroke-width:5}
+.pomodoro-orbit-track{stroke:#526078}.pomodoro-orbit-progress{stroke:var(--focus-color);stroke-linecap:round;transition:stroke-dashoffset .35s ease,stroke .3s ease}
+.floating-pomodoro-toggle small{color:#fff;font-size:11px;font-weight:500}.floating-pomodoro-toggle:focus-visible{outline:3px solid #f5b800;outline-offset:4px}.floating-pomodoro-toggle:hover{transform:translateY(-3px)}
+.floating-pomodoro.is-running .floating-pomodoro-toggle:before{content:'';position:absolute;inset:-5px;border:2px solid var(--focus-color);border-radius:50%;animation:focus-pulse 2.5s ease-out infinite;pointer-events:none}
+.floating-pomodoro-panel{width:min(360px,calc(100vw - 32px));max-height:calc(100dvh - 140px);overflow:auto;background:#fff;border:1px solid #e2e8f0;border-radius:24px;box-shadow:0 18px 48px #17172c33;padding:12px;animation:focus-enter .2s ease-out}.floating-pomodoro-panel .foru-pomodoro{margin:0}
+.pomodoro-stars{position:absolute;right:-4px;bottom:100px;font-size:27px;color:#a66b00;pointer-events:none;animation:focus-celebrate 3s ease-out both}.is-celebrating .pomodoro-orbit-time{color:#fde68a;font-size:32px}
+@keyframes focus-pulse{0%{transform:scale(1);opacity:.65}100%{transform:scale(1.18);opacity:0}}
+@keyframes focus-celebrate{0%{opacity:0;transform:translateY(15px) scale(.7)}20%,70%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-20px)}}
+@keyframes focus-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:767px){.floating-pomodoro{right:12px;bottom:12px}.floating-pomodoro-toggle{width:72px;height:72px;font-size:14px}.floating-pomodoro-toggle small{font-size:9px}.pomodoro-stars{bottom:76px}}
+@media(prefers-reduced-motion:reduce){.floating-pomodoro *,.floating-pomodoro *:before{animation:none!important;transition:none!important}.floating-pomodoro-toggle:hover{transform:none}}
+
+/* FOR U identity: readable timer text on every stop of the iridescent surface. */
+.floating-pomodoro-toggle{background:#334155}
+.floating-pomodoro.is-running .floating-pomodoro-toggle{background:linear-gradient(110deg,#fde68a,#fbcfe8,#e9d5ff,#a5f3fc);color:#0b1220}
+.floating-pomodoro.is-running .floating-pomodoro-toggle small{color:#0b1220}
+.floating-pomodoro.is-running .pomodoro-orbit-track{stroke:#ffffffb3}
+.floating-pomodoro.is-running .pomodoro-orbit-progress{stroke:#0b1220}
+.foru-pomodoro-ring.is-iridescent{background:linear-gradient(110deg,#fde68a,#fbcfe8,#e9d5ff,#a5f3fc);border-radius:50%;color:#0b1220}
+.foru-pomodoro-ring.is-iridescent strong,.foru-pomodoro-ring.is-iridescent span{color:#0b1220}

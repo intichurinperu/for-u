@@ -1,3 +1,5 @@
+import { Card as DSCard } from '../components/ui/DesignSystem';
+import { ButtonSecondary as DSButtonSecondary, Input as DSInput, Textarea as DSTextarea } from '../components/ui/DesignSystem';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -262,9 +264,9 @@ export default function AdventureMvp() {
         <div className="foru-adventure-status" aria-label="Estado de la aventura">
           <span><Sparkles size={16} /> {state.coins} monedas</span>
           <span><Sailboat size={16} /> {selectedShip.name}</span>
-          <button type="button" onClick={() => patch({ soundOn: !state.soundOn })}>
+          <DSButtonSecondary type="button" onClick={() => patch({ soundOn: !state.soundOn })}>
             {state.soundOn ? 'Sonido on' : 'Sonido off'}
-          </button>
+          </DSButtonSecondary>
         </div>
       </header>
 
@@ -284,11 +286,11 @@ export default function AdventureMvp() {
           <div className="foru-boat-hero">{selectedShip.emoji}</div>
         </div>
 
-        <div className="foru-adventure-card">
+        <DSCard as="div" className="foru-adventure-card">
           {state.step !== 'welcome' && (
-            <button type="button" className="foru-back-button" onClick={previousStep}>
+            <DSButtonSecondary type="button" className="foru-back-button" onClick={previousStep}>
               <ArrowLeft size={18} /> Atrás
-            </button>
+            </DSButtonSecondary>
           )}
 
           {state.step === 'welcome' && (
@@ -299,9 +301,9 @@ export default function AdventureMvp() {
                 Una primera aventura TDAH-friendly para elegir meta, descubrir tu barco,
                 escoger una ruta y completar una misión pequeña sin abrumarte.
               </p>
-              <button type="button" className="foru-primary-action" onClick={nextStep}>
+              <DSButtonSecondary type="button" className="foru-primary-action" onClick={nextStep}>
                 Comenzar mi aventura <ArrowRight size={18} />
-              </button>
+              </DSButtonSecondary>
             </div>
           )}
 
@@ -311,7 +313,7 @@ export default function AdventureMvp() {
               <h1>¿Cuál es tu meta de ingresos?</h1>
               <p>Elige una referencia mensual. Se puede cambiar después.</p>
               <div className="foru-goal-value">S/ {state.incomeGoal.toLocaleString('es-PE')}</div>
-              <input
+              <DSInput
                 className="foru-range"
                 type="range"
                 min="0"
@@ -323,9 +325,9 @@ export default function AdventureMvp() {
               <p className="foru-soft-copy">
                 {state.incomeGoal < 2000 ? 'Buen inicio: pequeño, concreto y manejable.' : state.incomeGoal <= 5000 ? 'Meta alcanzable: ya tenemos norte.' : 'Ambicioso y posible: lo dividiremos en rutas pequeñas.'}
               </p>
-              <button type="button" className="foru-primary-action" onClick={nextStep}>
+              <DSButtonSecondary type="button" className="foru-primary-action" onClick={nextStep}>
                 Siguiente <ArrowRight size={18} />
-              </button>
+              </DSButtonSecondary>
             </div>
           )}
 
@@ -333,7 +335,7 @@ export default function AdventureMvp() {
             <div className="foru-step">
               <span className="foru-step-kicker">Tu oferta</span>
               <h1>¿Qué vendes o quieres vender?</h1>
-              <input
+              <DSInput
                 className="foru-text-input"
                 value={state.offer}
                 placeholder="Ej: postres caseros, diseño gráfico..."
@@ -341,7 +343,7 @@ export default function AdventureMvp() {
               />
               <div className="foru-tags">
                 {tagOptions.map((tag) => (
-                  <button
+                  <DSButtonSecondary
                     key={tag}
                     type="button"
                     onClick={() => {
@@ -350,10 +352,10 @@ export default function AdventureMvp() {
                     }}
                   >
                     {tag}
-                  </button>
+                  </DSButtonSecondary>
                 ))}
               </div>
-              <button
+              <DSButtonSecondary
                 type="button"
                 className="foru-lifebuoy"
                 onClick={() => {
@@ -363,10 +365,10 @@ export default function AdventureMvp() {
                 }}
               >
                 Aún no lo sé, lo descubro navegando
-              </button>
-              <button type="button" className="foru-primary-action" onClick={assignShip}>
+              </DSButtonSecondary>
+              <DSButtonSecondary type="button" className="foru-primary-action" onClick={assignShip}>
                 Asignar mi barco <Sailboat size={18} />
-              </button>
+              </DSButtonSecondary>
             </div>
           )}
 
@@ -376,9 +378,9 @@ export default function AdventureMvp() {
               <div className="foru-ship-reveal">{selectedShip.emoji}</div>
               <h1>{selectedShip.name}</h1>
               <p>{selectedShip.note}</p>
-              <button type="button" className="foru-primary-action" onClick={nextStep}>
+              <DSButtonSecondary type="button" className="foru-primary-action" onClick={nextStep}>
                 Elegir ruta <Compass size={18} />
-              </button>
+              </DSButtonSecondary>
             </div>
           )}
 
@@ -388,7 +390,7 @@ export default function AdventureMvp() {
               <h1>Elige tu primera ruta</h1>
               <div className="foru-route-grid">
                 {routes.map((route) => (
-                  <button
+                  <DSButtonSecondary
                     key={route}
                     type="button"
                     className={state.route === route ? 'is-selected' : ''}
@@ -400,12 +402,12 @@ export default function AdventureMvp() {
                   >
                     <Compass size={20} />
                     <span>{route}</span>
-                  </button>
+                  </DSButtonSecondary>
                 ))}
               </div>
-              <button type="button" className="foru-primary-action" disabled={!state.route} onClick={nextStep}>
+              <DSButtonSecondary type="button" className="foru-primary-action" disabled={!state.route} onClick={nextStep}>
                 Zarpar a mi misión <ArrowRight size={18} />
-              </button>
+              </DSButtonSecondary>
             </div>
           )}
 
@@ -413,20 +415,20 @@ export default function AdventureMvp() {
             <div className="foru-step">
               <span className="foru-step-kicker">Nivel 3 · Primera Travesía</span>
               <h1>Tu primera misión</h1>
-              <div className="foru-mission-card">
+              <DSCard as="div" className="foru-mission-card">
                 <span>{mission.emoji}</span>
                 <p>{mission.text}</p>
                 <small>Toma 2 minutos</small>
-              </div>
-              <textarea
+              </DSCard>
+              <DSTextarea
                 className="foru-textarea"
                 value={state.missionAnswer}
                 placeholder="Escribe tu respuesta aquí..."
                 onChange={(event) => patch({ missionAnswer: event.target.value })}
               />
-              <button type="button" className="foru-primary-action" onClick={completeMission}>
+              <DSButtonSecondary type="button" className="foru-primary-action" onClick={completeMission}>
                 Hecho <CheckCircle2 size={18} />
-              </button>
+              </DSButtonSecondary>
             </div>
           )}
 
@@ -441,7 +443,7 @@ export default function AdventureMvp() {
                 </p>
                 <div className="foru-world-tabs">
                   {(Object.keys(worlds) as WorldKey[]).map((worldKey) => (
-                    <button
+                    <DSButtonSecondary
                       key={worldKey}
                       type="button"
                       className={state.world === worldKey ? 'is-active' : ''}
@@ -451,7 +453,7 @@ export default function AdventureMvp() {
                       }}
                     >
                       {worlds[worldKey].title.replace('Archipiélago ', '')}
-                    </button>
+                    </DSButtonSecondary>
                   ))}
                 </div>
               </div>
@@ -459,7 +461,7 @@ export default function AdventureMvp() {
               <div className={`foru-world-map ${currentWorld.className}`}>
                 <div className="foru-map-boat">{selectedShip.emoji}</div>
                 {currentWorld.bays.map((bay) => (
-                  <button
+                  <DSButtonSecondary
                     key={bay.key}
                     type="button"
                     className="foru-bay-hotspot"
@@ -469,12 +471,12 @@ export default function AdventureMvp() {
                   >
                     <span>{bay.emoji}</span>
                     <small>{bay.name.replace('Bahía ', '')}</small>
-                  </button>
+                  </DSButtonSecondary>
                 ))}
               </div>
             </div>
           )}
-        </div>
+        </DSCard>
       </section>
 
       <aside className="foru-toast" aria-live="polite">

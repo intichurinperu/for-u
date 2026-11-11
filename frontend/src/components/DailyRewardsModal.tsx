@@ -1,6 +1,8 @@
+import { ButtonSecondary as DSButtonSecondary } from './ui/DesignSystem';
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { dailyRewards, useActiveProjectsStore } from '../stores/useActiveProjectsStore';
+import { useRewardBurst } from '../hooks/useRewardBurst';
 
 type DailyRewardsModalProps = {
   isOpen: boolean;
@@ -16,6 +18,7 @@ export default function DailyRewardsModal({ isOpen, onClose }: DailyRewardsModal
   const checkDailyReward = useActiveProjectsStore((state) => state.checkDailyReward);
   const claimDailyReward = useActiveProjectsStore((state) => state.claimDailyReward);
   const rewardStatus = useMemo(() => checkDailyReward(), [checkDailyReward, dailyStreak, claimedDays, lastLoginDate]);
+  const reward = useRewardBurst();
 
   useEffect(() => {
     if (!isOpen) setIsClaiming(false);
@@ -32,6 +35,7 @@ export default function DailyRewardsModal({ isOpen, onClose }: DailyRewardsModal
 
     setIsClaiming(true);
     playDing();
+    reward.trigger('dailyLogin');
     window.setTimeout(onClose, 1500);
   }
 
@@ -78,12 +82,12 @@ export default function DailyRewardsModal({ isOpen, onClose }: DailyRewardsModal
               })}
             </div>
 
-            <button type="button" onClick={claim} disabled={isClaiming || !rewardStatus.shouldShow}>
+            <DSButtonSecondary type="button" onClick={claim} disabled={isClaiming || !rewardStatus.shouldShow}>
               {isClaiming ? 'Reclamando...' : rewardStatus.shouldShow ? `Reclamar ${rewardStatus.reward} monedas` : 'Ya reclamaste hoy ✓'}
-            </button>
-            <button type="button" className="foru-daily-reward-close" onClick={onClose}>
+            </DSButtonSecondary>
+            <DSButtonSecondary type="button" className="foru-daily-reward-close" onClick={onClose}>
               Cerrar
-            </button>
+            </DSButtonSecondary>
           </motion.section>
         </motion.div>
       ) : null}

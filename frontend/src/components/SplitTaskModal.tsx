@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary, Textarea as DSTextarea } from './ui/DesignSystem';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -61,14 +62,14 @@ export default function SplitTaskModal({ nodeId, nodeTitle, onClose }: SplitTask
             <span className="foru-step-kicker">Dividir tarea</span>
             <h2>{nodeTitle}</h2>
           </div>
-          <button type="button" onClick={onClose} aria-label="Cerrar modal">
+          <DSButtonSecondary type="button" onClick={onClose} aria-label="Cerrar modal">
             <X size={18} />
-          </button>
+          </DSButtonSecondary>
         </header>
 
         <label>
           <span>Subtareas separadas por coma o salto de línea</span>
-          <textarea
+          <DSTextarea
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             placeholder={'Diseñar posts\nEscribir copy\nProgramar publicación'}
@@ -76,12 +77,12 @@ export default function SplitTaskModal({ nodeId, nodeTitle, onClose }: SplitTask
         </label>
 
         <footer>
-          <button type="button" onClick={onClose}>
+          <DSButtonSecondary type="button" onClick={onClose}>
             Cancelar
-          </button>
-          <button type="button" onClick={saveSubtasks}>
+          </DSButtonSecondary>
+          <DSButtonSecondary type="button" onClick={saveSubtasks}>
             Crear subtareas
-          </button>
+          </DSButtonSecondary>
         </footer>
       </motion.section>
     </motion.div>

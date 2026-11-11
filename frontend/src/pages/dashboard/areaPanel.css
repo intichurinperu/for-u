@@ -1,0 +1,40 @@
+/* A task opens one workspace action; editing and planning remain secondary. */
+.foru-experience.foru-experience .area-modal-dialog{width:min(680px,100%);padding:24px;background:#fdfcfe;border:1px solid #e3dceb;border-radius:28px}
+.foru-experience.foru-experience .area-modal-heading{padding-bottom:16px;border-bottom:1px solid #eee8f3}
+.foru-experience.foru-experience .area-modal-heading h2{font-size:23px;font-weight:650;letter-spacing:-.035em;margin:0}
+.foru-experience.foru-experience .area-modal-heading>button{min-width:44px;padding:8px 14px;background:transparent;border-color:transparent;font-size:13px}
+.foru-experience.foru-experience .area-panel .area-intro{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px}
+.foru-experience.foru-experience .area-intro small{font-size:12px;color:#6b6176}
+.foru-experience.foru-experience .area-intro>span{font-size:12px;color:#6b6176;white-space:nowrap}
+.foru-experience.foru-experience .area-companion-hint{font-size:14px;color:#6b6176;margin:0 0 12px}
+.foru-experience.foru-experience .area-mode-switch{display:inline-flex;gap:4px;padding:4px;background:#ede7f7;border-radius:16px;margin:0 0 12px}
+.foru-experience.foru-experience .area-mode-switch>button{padding:8px 16px;min-height:44px;background:transparent;border:0;box-shadow:none;color:#68507d}
+.foru-experience.foru-experience .area-mode-switch>button[aria-pressed=true]{background:#fff;color:#513477;box-shadow:0 2px 5px #3320440d}
+.foru-experience.foru-experience .area-task-summary{display:grid;gap:6px;padding:0;background:transparent;border:0;margin:4px 0 20px}
+.foru-experience.foru-experience .area-task-summary>span{font-size:12px;color:#6b6176}
+.foru-experience.foru-experience .area-task-summary progress{width:100%;height:5px;border:0;border-radius:10px;overflow:hidden;appearance:none;accent-color:#7751b8}
+.area-task-summary progress::-webkit-progress-bar{background:#ede7f7;border-radius:10px}.area-task-summary progress::-webkit-progress-value{background:#7751b8;border-radius:10px}
+.foru-experience.foru-experience .area-task-detail{padding:24px;background:linear-gradient(130deg,#f1ebf9,#f7f4fa 65%,#e8f6f1);border:1px solid #e2d6ef;border-radius:22px;margin:0 0 16px}
+.foru-experience.foru-experience .area-task-detail .area-back-to-steps{display:block;min-height:44px;padding:0 0 10px;border:0;background:transparent;color:#68507d;font-size:13px;cursor:pointer}
+.foru-experience.foru-experience .area-step-state{display:block;color:#7751b8;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin:10px 0}
+.foru-experience.foru-experience .area-task-detail h3{font-size:clamp(23px,3vw,30px);line-height:1.2;letter-spacing:-.035em;margin:8px 0 12px;color:#24232a}
+.foru-experience.foru-experience .area-task-detail>p{font-size:14px;line-height:1.65;color:#65596f;margin:0 0 22px;max-width:48ch}
+.foru-experience.foru-experience .area-task-detail .area-task-start{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:52px;padding:12px 20px;border-radius:16px;border:1px solid #7751b8;background:#7751b8;color:#fff!important;text-decoration:none;font-weight:650;font-size:14px;line-height:1.5}
+.foru-experience.foru-experience .area-step-options{margin:16px 0 0;border:0;background:transparent;padding:0}
+.foru-experience.foru-experience .area-step-options>summary{min-height:44px;align-content:center;color:#69567e;font-size:13px;cursor:pointer}
+.foru-experience.foru-experience .area-step-options>details{background:#fff9;border:1px solid #e5dced;padding:10px 14px;border-radius:14px;margin:8px 0}
+.foru-experience.foru-experience .area-step-options>details>summary{min-height:44px;align-content:center;font-size:13px;cursor:pointer}
+.foru-experience.foru-experience .area-step-options>button{margin:6px 8px 0 0;font-size:13px;min-height:44px}
+.foru-experience.foru-experience .area-task-list{margin:0 0 12px;gap:8px}
+.foru-experience.foru-experience .area-task-list li{display:flex;align-items:center;gap:12px}
+.foru-experience.foru-experience .area-task-list .area-task-open{padding:14px 16px;text-align:left;background:#fff;border:1px solid #e6ddee;min-height:66px;border-radius:16px}
+.foru-experience.foru-experience .area-save-status{padding-top:14px;margin-top:14px;border-top:1px solid #eee8f3;font-size:12px;color:#6b6176;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.foru-experience.foru-experience .area-save-status>div{display:flex;gap:12px;flex-wrap:wrap;flex:1}
+.foru-experience.foru-experience .area-assistant-access{margin-top:12px;font-size:12px;background:transparent;border-color:transparent;color:#69567e}
+.foru-experience.foru-experience .local-draft-notice{font-size:13px;color:#6b6176;margin:0 0 18px;background:transparent;border:0;padding:0}
+.foru-experience.foru-experience .local-draft-notice>summary{min-height:44px;align-content:center;cursor:pointer}
+.foru-experience.foru-experience .local-draft-notice[open]{background:#fff;border:1px solid #e4dced;padding:12px 16px;border-radius:16px}
+.area-task-start:focus-visible,.area-back-to-steps:focus-visible,.area-step-options summary:focus-visible{outline:3px solid #7751b8;outline-offset:3px}
+@media(max-width:600px){.foru-experience.foru-experience .area-modal-backdrop{padding:10px}.foru-experience.foru-experience .area-modal-dialog{padding:18px;max-height:calc(100dvh - 20px);border-radius:24px}.foru-experience.foru-experience .area-task-detail{padding:18px}.foru-experience.foru-experience .area-task-detail .area-task-start{width:100%;box-sizing:border-box}.foru-experience.foru-experience .area-modal-heading h2{font-size:21px}}
+
+.foru-experience.foru-experience .area-next-card{position:relative;padding:28px;border-radius:24px;background:linear-gradient(130deg,#f0e9fb,#f8f5fc 65%,#e5f6ee);margin:18px 0}.foru-experience.foru-experience .area-next-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:17px;background:#fff;color:#7751b8;font-size:28px;margin-bottom:20px}.foru-experience.foru-experience .area-next-card>small{font-size:10px;letter-spacing:.12em;color:#715596;font-weight:700}.foru-experience.foru-experience .area-next-card h3{font-size:26px;line-height:1.2;letter-spacing:-.04em;margin:10px 0!important;max-width:440px}.foru-experience.foru-experience .area-next-card p{font-size:14px;line-height:1.6;max-width:400px;margin:0 0 22px}.foru-experience.foru-experience .area-all-steps>summary{min-height:48px;align-content:center;font-size:14px;font-weight:600;color:#655273;cursor:pointer}.foru-experience.foru-experience .area-rest-link{display:block;background:transparent;border:0;color:#74677e;padding:12px 0;min-height:44px;font-size:13px}.foru-experience.foru-experience .area-task-summary{background:transparent;padding:0;margin:12px 0}.foru-experience.foru-experience .area-task-summary>span{display:none}.foru-experience.foru-experience .area-task-summary progress{height:4px}.foru-experience.foru-experience .area-next-card .area-task-start{display:inline-flex;justify-content:space-between;gap:24px;min-height:48px;background:#7751b8!important;color:white!important;text-decoration:none!important;padding:12px 20px;border-radius:15px;font-weight:650}.foru-experience.foru-experience .area-tool-options,.foru-experience.foru-experience .area-add-options{margin:4px 0}.foru-experience.foru-experience .area-next-card .area-task-start:focus-visible{outline:3px solid #7751b8;outline-offset:3px}@media(max-width:600px){.foru-experience.foru-experience .area-next-card{padding:22px}.foru-experience.foru-experience .area-next-card h3{font-size:24px}.foru-experience.foru-experience .area-next-card .area-task-start{width:100%}}

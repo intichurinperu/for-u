@@ -1,3 +1,4 @@
+import { Input as DSInput, ButtonSecondary as DSButtonSecondary } from '../components/ui/DesignSystem';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
@@ -53,7 +54,7 @@ export default function StudioAccess() {
   if (isUnlocked) return <Navigate to={nextPath} replace />;
 
   return (
-    <main className="foru-reference-hub text-[#171717]">
+    <main className="foru-reference-hub text-[#0A0A0A]">
       <div className="foru-reference-blur foru-reference-blur--gold" />
       <div className="foru-reference-blur foru-reference-blur--green" />
       <div className="foru-reference-blur foru-reference-blur--pink" />
@@ -69,7 +70,7 @@ export default function StudioAccess() {
 
         <form onSubmit={submitAccess} className="foru-private-form">
           <label htmlFor="studio-password">Acceso privado</label>
-          <input
+          <DSInput
             id="studio-password"
             type="password"
             value={password}
@@ -79,9 +80,9 @@ export default function StudioAccess() {
             required
           />
           {error && <span className="foru-form-error">{error}</span>}
-          <button type="submit" className="foru-btn" disabled={isChecking}>
+          <DSButtonSecondary type="submit" className="foru-btn" disabled={isChecking}>
             {isChecking ? 'Validando...' : 'Ingresar'} <ArrowRight size={18} />
-          </button>
+          </DSButtonSecondary>
         </form>
       </section>
     </main>

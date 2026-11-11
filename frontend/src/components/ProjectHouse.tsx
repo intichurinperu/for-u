@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary } from './ui/DesignSystem';
 import { Float, Html } from '@react-three/drei';
 import type { ForUActiveProject, ForUNextAction, ForUBranchKey, ForUProjectNode, ForURawNote } from '../stores/useActiveProjectsStore';
 import MascotGuide from './MascotGuide';
@@ -53,9 +54,9 @@ export default function ProjectHouse({
         />
       ))}
       <Html position={[0, 2.65, 1.7]} center distanceFactor={7}>
-        <button type="button" className="foru-world-room-action" onClick={() => onSelectRoom('hall')}>
+        <DSButtonSecondary type="button" className="foru-world-room-action" onClick={() => onSelectRoom('hall')}>
           Ir al hall principal
-        </button>
+        </DSButtonSecondary>
       </Html>
 
       <RoomIdeas
@@ -78,8 +79,8 @@ export default function ProjectHouse({
 }
 
 function HouseShell({ progress, isDusty }: { progress: number; isDusty: boolean }) {
-  const wallColor = progress >= 75 ? '#FAFAFA' : progress >= 50 ? '#FFF7F1' : '#F8F4FF';
-  const floorColor = isDusty ? '#d8d1c7' : progress >= 50 ? '#FFDAB9' : '#E6E6FA';
+  const wallColor = progress >= 75 ? '#FAFAFA' : progress >= 50 ? '#FAFAFA' : '#FAFAFA';
+  const floorColor = isDusty ? '#EAEAEA' : progress >= 50 ? '#EAEAEA' : '#EAEAEA';
 
   return (
     <>
@@ -105,7 +106,7 @@ function HouseShell({ progress, isDusty }: { progress: number; isDusty: boolean 
       </mesh>
       <mesh position={[0, 0.03, 4.32]} receiveShadow>
         <boxGeometry args={[10.8, 0.08, 0.12]} />
-        <meshPhysicalMaterial color="#B5EAD7" roughness={0.78} metalness={0.03} />
+        <meshPhysicalMaterial color="#EAEAEA" roughness={0.78} metalness={0.03} />
       </mesh>
     </>
   );
@@ -116,7 +117,7 @@ function HallBoard({ project, nextAction, progress }: { project: ForUActiveProje
     <group position={[0, 1.42, 0.4]}>
       <mesh castShadow>
         <boxGeometry args={[2.9, 1.55, 0.08]} />
-        <meshPhysicalMaterial color="#4A4A4A" roughness={0.7} metalness={0.06} clearcoat={0.18} />
+        <meshPhysicalMaterial color="#0A0A0A" roughness={0.7} metalness={0.06} clearcoat={0.18} />
       </mesh>
       <Html position={[0, 0.03, 0.08]} center distanceFactor={5.8}>
         <div className="foru-world-board">
@@ -148,12 +149,12 @@ function Door({
     >
       <mesh castShadow>
         <boxGeometry args={[0.78, 1.05, 0.12]} />
-        <meshPhysicalMaterial color={isActive ? '#FFDAB9' : '#E6E6FA'} roughness={0.74} metalness={0.04} clearcoat={0.18} />
+        <meshPhysicalMaterial color={isActive ? '#EAEAEA' : '#EAEAEA'} roughness={0.74} metalness={0.04} clearcoat={0.18} />
       </mesh>
       <Html position={[0, 0.82, 0.12]} center distanceFactor={7}>
-        <button type="button" className={isActive ? 'foru-world-door is-active' : 'foru-world-door'}>
+        <DSButtonSecondary type="button" className={isActive ? 'foru-world-door is-active' : 'foru-world-door'}>
           {room.icon} {room.label}
-        </button>
+        </DSButtonSecondary>
       </Html>
     </group>
   );
@@ -164,19 +165,19 @@ function Decorations({ progress }: { progress: number }) {
     <>
       <mesh position={[-3.8, 0.46, 3.1]} castShadow>
         <cylinderGeometry args={[0.18, 0.26, 0.55, 16]} />
-        <meshPhysicalMaterial color="#FFDAB9" roughness={0.8} metalness={0.03} />
+        <meshPhysicalMaterial color="#EAEAEA" roughness={0.8} metalness={0.03} />
       </mesh>
       <mesh position={[-3.8, 0.96, 3.1]} castShadow>
         <sphereGeometry args={[0.36, 18, 12]} />
-        <meshPhysicalMaterial color="#B5EAD7" roughness={0.86} metalness={0.03} />
+        <meshPhysicalMaterial color="#EAEAEA" roughness={0.86} metalness={0.03} />
       </mesh>
       {progress >= 50 ? (
         <mesh position={[3.8, 1.3, 3.4]} castShadow>
           <boxGeometry args={[1.1, 0.72, 0.06]} />
-          <meshPhysicalMaterial color="#FFD1DC" roughness={0.78} metalness={0.03} clearcoat={0.12} />
+          <meshPhysicalMaterial color="#EAEAEA" roughness={0.78} metalness={0.03} clearcoat={0.12} />
         </mesh>
       ) : null}
-      {progress >= 75 ? <pointLight position={[0, 2.55, 0]} color="#FFDAB9" distance={6} intensity={1.1} /> : null}
+      {progress >= 75 ? <pointLight position={[0, 2.55, 0]} color="#EAEAEA" distance={6} intensity={1.1} /> : null}
     </>
   );
 }
@@ -190,7 +191,7 @@ function MagicDust({ isDusty }: { isDusty: boolean }) {
         <Float key={index} speed={0.55 + index * 0.02} rotationIntensity={0.3} floatIntensity={0.28}>
           <mesh position={[-4.5 + (index % 8) * 1.25, 1.05 + (index % 3) * 0.35, -3 + Math.floor(index / 8) * 2.4]}>
             <sphereGeometry args={[isDusty ? 0.045 : 0.035, 8, 6]} />
-            <meshBasicMaterial color={isDusty ? '#b8aea4' : '#fff3bd'} transparent opacity={isDusty ? 0.34 : 0.52} />
+            <meshBasicMaterial color={isDusty ? '#9A9A9A' : '#FAFAFA'} transparent opacity={isDusty ? 0.34 : 0.52} />
           </mesh>
         </Float>
       ))}
@@ -206,5 +207,5 @@ function isProjectDusty(project: ForUActiveProject) {
 function getMascotMessage(project: ForUActiveProject, nextAction: ForUNextAction | null, isDusty: boolean) {
   if (isDusty) return `${project.name} te extraña. ¿Le regalamos 10 minutos?`;
   if (!nextAction) return 'Podemos explorar o volver al tablero cuando quieras.';
-  return `Hola Nicole. Yo cuidé la casa. Siguiente: ${nextAction.title}`;
+  return `Hola. Yo cuidé la casa. Siguiente: ${nextAction.title}`;
 }

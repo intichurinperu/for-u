@@ -1,0 +1,254 @@
+.project-start {
+  max-width: 680px;
+  margin: 24px auto 64px;
+  padding: clamp(24px, 5vw, 56px);
+  border: 1px solid #e3dbef;
+  border-radius: 28px;
+  background: #fff;
+  text-align: center;
+}
+.project-start-feature {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: clamp(16px, 4vw, 30px);
+  border: 1px solid #e2d8ce;
+  border-radius: 20px;
+  background: #faf6ef;
+}
+.project-start-feature h2 { margin: 0; font-size: 1.1rem; }
+.project-start-feature p { margin: 0; color: #62574e; }
+.workspace-project-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #5c4276;
+  text-decoration: none;
+  font-size: .85rem;
+  font-weight: 600;
+}
+@media (max-width: 600px) {
+  .workspace-project-identity:has(.workspace-project-back) .workspace-project-logo { display: none; }
+  .workspace-project-identity { gap: .6rem; }
+}
+
+.digital-route {
+  width: min(100%, 1024px);
+  margin: 0 auto 32px;
+}
+.digital-route-hero {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  align-items: center;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 240px;
+  padding-left: clamp(24px, 6vw, 72px);
+  border: 1px solid #e9dde9;
+  border-radius: 32px;
+  background: linear-gradient(145deg, #fffdfb 28%, #faf5fc, #fff);
+}
+.digital-route-hero img {
+  display: block;
+  width: 100%;
+  height: 255px;
+  object-fit: cover;
+  object-position: center 48%;
+  mask-image: linear-gradient(90deg, transparent, #000 20%);
+}
+.digital-route h1, .island-heading h1 {
+  color: #26222b;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 520;
+  line-height: 1.04;
+  letter-spacing: -.05em;
+  margin: 6px 0 0;
+}
+.digital-route-hero p, .digital-route-stages p { margin: 0; color: #61576b; }
+.digital-route-stages {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding: 0;
+  margin: 24px 0;
+}
+.digital-route-stages li {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: start;
+  gap: 13px;
+  padding: 20px;
+  border: 1px solid #e9e1ed;
+  border-radius: 23px;
+  background: #fffdfc;
+}
+.digital-route-stages li.is-current {
+  border-color: #cfb8df;
+  background: linear-gradient(145deg, #fbf4ff 0%, #fffdfb 68%);
+}
+.digital-route-marker {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f0e8f7;
+  color: #5c4276;
+}
+.digital-route-step { font-size: .78rem; color: #65566e; }
+.digital-route-stages h2 { margin: 5px 0; font-size: 1.12rem; line-height: 1.2; }
+.digital-route-stages p { font-size: .86rem; line-height: 1.4; }
+.digital-route-footer { display: flex; justify-content: center; }
+.digital-route-footer .foru-pearl-button span { display: inline-flex; align-items: center; gap: 8px; }
+.digital-route .project-start-feature { margin: 16px 0; }
+@media (max-width: 680px) {
+  .digital-route-hero { grid-template-columns: 1fr; min-height: 0; padding: 22px 18px 0; }
+  .digital-route-hero img { height: 130px; mask-image: none; }
+  .digital-route-stages { grid-template-columns: 1fr; gap: 10px; margin: 16px 0; }
+  .digital-route-stages li { grid-template-columns: 36px minmax(0, 1fr); grid-template-rows: auto auto; gap: 8px 12px; padding: 14px; }
+  .digital-route-stages li .foru-pearl-button { grid-column: 2; }
+}
+
+@media (max-width: 680px) {
+  .foru-experience:has(.digital-route, .project-island) .workspace-utilities {
+    display: none;
+  }
+}
+
+/* 04 · Creator Studio - Entrada Cómo vender tu oferta */
+.digital-route-sell {
+  max-width: 620px;
+  margin: 0 auto 40px;
+  padding: 0 16px;
+}
+.sell-offer-top {
+  margin-bottom: 20px;
+}
+.sell-offer-top h1 {
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  font-weight: 650;
+  color: #1a1523;
+  letter-spacing: -.03em;
+  margin: 12px 0 0;
+}
+.sell-offer-hero {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  background: radial-gradient(circle at 50% 30%, #fff 30%, #fbf6ff 70%, #f2f7fc 100%);
+  border: 1px solid #ede3f2;
+  box-shadow: 0 14px 34px rgba(110, 80, 140, 0.08), inset 0 1px 2px #fff;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sell-offer-showcase {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px;
+}
+.sell-offer-showcase img {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 18px;
+  filter: drop-shadow(0 10px 20px rgba(70, 40, 90, 0.12));
+}
+.sell-offer-card {
+  background: #ffffffeb;
+  border: 1px solid #ebdfee;
+  border-radius: 26px;
+  padding: 24px 22px;
+  box-shadow: 0 16px 40px rgba(90, 50, 120, 0.07);
+  display: flex;
+  flex-direction: column;
+}
+.sell-offer-checklist {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.sell-offer-row {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 14px;
+  border-bottom: 1px solid #f2ecf6;
+  cursor: pointer;
+  border-radius: 14px;
+  transition: background 140ms ease;
+}
+.sell-offer-row:last-child {
+  border-bottom: none;
+}
+.sell-offer-row:hover {
+  background: #faf6fd;
+}
+.sell-offer-row input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.sell-offer-checkbox-visual {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid #282133;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  transition: background 140ms ease, border-color 140ms ease;
+  box-sizing: border-box;
+}
+.sell-offer-row.is-checked .sell-offer-checkbox-visual {
+  background: #251d30;
+  border-color: #251d30;
+}
+.sell-offer-row.is-checked .sell-offer-checkbox-visual::after {
+  content: '';
+  width: 6px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+.sell-offer-name {
+  font-size: 1.05rem;
+  font-weight: 550;
+  color: #1f1a29;
+}
+.sell-offer-price {
+  font-size: .95rem;
+  font-weight: 600;
+  color: #634f78;
+}
+.sell-offer-counter {
+  margin: 20px 0 16px;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #4b3d5c;
+}
+.sell-offer-action {
+  width: 100%;
+}
+.sell-offer-empty {
+  text-align: center;
+  gap: 16px;
+  padding: 36px 20px;
+}
+.sell-offer-empty-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+

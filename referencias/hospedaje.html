@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stay U · Sistema Profesional de Hospedaje</title>
+<link id="faviconLink" rel="icon" type="image/png" href="https://via.placeholder.com/32?text=S">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #0D9488;
+  --primary-gradient: linear-gradient(135deg, #FDE68A, #0D9488, #F9A8D4, #93C5FD);
+  --bg-app: #F8FAFC;
+  --bg-panel: #FFFFFF;
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --border: #E2E8F0;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05);
+  --radius: 12px;
+  --status-clean: #10B981;
+  --status-dirty: #EF4444;
+  --status-maintenance: #F59E0B;
+  --cal-available: #ECFDF5;
+  --cal-occupied: #FEE2E2;
+  --cal-checkin: #DBEAFE;
+  --cal-checkout: #FEF3C7;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: var(--bg-app); color: var(--text-main); height: 100vh; overflow: hidden; }
+
+.editor-layout { display: flex; height: 100vh; }
+.sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 50; flex-shrink: 0; }
+.sidebar-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.sidebar-logo { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: var(--text-muted); font-weight: 500; font-size: 14px; cursor: pointer; transition: all 0.2s; margin-bottom: 4px; }
+.nav-item:hover { background: #F1F5F9; color: var(--text-main); }
+.nav-item.active { background: #F0FDFA; color: #0F766E; font-weight: 600; }
+.nav-section-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 16px 8px; margin-top: 8px; }
+.sidebar-footer { padding: 16px; border-top: 1px solid var(--border); }
+.user-profile { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; }
+.user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary-gradient); display: grid; place-items: center; color: white; font-weight: 700; font-size: 14px; }
+
+.canvas-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.canvas-header { height: 64px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; flex-shrink: 0; }
+.canvas-title { font-weight: 600; font-size: 16px; }
+.header-actions { display: flex; gap: 12px; }
+.btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; }
+.btn-primary { background: var(--text-main); color: white; }
+.btn-primary:hover { background: #334155; }
+.btn-secondary { background: white; border: 1px solid var(--border); color: var(--text-main); }
+.btn-secondary:hover { background: #F8FAFC; }
+.btn-gradient { background: var(--primary-gradient); color: white; }
+.btn-danger { background: #FEE2E2; color: #991B1B; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+.canvas-content { flex: 1; overflow-y: auto; padding: 32px; background: var(--bg-app); }
+
+.component-card { background: white; border-radius: 16px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+.component-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.component-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.component-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+/* Rooms */
+.rooms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+.room-card { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.2s; position: relative; }
+.room-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+.room-img { width: 100%; height: 160px; object-fit: cover; }
+.room-info { padding: 16px; }
+.room-name { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
+.room-price { font-weight: 700; color: var(--primary); font-size: 18px; }
+.room-status { position: absolute; top: 12px; right: 12px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; color: white; text-transform: uppercase; }
+.status-clean { background: var(--status-clean); }
+.status-dirty { background: var(--status-dirty); }
+.status-maintenance { background: var(--status-maintenance); }
+.add-room-card { border: 2px dashed #CBD5E1; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 260px; cursor: pointer; transition: all 0.2s; background: #F8FAFC; }
+.add-room-card:hover { border-color: var(--primary); background: #F0FDFA; }
+
+/* Stats */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stat-box { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
+.stat-label { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 8px; }
+.stat-value { font-size: 28px; font-weight: 700; }
+.stat-trend { font-size: 12px; margin-top: 4px; }
+.trend-up { color: var(--status-clean); }
+.trend-down { color: var(--status-dirty); }
+
+/* Calendar */
+.calendar-wrapper { overflow-x: auto; background: white; border-radius: 12px; border: 1px solid var(--border); }
+.calendar-controls { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--border); }
+.calendar-grid { display: grid; min-width: 900px; }
+.cal-header-cell { padding: 8px 4px; text-align: center; font-size: 11px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); background: #F8FAFC; }
+.cal-room-label { padding: 12px; font-weight: 600; font-size: 13px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); background: white; position: sticky; left: 0; z-index: 2; }
+.cal-day-cell { padding: 8px 4px; text-align: center; font-size: 11px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); min-height: 48px; display: flex; align-items: center; justify-content: center; position: relative; }
+.cal-day-cell.today { background: #F0FDFA; font-weight: 700; color: var(--primary); }
+.cal-day-cell.available { background: var(--cal-available); color: #065F46; }
+.cal-day-cell.occupied { background: var(--cal-occupied); color: #991B1B; }
+.cal-day-cell.checkin { background: var(--cal-checkin); color: #1E40AF; }
+.cal-day-cell.checkout { background: var(--cal-checkout); color: #92400E; }
+.cal-day-cell:hover { cursor: pointer; filter: brightness(0.95); }
+.cal-legend { display: flex; gap: 16px; padding: 12px 16px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.cal-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+.cal-legend-box { width: 14px; height: 14px; border-radius: 3px; }
+
+/* Housekeeping */
+.housekeeping-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.hk-item { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; transition: all 0.2s; cursor: pointer; }
+.hk-item:hover { border-color: var(--primary); transform: translateY(-2px); }
+.hk-emoji { font-size: 32px; margin-bottom: 8px; }
+.hk-item.clean { border-color: var(--status-clean); background: #ECFDF5; }
+.hk-item.dirty { border-color: var(--status-dirty); background: #FEF2F2; }
+.hk-item.maintenance { border-color: var(--status-maintenance); background: #FFFBEB; }
+
+/* Content Creator (Funnel) */
+.funnel-stages { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.funnel-stage { padding: 12px; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; background: #F8FAFC; }
+.funnel-stage:hover { border-color: var(--primary); }
+.funnel-stage.active { background: var(--primary); color: white; }
+.funnel-stage .stage-icon { font-size: 24px; margin-bottom: 4px; }
+.funnel-stage .stage-name { font-size: 12px; font-weight: 600; }
+.funnel-stage .stage-desc { font-size: 10px; opacity: 0.7; margin-top: 2px; }
+
+.content-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.template-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 8px; }
+.template-card:hover { border-color: var(--primary); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.template-tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.tag-awareness { background: #DBEAFE; color: #1E40AF; }
+.tag-engagement { background: #FEF3C7; color: #92400E; }
+.tag-consideration { background: #E0E7FF; color: #3730A3; }
+.tag-conversion { background: #FEE2E2; color: #991B1B; }
+.tag-retention { background: #DCFCE7; color: #166534; }
+.tag-retargeting { background: #F3E8FF; color: #6B21A8; }
+
+/* Web Editor */
+.web-preview { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+.web-section { padding: 40px 32px; border-bottom: 1px solid var(--border); position: relative; transition: all 0.2s; cursor: pointer; }
+.web-section:hover { background: #F8FAFC; }
+.web-section:hover .web-edit-badge { opacity: 1; }
+.web-edit-badge { position: absolute; top: 12px; right: 12px; background: var(--text-main); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+.web-hero { text-align: center; padding: 60px 32px; background: linear-gradient(135deg, rgba(13,148,136,0.1), rgba(253,230,138,0.1)); }
+.web-hero h1 { font-family: 'Playfair Display', serif; font-size: 36px; margin-bottom: 12px; }
+.web-cta-btn { display: inline-block; padding: 12px 28px; background: var(--primary); color: white; border-radius: 8px; font-weight: 600; margin: 8px 4px; cursor: pointer; }
+
+/* FAQ */
+.faq-item { border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; }
+.faq-item:hover { border-color: var(--primary); }
+.faq-q { font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+.faq-a { margin-top: 8px; color: var(--text-muted); font-size: 14px; }
+
+/* Modals */
+.modal-overlay-pro { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.modal-overlay-pro.active { display: flex; }
+.modal-pro { background: white; border-radius: 20px; width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: modalIn 0.3s ease; }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal-header-pro { padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: white; z-index: 10; border-radius: 20px 20px 0 0; }
+.modal-body-pro { padding: 32px; }
+.modal-footer-pro { padding: 24px 32px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; position: sticky; bottom: 0; background: white; border-radius: 0 0 20px 20px; }
+
+.input-group { margin-bottom: 16px; }
+.input-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
+.input-field { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+.input-field:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(13,148,136,0.1); }
+textarea.input-field { resize: vertical; min-height: 80px; }
+.input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.chip-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; min-height: 50px; }
+.chip { padding: 4px 12px; background: #F0FDFA; color: var(--primary); border-radius: 16px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.chip-remove { cursor: pointer; opacity: 0.6; }
+.chip-remove:hover { opacity: 1; }
+
+.toast-pro { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(100px); background: #0F172A; color: white; padding: 14px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 2000; opacity: 0; transition: all 0.3s; box-shadow: var(--shadow-lg); }
+.toast-pro.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media(max-width: 768px) {
+  .sidebar { position: fixed; left: -280px; height: 100%; transition: left 0.3s; }
+  .sidebar.open { left: 0; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="editor-layout" id="proEditor">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="user-avatar" style="width: 36px; height: 36px; font-size: 16px;">S</div>
+      <span class="sidebar-logo">Stay U Pro</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Gestión</div>
+      <div class="nav-item active" onclick="switchView('dashboard', this)">🏠 Habitaciones</div>
+      <div class="nav-item" onclick="switchView('bookings', this)">📅 Reservas y Calendario</div>
+      <div class="nav-item" onclick="switchView('housekeeping', this)">🧹 Limpieza</div>
+      <div class="nav-item" onclick="switchView('finance', this)">📊 Costos y Ganancias</div>
+      
+      <div class="nav-section-label">Marketing</div>
+      <div class="nav-item" onclick="switchView('website', this)">🌐 Editor Web</div>
+      <div class="nav-item" onclick="switchView('content', this)">🎨 Creador de Contenido</div>
+      
+      <div class="nav-section-label">Sistema</div>
+      <div class="nav-item" onclick="switchView('settings', this)">⚙️ Configuración</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="user-avatar">A</div>
+        <div style="flex: 1;">
+          <div style="font-weight: 600; font-size: 14px;">Admin Demo</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Plan Profesional</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="canvas-area">
+    <header class="canvas-header">
+      <div class="canvas-title" id="canvasTitle">Habitaciones</div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="copyPublicLink()">🔗 Copiar Link</button>
+        <button class="btn btn-primary" onclick="openPublicView()">👁️ Ver Web Publicada</button>
+      </div>
+    </header>
+    <div class="canvas-content" id="canvasContent"></div>
+  </main>
+</div>
+
+<!-- MODALES -->
+<div class="modal-overlay-pro" id="modal">
+  <div class="modal-pro">
+    <div class="modal-header-pro">
+      <h3 class="component-title" id="modalTitle">Título</h3>
+      <button class="btn btn-secondary btn-sm" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body-pro" id="modalBody"></div>
+    <div class="modal-footer-pro" id="modalFooter"></div>
+  </div>
+</div>
+
+<div class="toast-pro" id="toast">✅ Acción completada</div>
+
+<script>
+// ============ STATE ============
+const today = new Date();
+const y = today.getFullYear();
+const m = today.getMonth();
+const todayStr = today.toISOString().split('T')[0];
+const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+const nextWeek = new Date(Date.now() + 7*86400000).toISOString().split('T')[0];
+
+let state = {
+  currentView: 'dashboard',
+  calendarMonth: m,
+  calendarYear: y,
+  settings: {
+    name: 'Casa Andina Boutique',
+    tagline: 'Tu refugio en el Valle Sagrado',
+    about: 'Somos un hospedaje familiar con más de 10 años brindando experiencias auténticas en el corazón del Valle Sagrado. Nuestra misión es conectar a los viajeros con la cultura local en un entorno de confort y calidez.',
+    whatsapp: '51999999999',
+    email: 'reservas@casandina.com',
+    address: 'Calle Principal 123, Valle Sagrado',
+    checkIn: '15:00',
+    checkOut: '11:00',
+    wifiUser: 'CasaAndina',
+    wifiPass: 'Bienvenidos2024',
+    heroImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80',
+    ctas: [
+      { text: '📱 Reservar por WhatsApp', type: 'whatsapp', target: '' },
+      { text: '📍 Cómo llegar', type: 'maps', target: '' }
+    ],
+    faqs: [
+      { q: '¿Cuál es el horario de check-in?', a: 'El check-in es a partir de las 15:00 y el check-out hasta las 11:00.' },
+      { q: '¿Aceptan mascotas?', a: 'Sí, somos pet-friendly con un cargo adicional de S/ 30 por noche.' },
+      { q: '¿Incluye desayuno?', a: 'Sí, todas nuestras tarifas incluyen desayuno buffet continental.' }
+    ],
+    promotions: [
+      { title: '20% off estancias largas', desc: 'Reserva 5 noches y obtén 20% de descuento.', active: true }
+    ]
+  },
+  rooms: [
+    { id: 1, name: 'Habitación Doble Deluxe', type: 'Doble', price: 180, capacity: 2, image: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=600', status: 'clean', amenities: ['WiFi', 'A/C', 'TV', 'Desayuno'] },
+    { id: 2, name: 'Suite Vista Jardín', type: 'Suite', price: 280, capacity: 2, image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600', status: 'dirty', amenities: ['WiFi', 'A/C', 'Jacuzzi', 'Desayuno', 'Minibar'] },
+    { id: 3, name: 'Habitación Familiar', type: 'Familiar', price: 220, capacity: 4, image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600', status: 'clean', amenities: ['WiFi', 'A/C', 'TV', 'Desayuno'] },
+    { id: 4, name: 'Individual Estándar', type: 'Individual', price: 95, capacity: 1, image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600', status: 'maintenance', amenities: ['WiFi', 'TV'] }
+  ],
+  bookings: [
+    { id: 101, guest: 'María López', roomId: 1, checkIn: '2026-09-20', checkOut: '2026-09-24', total: 720, status: 'confirmed' },
+    { id: 102, guest: 'Carlos Ramírez', roomId: 2, checkIn: '2026-09-28', checkOut: '2026-10-02', total: 1120, status: 'confirmed' },
+    { id: 103, guest: 'Ana Torres', roomId: 3, checkIn: '2026-10-05', checkOut: '2026-10-08', total: 660, status: 'pending' }
+  ],
+  finances: [
+    { id: 1, type: 'income', concept: 'Reserva María López', amount: 720, date: '2026-09-20' },
+    { id: 2, type: 'expense', concept: 'Limpieza semanal', amount: 120, date: '2026-09-22' },
+    { id: 3, type: 'expense', concept: 'Desayuno insumos', amount: 280, date: '2026-09-23' },
+    { id: 4, type: 'income', concept: 'Reserva anticipada Oct', amount: 660, date: '2026-09-25' }
+  ],
+  contentFunnelStage: 'awareness',
+  mediaLibrary: [
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400',
+    'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400',
+    'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
+    'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400'
+  ]
+};
+
+// ============ NAVIGATION ============
+function switchView(view, el) {
+  state.currentView = view;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const titles = {
+    dashboard: 'Habitaciones', bookings: 'Reservas y Calendario',
+    housekeeping: 'Control de Limpieza', finance: 'Costos y Ganancias',
+    website: 'Editor Web Profesional', content: 'Creador de Contenido (Embudo)',
+    settings: 'Configuración Avanzada'
+  };
+  document.getElementById('canvasTitle').textContent = titles[view];
+  render();
+}
+
+function render() {
+  const c = document.getElementById('canvasContent');
+  c.innerHTML = '';
+  if (state.currentView === 'dashboard') renderDashboard(c);
+  else if (state.currentView === 'bookings') renderBookings(c);
+  else if (state.currentView === 'housekeeping') renderHousekeeping(c);
+  else if (state.currentView === 'finance') renderFinance(c);
+  else if (state.currentView === 'website') renderWebsite(c);
+  else if (state.currentView === 'content') renderContent(c);
+  else if (state.currentView === 'settings') renderSettings(c);
+}
+
+// ============ DASHBOARD (Rooms) ============
+function renderDashboard(c) {
+  const totalRooms = state.rooms.length;
+  const occupied = state.rooms.filter(r => state.bookings.some(b => b.roomId === r.id && b.checkIn <= todayStr && b.checkOut > todayStr)).length;
+  
+  c.innerHTML = `
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-label">Total Habitaciones</div><div class="stat-value">${totalRooms}</div></div>
+      <div class="stat-box"><div class="stat-label">Ocupadas Hoy</div><div class="stat-value" style="color: var(--status-dirty);">${occupied}</div></div>
+      <div class="stat-box"><div class="stat-label">Disponibles</div><div class="stat-value" style="color: var(--status-clean);">${totalRooms - occupied}</div></div>
+      <div class="stat-box"><div class="stat-label">Ingresos del Mes</div><div class="stat-value">S/ ${state.finances.filter(f=>f.type==='income').reduce((s,f)=>s+f.amount,0)}</div></div>
+    </div>
+    
+    <div class="component-card">
+      <div class="component-header">
+        <div>
+          <div class="component-title">🛏️ Tus Habitaciones</div>
+          <div class="component-subtitle">Administra tu inventario, precios y amenidades</div>
+        </div>
+        <button class="btn btn-primary" onclick="openRoomModal()">+ Nueva Habitación</button>
+      </div>
+      <div class="rooms-grid">
+        ${state.rooms.map(room => `
+          <div class="room-card" onclick="openRoomModal(${room.id})">
+            <span class="room-status status-${room.status}">${room.status === 'clean' ? 'Disponible' : room.status === 'dirty' ? 'Limpieza' : 'Mantenimiento'}</span>
+            <img class="room-img" src="${room.image}">
+            <div class="room-info">
+              <div class="room-name">${room.name}</div>
+              <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">${room.type} • ${room.capacity} personas</div>
+              <div class="room-price">S/ ${room.price} <span style="font-size: 13px; font-weight: 400; color: var(--text-muted);">/ noche</span></div>
+            </div>
+          </div>
+        `).join('')}
+        <div class="add-room-card" onclick="openRoomModal()">
+          <div style="font-size: 40px; color: var(--primary);">+</div>
+          <div style="font-weight: 600; color: var(--text-muted); margin-top: 8px;">Agregar Habitación</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ============ ROOM MODAL (Create/Edit) ============
+function openRoomModal(roomId = null) {
+  const room = roomId ? state.rooms.find(r => r.id === roomId) : { name: '', type: 'Doble', price: 0, capacity: 2, image: '', status: 'clean', amenities: [] };
+  const isEdit = !!roomId;
+  
+  document.getElementById('modalTitle').textContent = isEdit ? '✏️ Editar Habitación' : '🛏️ Nueva Habitación';
+  
+  const allAmenities = ['WiFi', 'A/C', 'TV', 'Minibar', 'Jacuzzi', 'Balcón', 'Caja fuerte', 'Desayuno', 'Calefacción', 'Cocina'];
+  
+  document.getElementById('modalBody').innerHTML = `
+    <div class="input-group">
+      <label class="input-label">Nombre de la habitación</label>
+      <input type="text" class="input-field" id="rName" value="${room.name}" placeholder="Ej: Suite Premium Vista Mar">
+    </div>
+    <div class="input-row">
+      <div class="input-group">
+        <label class="input-label">Tipo</label>
+        <select class="input-field" id="rType">
+          ${['Individual', 'Doble', 'Matrimonial', 'Familiar', 'Suite'].map(t => `<option ${t===room.type?'selected':''}>${t}</option>`).join('')}
+        </select>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Estado actual</label>
+        <select class="input-field" id="rStatus">
+          <option value="clean" ${room.status==='clean'?'selected':''}>✅ Limpia / Disponible</option>
+          <option value="dirty" ${room.status==='dirty'?'selected':''}>🧹 Requiere limpieza</option>
+          <option value="maintenance" ${room.status==='maintenance'?'selected':''}>🔧 Mantenimiento</option>
+        </select>
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="input-group">
+        <label class="input-label">Precio por noche (S/)</label>
+        <input type="number" class="input-field" id="rPrice" value="${room.price}" placeholder="180">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Capacidad (personas)</label>
+        <input type="number" class="input-field" id="rCapacity" value="${room.capacity}" min="1" max="10">
+      </div>
+    </div>
+    <div class="input-group">
+      <label class="input-label">URL de imagen principal</label>
+      <input type="text" class="input-field" id="rImage" value="${room.image}" placeholder="https://...">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Amenidades (clic para agregar/quitar)</label>
+      <div class="chip-container" id="rAmenities">
+        ${room.amenities.map(a => `<span class="chip">${a} <span class="chip-remove" onclick="this.parentElement.remove()">✕</span></span>`).join('')}
+      </div>
+      <div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px;">
+        ${allAmenities.filter(a => !room.amenities.includes(a)).map(a => 
+          `<button class="btn btn-secondary btn-sm" onclick="addAmenity('${a}')">${a}</button>`
+        ).join('')}
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('modalFooter').innerHTML = `
+    ${isEdit ? '<button class="btn btn-danger" onclick="deleteRoom('+roomId+')">🗑️ Eliminar</button>' : ''}
+    <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveRoom(${roomId || 'null'})">💾 Guardar</button>
+  `;
+  
+  document.getElementById('modal').classList.add('active');
+}
+
+function addAmenity(amenity) {
+  const container = document.getElementById('rAmenities');
+  const chip = document.createElement('span');
+  chip.className = 'chip';
+  chip.innerHTML = `${amenity} <span class="chip-remove" onclick="this.parentElement.remove()">✕</span>`;
+  container.appendChild(chip);
+}
+
+function saveRoom(id) {
+  const name = document.getElementById('rName').value.trim();
+  const price = parseFloat(document.getElementById('rPrice').value);
+  if (!name || !price) return showToast('❌ Completa nombre y precio');
+  
+  const amenities = Array.from(document.querySelectorAll('#rAmenities .chip')).map(c => c.childNodes[0].textContent.trim());
+  const data = {
+    name, type: document.getElementById('rType').value,
+    price, capacity: parseInt(document.getElementById('rCapacity').value),
+    image: document.getElementById('rImage').value || 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=600',
+    status: document.getElementById('rStatus').value, amenities
+  };
+  
+  if (id) {
+    const room = state.rooms.find(r => r.id === id);
+    Object.assign(room, data);
+    showToast('✅ Habitación actualizada');
+  } else {
+    state.rooms.push({ id: Date.now(), ...data });
+    showToast('✅ Habitación creada exitosamente');
+  }
+  closeModal();
+  render();
+}
+
+function deleteRoom(id) {
+  if (!confirm('¿Eliminar esta habitación?')) return;
+  state.rooms = state.rooms.filter(r => r.id !== id);
+  closeModal();
+  render();
+  showToast('🗑️ Habitación eliminada');
+}
+
+// ============ BOOKINGS (Calendar) ============
+function renderBookings(c) {
+  const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const daysInMonth = new Date(state.calendarYear, state.calendarMonth + 1, 0).getDate();
+  const monthLabel = `${monthNames[state.calendarMonth]} ${state.calendarYear}`;
+  
+  let gridHTML = '<div class="calendar-grid" style="grid-template-columns: 180px repeat(' + daysInMonth + ', minmax(36px, 1fr));">';
+  
+  // Header
+  gridHTML += '<div class="cal-header-cell" style="position: sticky; left: 0; z-index: 3; background: #F8FAFC;">Habitación</div>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(state.calendarYear, state.calendarMonth, d);
+    const isToday = date.toISOString().split('T')[0] === todayStr;
+    const dayName = date.toLocaleDateString('es', { weekday: 'short' }).toUpperCase();
+    gridHTML += `<div class="cal-header-cell ${isToday ? 'today' : ''}">${dayName}<br><span style="font-size:14px; font-weight:700; color: var(--text-main);">${d}</span></div>`;
+  }
+  
+  // Rows (rooms)
+  state.rooms.forEach(room => {
+    gridHTML += `<div class="cal-room-label">${room.name}</div>`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${state.calendarYear}-${String(state.calendarMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const booking = state.bookings.find(b => b.roomId === room.id && b.checkIn <= dateStr && b.checkOut > dateStr);
+      let status = 'available';
+      let label = '';
+      if (booking) {
+        if (booking.checkIn === dateStr) { status = 'checkin'; label = '→'; }
+        else if (booking.checkOut === dateStr) { status = 'checkout'; label = '←'; }
+        else { status = 'occupied'; label = '•'; }
+      }
+      const isToday = dateStr === todayStr;
+      gridHTML += `<div class="cal-day-cell ${status} ${isToday?'today':''}" title="${booking ? booking.guest : 'Disponible'}" onclick="handleDayClick('${dateStr}', ${room.id})">${label}</div>`;
+    }
+  });
+  gridHTML += '</div>';
+  
+  c.innerHTML = `
+    <div class="component-card">
+      <div class="component-header">
+        <div>
+          <div class="component-title">📅 Calendario de Reservas</div>
+          <div class="component-subtitle">Vista mensual de ocupación por habitación. Haz clic en un día para crear una reserva.</div>
+        </div>
+        <button class="btn btn-primary" onclick="openBookingModal()">+ Nueva Reserva</button>
+      </div>
+      <div class="calendar-wrapper">
+        <div class="calendar-controls">
+          <button class="btn btn-secondary btn-sm" onclick="changeMonth(-1)">← Anterior</button>
+          <h3 style="font-family: 'Playfair Display', serif;">${monthLabel}</h3>
+          <button class="btn btn-secondary btn-sm" onclick="changeMonth(1)">Siguiente →</button>
+        </div>
+        ${gridHTML}
+        <div class="cal-legend">
+          <div class="cal-legend-item"><div class="cal-legend-box" style="background: var(--cal-available);"></div>Disponible</div>
+          <div class="cal-legend-item"><div class="cal-legend-box" style="background: var(--cal-occupied);"></div>Ocupado</div>
+          <div class="cal-legend-item"><div class="cal-legend-box" style="background: var(--cal-checkin);"></div>Check-in</div>
+          <div class="cal-legend-item"><div class="cal-legend-box" style="background: var(--cal-checkout);"></div>Check-out</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="component-card">
+      <div class="component-header">
+        <div class="component-title">📋 Listado de Reservas</div>
+      </div>
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--border);">
+            <th style="text-align: left; padding: 12px; font-size: 12px; text-transform: uppercase; color: var(--text-muted);">Huésped</th>
+            <th style="text-align: left; padding: 12px; font-size: 12px; text-transform: uppercase; color: var(--text-muted);">Habitación</th>
+            <th style="text-align: left; padding: 12px; font-size: 12px; text-transform: uppercase; color: var(--text-muted);">Fechas</th>
+            <th style="text-align: left; padding: 12px; font-size: 12px; text-transform: uppercase; color: var(--text-muted);">Total</th>
+            <th style="text-align: left; padding: 12px; font-size: 12px; text-transform: uppercase; color: var(--text-muted);">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${state.bookings.map(b => {
+            const room = state.rooms.find(r => r.id === b.roomId);
+            return `<tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 12px; font-weight: 600;">${b.guest}</td>
+              <td style="padding: 12px;">${room ? room.name : 'N/A'}</td>
+              <td style="padding: 12px; font-size: 13px;">${b.checkIn} → ${b.checkOut}</td>
+              <td style="padding: 12px; font-weight: 700; color: var(--primary);">S/ ${b.total}</td>
+              <td style="padding: 12px;"><span style="padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; background: ${b.status==='confirmed'?'#DCFCE7':'#FEF3C7'}; color: ${b.status==='confirmed'?'#166534':'#92400E'};">${b.status==='confirmed'?'Confirmada':'Pendiente'}</span></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function changeMonth(delta) {
+  state.calendarMonth += delta;
+  if (state.calendarMonth > 11) { state.calendarMonth = 0; state.calendarYear++; }
+  if (state.calendarMonth < 0) { state.calendarMonth = 11; state.calendarYear--; }
+  render();
+}
+
+function handleDayClick(dateStr, roomId) {
+  const existing = state.bookings.find(b => b.roomId === roomId && b.checkIn <= dateStr && b.checkOut > dateStr);
+  if (existing) {
+    if (confirm(`Este día está ocupado por ${existing.guest}. ¿Quieres eliminar esta reserva?`)) {
+      state.bookings = state.bookings.filter(b => b.id !== existing.id);
+      render();
+      showToast('🗑️ Reserva eliminada');
+    }
+  } else {
+    openBookingModal(roomId, dateStr);
+  }
+}
+
+function openBookingModal(prefRoomId = null, prefDate = null) {
+  const availableRooms = state.rooms.filter(r => r.status === 'clean');
+  
+  document.getElementById('modalTitle').textContent = '📅 Nueva Reserva';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="input-group">
+      <label class="input-label">Nombre del huésped</label>
+      <input type="text" class="input-field" id="bGuest" placeholder="Ej: Juan Pérez">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Habitación</label>
+      <select class="input-field" id="bRoom">
+        ${state.rooms.map(r => `<option value="${r.id}" ${r.id===prefRoomId?'selected':''}>${r.name} — S/ ${r.price}/noche ${r.status!=='clean'?'(⚠️ No disponible)':''}</option>`).join('')}
+      </select>
+    </div>
+    <div class="input-row">
+      <div class="input-group">
+        <label class="input-label">Check-in</label>
+        <input type="date" class="input-field" id="bCheckIn" value="${prefDate || todayStr}">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Check-out</label>
+        <input type="date" class="input-field" id="bCheckOut" value="${prefDate ? new Date(new Date(prefDate).getTime() + 86400000).toISOString().split('T')[0] : tomorrow}">
+      </div>
+    </div>
+    <div style="padding: 12px; background: #F0FDFA; border-radius: 8px; font-size: 13px; color: #0F766E;">
+      💡 El total se calculará automáticamente según las noches y el precio de la habitación.
+    </div>
+  `;
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveBooking()">✅ Confirmar Reserva</button>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function saveBooking() {
+  const guest = document.getElementById('bGuest').value.trim();
+  const roomId = parseInt(document.getElementById('bRoom').value);
+  const checkIn = document.getElementById('bCheckIn').value;
+  const checkOut = document.getElementById('bCheckOut').value;
+  if (!guest) return showToast('❌ Ingresa el nombre del huésped');
+  if (new Date(checkOut) <= new Date(checkIn)) return showToast('❌ El check-out debe ser posterior');
+  
+  const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / 86400000);
+  const room = state.rooms.find(r => r.id === roomId);
+  const total = nights * room.price;
+  
+  state.bookings.push({ id: Date.now(), guest, roomId, checkIn, checkOut, total, status: 'confirmed' });
+  state.finances.unshift({ id: Date.now(), type: 'income', concept: `Reserva ${guest}`, amount: total, date: checkIn });
+  
+  closeModal();
+  render();
+  showToast(`✅ Reserva creada (S/ ${total})`);
+}
+
+// ============ HOUSEKEEPING ============
+function renderHousekeeping(c) {
+  c.innerHTML = `
+    <div class="component-card">
+      <div class="component-header">
+        <div>
+          <div class="component-title">🧹 Control de Limpieza</div>
+          <div class="component-subtitle">Clic para rotar el estado: Limpia → Sucia → Mantenimiento</div>
+        </div>
+        <button class="btn btn-secondary" onclick="markAllClean()">✅ Marcar todas limpias</button>
+      </div>
+      <div class="housekeeping-grid">
+        ${state.rooms.map(room => `
+          <div class="hk-item ${room.status}" onclick="toggleRoomStatus(${room.id})">
+            <div class="hk-emoji">${room.status==='clean'?'✨':room.status==='dirty'?'🧹':'🔧'}</div>
+            <div class="room-name">${room.name}</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">${room.status==='clean'?'Limpia':room.status==='dirty'?'Sucia':'Mantenimiento'}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function toggleRoomStatus(id) {
+  const r = state.rooms.find(x => x.id === id);
+  r.status = r.status === 'clean' ? 'dirty' : r.status === 'dirty' ? 'maintenance' : 'clean';
+  render();
+  showToast(`✅ ${r.name} → ${r.status==='clean'?'Limpia':r.status==='dirty'?'Sucia':'Mantenimiento'}`);
+}
+
+function markAllClean() {
+  state.rooms.forEach(r => r.status = 'clean');
+  render();
+  showToast('✅ Todas marcadas como limpias');
+}
+
+// ============ FINANCE ============
+function renderFinance(c) {
+  const income = state.finances.filter(f => f.type === 'income').reduce((s, f) => s + f.amount, 0);
+  const expense = state.finances.filter(f => f.type === 'expense').reduce((s, f) => s + f.amount, 0);
+  const profit = income - expense;
+  const margin = income > 0 ? ((profit / income) * 100).toFixed(1) : 0;
+  
+  c.innerHTML = `
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-label">Ingresos</div><div class="stat-value" style="color: var(--status-clean);">S/ ${income}</div><div class="stat-trend trend-up">↑ ${state.bookings.length} reservas</div></div>
+      <div class="stat-box"><div class="stat-label">Gastos</div><div class="stat-value" style="color: var(--status-dirty);">S/ ${expense}</div></div>
+      <div class="stat-box"><div class="stat-label">Ganancia Neta</div><div class="stat-value" style="color: var(--primary);">S/ ${profit}</div></div>
+      <div class="stat-box"><div class="stat-label">Margen</div><div class="stat-value">${margin}%</div></div>
+    </div>
+    <div class="component-card">
+      <div class="component-header">
+        <div class="component-title">📈 Movimientos</div>
+        <button class="btn btn-primary" onclick="openFinanceModal()">+ Registrar Movimiento</button>
+      </div>
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--border);">
+            <th style="text-align: left; padding: 12px; font-size: 12px; text-transform: uppercase; color: var(--text-muted);">Fecha</th>
+            <th style="text-align: left; padding: 12px; font-size: 12px; text-transform: uppercase; color: var(--text-muted);">Concepto</th>
+            <th style="text-align: left; padding: 12px; font-size: 12px; text-transform: uppercase; color: var(--text-muted);">Tipo</th>
+            <th style="text-align: right; padding: 12px; font-size: 12px; text-transform: uppercase; color: var(--text-muted);">Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${state.finances.map(f => `
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 12px;">${f.date}</td>
+              <td style="padding: 12px; font-weight: 500;">${f.concept}</td>
+              <td style="padding: 12px;"><span style="color: ${f.type==='income'?'var(--status-clean)':'var(--status-dirty)'}; font-weight: 600;">${f.type==='income'?'↑ Ingreso':'↓ Gasto'}</span></td>
+              <td style="padding: 12px; text-align: right; font-weight: 700;">S/ ${f.amount}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function openFinanceModal() {
+  document.getElementById('modalTitle').textContent = '💰 Registrar Movimiento';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="input-group">
+      <label class="input-label">Tipo</label>
+      <select class="input-field" id="fType">
+        <option value="income">↑ Ingreso</option>
+        <option value="expense">↓ Gasto</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Concepto</label>
+      <input type="text" class="input-field" id="fConcept" placeholder="Ej: Pago de servicios">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Monto (S/)</label>
+      <input type="number" class="input-field" id="fAmount" placeholder="0.00">
+    </div>
+  `;
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveFinance()">Guardar</button>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function saveFinance() {
+  const type = document.getElementById('fType').value;
+  const concept = document.getElementById('fConcept').value.trim();
+  const amount = parseFloat(document.getElementById('fAmount').value);
+  if (!concept || !amount) return showToast('❌ Completa todos los campos');
+  state.finances.unshift({ id: Date.now(), type, concept, amount, date: todayStr });
+  closeModal();
+  render();
+  showToast('✅ Movimiento registrado');
+}
+
+// ============ WEBSITE EDITOR ============
+function renderWebsite(c) {
+  c.innerHTML = `
+    <div style="background: #DBEAFE; color: #1E40AF; padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; display: flex; align-items: center; gap: 8px;">
+      💡 <strong>Editor visual:</strong> Haz clic en cualquier sección para editarla. Los cambios se reflejan en tiempo real en la vista pública.
+    </div>
+    
+    <div class="web-preview">
+      <!-- HERO -->
+      <div class="web-section web-hero" onclick="editSection('hero')">
+        <div class="web-edit-badge">✏️ Editar</div>
+        <h1>${state.settings.name}</h1>
+        <p style="font-size: 18px; color: var(--text-muted); margin-bottom: 24px;">${state.settings.tagline}</p>
+        <div>
+          ${state.settings.ctas.map(cta => `<span class="web-cta-btn">${cta.text}</span>`).join('')}
+          <span class="web-cta-btn" style="background: transparent; color: var(--primary); border: 2px dashed var(--primary);" onclick="event.stopPropagation(); editCTAs()">+ Agregar botón</span>
+        </div>
+      </div>
+      
+      <!-- ABOUT -->
+      <div class="web-section" onclick="editSection('about')">
+        <div class="web-edit-badge">✏️ Editar</div>
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 12px;">Quiénes Somos</h2>
+        <p style="color: var(--text-muted); line-height: 1.6;">${state.settings.about}</p>
+      </div>
+      
+      <!-- ROOMS PREVIEW -->
+      <div class="web-section" onclick="switchView('dashboard', document.querySelector('.nav-item'))">
+        <div class="web-edit-badge">✏️ Gestionar</div>
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 12px;">Nuestras Habitaciones</h2>
+        <p style="color: var(--text-muted);">${state.rooms.length} habitaciones configuradas. Haz clic para gestionarlas.</p>
+      </div>
+      
+      <!-- PROMOTIONS -->
+      <div class="web-section" onclick="editSection('promotions')">
+        <div class="web-edit-badge">✏️ Editar</div>
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 12px;">🎁 Promociones</h2>
+        ${state.settings.promotions.length === 0 ? '<p style="color: var(--text-muted);">No hay promociones activas.</p>' : 
+          state.settings.promotions.filter(p=>p.active).map(p => `
+            <div style="background: linear-gradient(135deg, #FDE68A, #F9A8D4); padding: 20px; border-radius: 12px; color: var(--text-main);">
+              <h3 style="font-size: 20px; margin-bottom: 8px;">${p.title}</h3>
+              <p>${p.desc}</p>
+            </div>
+          `).join('')}
+      </div>
+      
+      <!-- FAQ -->
+      <div class="web-section" onclick="editSection('faq')">
+        <div class="web-edit-badge">✏️ Editar</div>
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 16px;">Preguntas Frecuentes</h2>
+        ${state.settings.faqs.map(f => `
+          <div class="faq-item" onclick="event.stopPropagation();">
+            <div class="faq-q">${f.q} <span style="color: var(--primary);">+</span></div>
+            <div class="faq-a">${f.a}</div>
+          </div>
+        `).join('')}
+      </div>
+      
+      <!-- CONTACT -->
+      <div class="web-section" onclick="editSection('contact')">
+        <div class="web-edit-badge">✏️ Editar</div>
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 12px;">Contacto</h2>
+        <p>📍 ${state.settings.address}</p>
+        <p>📱 WhatsApp: +${state.settings.whatsapp}</p>
+        <p>📧 ${state.settings.email}</p>
+      </div>
+    </div>
+  `;
+}
+
+function editSection(section) {
+  if (section === 'hero') {
+    document.getElementById('modalTitle').textContent = '🖼️ Editar Portada (Hero)';
+    document.getElementById('modalBody').innerHTML = `
+      <div class="input-group"><label class="input-label">Nombre del hospedaje</label><input type="text" class="input-field" id="sName" value="${state.settings.name}"></div>
+      <div class="input-group"><label class="input-label">Tagline / Slogan</label><input type="text" class="input-field" id="sTagline" value="${state.settings.tagline}"></div>
+      <div class="input-group"><label class="input-label">URL de imagen de portada</label><input type="text" class="input-field" id="sHeroImg" value="${state.settings.heroImage}"></div>
+    `;
+    document.getElementById('modalFooter').innerHTML = `
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveHero()">Guardar</button>
+    `;
+  } else if (section === 'about') {
+    document.getElementById('modalTitle').textContent = '✍️ Editar Quiénes Somos';
+    document.getElementById('modalBody').innerHTML = `
+      <div class="input-group">
+        <label class="input-label">Descripción del hospedaje</label>
+        <textarea class="input-field" id="sAbout" rows="6">${state.settings.about}</textarea>
+      </div>
+    `;
+    document.getElementById('modalFooter').innerHTML = `
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveAbout()">Guardar</button>
+    `;
+  } else if (section === 'promotions') {
+    editPromotions();
+    return;
+  } else if (section === 'faq') {
+    editFAQ();
+    return;
+  } else if (section === 'contact') {
+    document.getElementById('modalTitle').textContent = '📞 Editar Contacto';
+    document.getElementById('modalBody').innerHTML = `
+      <div class="input-group"><label class="input-label">Dirección</label><input type="text" class="input-field" id="sAddress" value="${state.settings.address}"></div>
+      <div class="input-group"><label class="input-label">WhatsApp (con código país)</label><input type="text" class="input-field" id="sWA" value="${state.settings.whatsapp}"></div>
+      <div class="input-group"><label class="input-label">Email</label><input type="email" class="input-field" id="sEmail" value="${state.settings.email}"></div>
+    `;
+    document.getElementById('modalFooter').innerHTML = `
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveContact()">Guardar</button>
+    `;
+  }
+  document.getElementById('modal').classList.add('active');
+}
+
+function saveHero() {
+  state.settings.name = document.getElementById('sName').value;
+  state.settings.tagline = document.getElementById('sTagline').value;
+  state.settings.heroImage = document.getElementById('sHeroImg').value;
+  closeModal(); render(); showToast('✅ Portada actualizada');
+}
+function saveAbout() {
+  state.settings.about = document.getElementById('sAbout').value;
+  closeModal(); render(); showToast('✅ Descripción actualizada');
+}
+function saveContact() {
+  state.settings.address = document.getElementById('sAddress').value;
+  state.settings.whatsapp = document.getElementById('sWA').value;
+  state.settings.email = document.getElementById('sEmail').value;
+  closeModal(); render(); showToast('✅ Contacto actualizado');
+}
+
+function editPromotions() {
+  document.getElementById('modalTitle').textContent = '🎁 Gestionar Promociones';
+  document.getElementById('modalBody').innerHTML = `
+    <div id="promosList">
+      ${state.settings.promotions.map((p, i) => `
+        <div style="border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <label style="display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" ${p.active?'checked':''} onchange="state.settings.promotions[${i}].active = this.checked">
+              <strong>Activa</strong>
+            </label>
+            <button class="btn btn-danger btn-sm" onclick="state.settings.promotions.splice(${i},1); editPromotions();">Eliminar</button>
+          </div>
+          <input type="text" class="input-field" value="${p.title}" onchange="state.settings.promotions[${i}].title = this.value" placeholder="Título" style="margin-bottom: 8px;">
+          <textarea class="input-field" onchange="state.settings.promotions[${i}].desc = this.value" placeholder="Descripción">${p.desc}</textarea>
+        </div>
+      `).join('')}
+    </div>
+    <button class="btn btn-secondary" onclick="state.settings.promotions.push({title:'Nueva promo', desc:'Descripción', active:true}); editPromotions();">+ Agregar promoción</button>
+  `;
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn btn-primary" onclick="closeModal(); render(); showToast('✅ Promociones guardadas');">Guardar</button>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function editFAQ() {
+  document.getElementById('modalTitle').textContent = '❓ Preguntas Frecuentes';
+  document.getElementById('modalBody').innerHTML = `
+    <div id="faqList">
+      ${state.settings.faqs.map((f, i) => `
+        <div style="border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
+            <button class="btn btn-danger btn-sm" onclick="state.settings.faqs.splice(${i},1); editFAQ();">Eliminar</button>
+          </div>
+          <input type="text" class="input-field" value="${f.q}" onchange="state.settings.faqs[${i}].q = this.value" placeholder="Pregunta" style="margin-bottom: 8px; font-weight: 600;">
+          <textarea class="input-field" onchange="state.settings.faqs[${i}].a = this.value" placeholder="Respuesta">${f.a}</textarea>
+        </div>
+      `).join('')}
+    </div>
+    <button class="btn btn-secondary" onclick="state.settings.faqs.push({q:'Nueva pregunta', a:'Respuesta'}); editFAQ();">+ Agregar pregunta</button>
+  `;
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn btn-primary" onclick="closeModal(); render(); showToast('✅ FAQ actualizado');">Guardar</button>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function editCTAs() {
+  document.getElementById('modalTitle').textContent = '🔗 Configurar Botones (CTA)';
+  document.getElementById('modalBody').innerHTML = `
+    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Agrega botones de llamada a la acción en tu portada.</p>
+    <div id="ctaList">
+      ${state.settings.ctas.map((c, i) => `
+        <div style="border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px;">
+          <input type="text" class="input-field" value="${c.text}" onchange="state.settings.ctas[${i}].text = this.value" placeholder="Texto del botón" style="margin-bottom: 8px;">
+          <select class="input-field" onchange="state.settings.ctas[${i}].type = this.value">
+            <option value="whatsapp" ${c.type==='whatsapp'?'selected':''}>📱 Abrir WhatsApp</option>
+            <option value="phone" ${c.type==='phone'?'selected':''}>📞 Llamar</option>
+            <option value="maps" ${c.type==='maps'?'selected':''}>📍 Ver en Google Maps</option>
+            <option value="email" ${c.type==='email'?'selected':''}>📧 Enviar Email</option>
+            <option value="url" ${c.type==='url'?'selected':''}>🌐 URL externa</option>
+          </select>
+          <button class="btn btn-danger btn-sm" style="margin-top: 8px;" onclick="state.settings.ctas.splice(${i},1); editCTAs();">Eliminar</button>
+        </div>
+      `).join('')}
+    </div>
+    ${state.settings.ctas.length < 4 ? '<button class="btn btn-secondary" onclick="state.settings.ctas.push({text:\'Nuevo botón\', type:\'whatsapp\'}); editCTAs();">+ Agregar botón</button>' : '<p style="color: var(--text-muted); font-size: 13px;">Máximo 4 botones</p>'}
+  `;
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn btn-primary" onclick="closeModal(); render(); showToast('✅ Botones guardados');">Guardar</button>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+// ============ CONTENT CREATOR (FUNNEL) ============
+const FUNNEL_STAGES = [
+  { id: 'awareness', icon: '🔍', name: 'Reconocimiento', desc: 'Haz que te descubran', color: '#1E40AF' },
+  { id: 'engagement', icon: '💬', name: 'Interacción', desc: 'Genera conversación', color: '#92400E' },
+  { id: 'consideration', icon: '🤔', name: 'Consideración', desc: 'Convence con pruebas', color: '#3730A3' },
+  { id: 'conversion', icon: '💰', name: 'Conversión', desc: 'Cierra la venta', color: '#991B1B' },
+  { id: 'retargeting', icon: '🎯', name: 'Retargeting', desc: 'Recupera interesados', color: '#6B21A8' },
+  { id: 'retention', icon: '❤️', name: 'Fidelización', desc: 'Que vuelvan', color: '#166534' }
+];
+
+const CONTENT_TEMPLATES = {
+  awareness: [
+    { title: '🌄 Destino revelación', tag: 'awareness', desc: 'Presenta tu hospedaje como un secreto por descubrir',
+      template: `¿Buscas un escape del ruido? 🌿\n\nEn el corazón del ${state.settings.address.split(',')[1] || 'Valle Sagrado'}, existe un lugar donde el tiempo se detiene.\n\n${state.settings.name}: donde cada amanecer es una postal.\n\n✨ Descubre más → Link en bio` },
+    { title: '📸 Foto aspiracional', tag: 'awareness', desc: 'Post visual para captar atención fría',
+      template: `Algunos lugares no se cuentan, se sienten. 🌄\n\n${state.settings.name}\n📍 ${state.settings.address}\n\n¿Te imaginas despertar aquí?\n\n#${state.settings.name.replace(/\s/g, '')} #Viajes #Escapada #TurismoLocal` }
+  ],
+  engagement: [
+    { title: '❓ Encuesta interactiva', tag: 'engagement', desc: 'Historia con preguntas para generar interacción',
+      template: `¿Qué prefieres en tu escapada ideal?\n\n🏔️ A) Vista a las montañas\n🌿 B) Jardín privado\n🍳 C) Desayuno gourmet\n📚 D) Rincón para leer\n\n¡Cuéntanos en los comentarios! 👇` },
+    { title: '🎬 Behind the scenes', tag: 'engagement', desc: 'Humaniza tu marca mostrando el día a día',
+      template: `Así preparamos tu llegada en ${state.settings.name} ✨\n\n1. Sábanas lavadas con aroma a lavanda 🌸\n2. Desayuno casero recién horneado 🥐\n3. Una nota de bienvenida escrita a mano 💌\n\n¿Qué detalle te gustaría encontrar al llegar?` }
+  ],
+  consideration: [
+    { title: '⭐ Testimonios reales', tag: 'consideration', desc: 'Prueba social para generar confianza',
+      template: `"La mejor decisión de nuestro viaje fue elegir ${state.settings.name}". — María G. ⭐⭐⭐⭐⭐\n\n+200 huéspedes felices este año nos respaldan.\n\n✅ Limpieza impecable\n✅ Atención personalizada\n✅ Ubicación privilegiada\n\nReserva tu experiencia: wa.me/${state.settings.whatsapp}` },
+    { title: '🆚 Comparativa con otros', tag: 'consideration', desc: 'Muestra tus ventajas vs la competencia',
+      template: `¿Por qué elegir ${state.settings.name}?\n\n✓ Desayuno incluido (otros: +S/ 40)\n✓ Late check-out gratuito (otros: no)\n✓ WiFi de alta velocidad real (otros: básico)\n✓ Anfitriones locales que te guían (otros: impersonal)\n\nElige experiencia, no solo alojamiento.` }
+  ],
+  conversion: [
+    { title: '🔥 Oferta con urgencia', tag: 'conversion', desc: 'Descuento limitado para cerrar la venta',
+      template: `⚡ SOLO POR 48 HORAS ⚡\n\n20% OFF en reservas para este mes en ${state.settings.name}\n\n🎁 Incluye:\n• Desayuno buffet\n• Late check-out\n• Botella de vino de bienvenida\n\n👉 Reserva ahora antes de que se acaben las fechas:\nwa.me/${state.settings.whatsapp}` },
+    { title: '📅 Últimas fechas', tag: 'conversion', desc: 'Escasez para acelerar la decisión',
+      template: `🚨 ÚLTIMAS FECHAS DISPONIBLES 🚨\n\nSolo nos quedan 3 fines de semana libres este mes.\n\nSi estás pensando en escaparte a ${state.settings.name}, este es el momento.\n\n✅ Reserva segura\n✅ Pago flexible\n✅ Cancelación gratuita hasta 7 días antes\n\nEscríbenos: wa.me/${state.settings.whatsapp}` }
+  ],
+  retargeting: [
+    { title: '👀 Te vimos interesado', tag: 'retargeting', desc: 'Recupera a quienes interactuaron pero no compraron',
+      template: `Vimos que te gustó ${state.settings.name} pero no terminaste de reservar 👀\n\n¿Tienes dudas? Te las resolvemos:\n\n💰 ¿Precio? Desde S/ ${Math.min(...state.rooms.map(r=>r.price))}/noche\n📅 ¿Fechas? Tenemos disponibilidad esta semana\n❓ ¿Algo más? Escríbenos sin compromiso\n\n👉 wa.me/${state.settings.whatsapp}` },
+    { title: '💝 Descuento especial', tag: 'retargeting', desc: 'Oferta exclusiva para quien ya mostró interés',
+      template: `Un regalo especial para ti 🎁\n\nPor haber mostrado interés en ${state.settings.name}, te damos un 15% extra si reservas en las próximas 24 horas.\n\nUsa el código: QUIEROREGRESAR\n\nSolo escríbenos por WhatsApp y lo aplicamos al instante 👇\nwa.me/${state.settings.whatsapp}` }
+  ],
+  retention: [
+    { title: '🙏 Gracias por tu visita', tag: 'retention', desc: 'Mensaje post-estadía para fidelizar',
+      template: `¡Gracias por haber sido parte de ${state.settings.name}! 💚\n\nEsperamos que hayas creado recuerdos inolvidables.\n\nNos encantaría verte de nuevo pronto. Como agradecimiento:\n\n🎁 10% de descuento en tu próxima visita\n🎁 Late check-out garantizado\n🎁 Upgrade sujeto a disponibilidad\n\nReserva tu regreso: wa.me/${state.settings.whatsapp}` },
+    { title: '🎂 Aniversario / Cumpleaños', tag: 'retention', desc: 'Reconecta con huéspedes en fechas especiales',
+      template: `¡Feliz cumpleaños de parte de ${state.settings.name}! 🎂\n\nEste mes celebramos contigo y te regalamos:\n\n✨ Noche gratis en tu próxima reserva de 3+ noches\n🍾 Botella de vino de bienvenida\n🌸 Decoración especial en tu habitación\n\nSolo escríbenos y lo preparamos todo para ti 💝` }
+  ]
+};
+
+function renderContent(c) {
+  const activeStage = FUNNEL_STAGES.find(s => s.id === state.contentFunnelStage);
+  const templates = CONTENT_TEMPLATES[state.contentFunnelStage] || [];
+  
+  c.innerHTML = `
+    <div class="component-card">
+      <div class="component-header">
+        <div>
+          <div class="component-title">🎨 Creador de Contenido — Embudo de Ventas</div>
+          <div class="component-subtitle">Genera contenido estratégico para cada etapa del viaje del cliente</div>
+        </div>
+      </div>
+      <div class="funnel-stages">
+        ${FUNNEL_STAGES.map(s => `
+          <div class="funnel-stage ${s.id === state.contentFunnelStage ? 'active' : ''}" onclick="state.contentFunnelStage='${s.id}'; render();">
+            <div class="stage-icon">${s.icon}</div>
+            <div class="stage-name">${s.name}</div>
+            <div class="stage-desc">${s.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    
+    <div class="component-card">
+      <div class="component-header">
+        <div class="component-title" style="color: ${activeStage.color};">${activeStage.icon} ${activeStage.name}</div>
+        <div class="component-subtitle">${templates.length} plantillas profesionales listas para usar</div>
+      </div>
+      <div class="content-grid">
+        ${templates.map((t, i) => `
+          <div class="template-card" onclick="openContentTemplate('${state.contentFunnelStage}', ${i})">
+            <span class="template-tag tag-${t.tag}">${t.tag}</span>
+            <div style="font-weight: 700; font-size: 16px; margin-top: 8px;">${t.title}</div>
+            <div style="color: var(--text-muted); font-size: 13px; line-height: 1.5;">${t.desc}</div>
+            <div style="margin-top: 12px; font-size: 12px; color: var(--primary); font-weight: 600;">Abrir editor →</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function openContentTemplate(stage, idx) {
+  const tpl = CONTENT_TEMPLATES[stage][idx];
+  document.getElementById('modalTitle').textContent = `✏️ ${tpl.title}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div style="padding: 12px; background: #F0FDFA; border-radius: 8px; font-size: 13px; color: #0F766E; margin-bottom: 16px;">
+      💡 Esta plantilla usa automáticamente los datos de tu hospedaje. Edita lo que necesites.
+    </div>
+    
+    <div class="input-group">
+      <label class="input-label">Texto del post (editable)</label>
+      <textarea class="input-field" id="ctText" rows="10" style="font-family: 'Inter', monospace; font-size: 13px;">${tpl.template}</textarea>
+    </div>
+    
+    <div class="input-group">
+      <label class="input-label">Imagen a utilizar</label>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
+        ${state.mediaLibrary.map((img, i) => `
+          <div style="aspect-ratio: 1; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid transparent;" onclick="document.querySelectorAll('.media-select').forEach(e=>e.style.borderColor='transparent'); this.style.borderColor='var(--primary)'; this.classList.add('media-select'); document.getElementById('ctImg').value='${img}';" class="media-select">
+            <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+        `).join('')}
+      </div>
+      <input type="text" class="input-field" id="ctImg" value="${state.mediaLibrary[0] || ''}" placeholder="URL de imagen" style="margin-top: 8px;">
+    </div>
+    
+    <div class="input-group">
+      <label class="input-label">Formato / Tamaño</label>
+      <select class="input-field" id="ctFormat">
+        <option value="instagram-post">Instagram Post (1080x1080)</option>
+        <option value="instagram-story">Instagram Story (1080x1920)</option>
+        <option value="facebook-post">Facebook Post (1200x630)</option>
+        <option value="whatsapp-status">Estado WhatsApp (1080x1920)</option>
+        <option value="tiktok">TikTok / Reel (1080x1920)</option>
+      </select>
+    </div>
+  `;
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-secondary" onclick="copyContent()">📋 Copiar texto</button>
+    <button class="btn btn-primary" onclick="previewContent()">👁️ Vista previa</button>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function copyContent() {
+  navigator.clipboard.writeText(document.getElementById('ctText').value);
+  showToast('✅ Texto copiado al portapapeles');
+}
+
+function previewContent() {
+  const text = document.getElementById('ctText').value;
+  const img = document.getElementById('ctImg').value;
+  const format = document.getElementById('ctFormat').value;
+  const sizes = {
+    'instagram-post': '1080x1080',
+    'instagram-story': '1080x1920',
+    'facebook-post': '1200x630',
+    'whatsapp-status': '1080x1920',
+    'tiktok': '1080x1920'
+  };
+  document.getElementById('modalBody').innerHTML = `
+    <div style="padding: 12px; background: #F8FAFC; border-radius: 8px; margin-bottom: 16px;">
+      <strong>Formato:</strong> ${format} (${sizes[format]})
+    </div>
+    <div style="max-width: 400px; margin: 0 auto; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-lg);">
+      ${img ? `<img src="${img}" style="width: 100%; max-height: 300px; object-fit: cover;">` : ''}
+      <div style="padding: 20px; background: white;">
+        <div style="font-weight: 700; margin-bottom: 8px;">${state.settings.name}</div>
+        <div style="font-size: 13px; line-height: 1.6; white-space: pre-wrap;">${text}</div>
+      </div>
+    </div>
+  `;
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn btn-secondary" onclick="openContentTemplate('${state.contentFunnelStage}', ${CONTENT_TEMPLATES[state.contentFunnelStage].findIndex(t => t.template.includes(text.substring(0,30)))})">← Volver a editar</button>
+    <button class="btn btn-primary" onclick="copyContent(); closeModal();">📋 Copiar y usar</button>
+  `;
+}
+
+// ============ SETTINGS ============
+function renderSettings(c) {
+  c.innerHTML = `
+    <div class="component-card" style="max-width: 800px;">
+      <div class="component-header">
+        <div class="component-title">⚙️ Configuración del Sistema</div>
+      </div>
+      
+      <h3 style="margin-bottom: 16px; font-size: 16px;">🏠 Datos del Hospedaje</h3>
+      <div class="input-group"><label class="input-label">Nombre</label><input type="text" class="input-field" id="setName" value="${state.settings.name}"></div>
+      <div class="input-row">
+        <div class="input-group"><label class="input-label">Check-in</label><input type="text" class="input-field" id="setCheckIn" value="${state.settings.checkIn}"></div>
+        <div class="input-group"><label class="input-label">Check-out</label><input type="text" class="input-field" id="setCheckOut" value="${state.settings.checkOut}"></div>
+      </div>
+      <div class="input-row">
+        <div class="input-group"><label class="input-label">Usuario WiFi</label><input type="text" class="input-field" id="setWifiUser" value="${state.settings.wifiUser}"></div>
+        <div class="input-group"><label class="input-label">Contraseña WiFi</label><input type="text" class="input-field" id="setWifiPass" value="${state.settings.wifiPass}"></div>
+      </div>
+      
+      <h3 style="margin: 24px 0 16px; font-size: 16px;">🎁 Guía de Bienvenida Digital</h3>
+      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">Genera una tarjeta con toda la info para enviar por WhatsApp a tus huéspedes al hacer check-in.</p>
+      <button class="btn btn-gradient" onclick="generateWelcomeGuide()">🎁 Generar Guía de Bienvenida</button>
+    </div>
+  `;
+}
+
+function generateWelcomeGuide() {
+  const guide = `🌟 ¡Bienvenido a ${state.settings.name}! 🌟\n\nNos alegra tenerte con nosotros.\n\n📶 WiFi: ${state.settings.wifiUser}\n🔑 Contraseña: ${state.settings.wifiPass}\n🕐 Check-in: ${state.settings.checkIn}\n🕚 Check-out: ${state.settings.checkOut}\n\n📍 ${state.settings.address}\n📱 WhatsApp: +${state.settings.whatsapp}\n\n¿Necesitas algo? Escríbenos por aquí 💚`;
+  navigator.clipboard.writeText(guide);
+  showToast('✅ Guía copiada. ¡Pégala en WhatsApp!');
+}
+
+// ============ MODALS & TOASTS ============
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function copyPublicLink() {
+  navigator.clipboard.writeText(window.location.href + '?view=public');
+  showToast('🔗 Link copiado');
+}
+
+function openPublicView() {
+  const win = window.open('', '_blank');
+  win.document.write(generatePublicHTML());
+  win.document.close();
+}
+
+function generatePublicHTML() {
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${state.settings.name}</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Inter',sans-serif;color:#0F172A;background:white;max-width:600px;margin:0 auto;}.hero{position:relative;height:400px;background:#E2E8F0;}.hero img{width:100%;height:100%;object-fit:cover;}.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.2),rgba(0,0,0,0.7));display:flex;flex-direction:column;justify-content:flex-end;padding:32px;color:white;}.hero h1{font-family:'Playfair Display',serif;font-size:36px;margin-bottom:8px;}.section{padding:40px 24px;border-bottom:1px solid #E2E8F0;}.section h2{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:16px;}.room{background:#F8FAFC;border-radius:16px;overflow:hidden;margin-bottom:16px;}.room img{width:100%;height:200px;object-fit:cover;}.room-body{padding:20px;}.btn-wa{display:block;text-align:center;background:#25D366;color:white;padding:14px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:12px;}.promo{background:linear-gradient(135deg,#FDE68A,#F9A8D4);padding:24px;border-radius:16px;margin-bottom:16px;}.faq{border:1px solid #E2E8F0;border-radius:12px;padding:16px;margin-bottom:12px;}.faq-q{font-weight:600;margin-bottom:6px;}.faq-a{color:#64748B;font-size:14px;}.footer{background:#0F172A;color:white;padding:32px 24px;text-align:center;}</style></head><body>
+<div class="hero"><img src="${state.settings.heroImage}"><div class="hero-overlay"><h1>${state.settings.name}</h1><p style="opacity:0.9;">${state.settings.tagline}</p></div></div>
+<div class="section"><h2>Quiénes Somos</h2><p style="color:#64748B;line-height:1.6;">${state.settings.about}</p></div>
+<div class="section"><h2>🛏️ Nuestras Habitaciones</h2>
+${state.rooms.filter(r=>r.status==='clean').map(r=>`<div class="room"><img src="${r.image}"><div class="room-body"><h3>${r.name}</h3><p style="color:#64748B;margin:6px 0;">${r.type} • ${r.capacity} personas • ${r.amenities.join(', ')}</p><div style="font-size:24px;font-weight:700;color:#0D9488;">S/ ${r.price}<span style="font-size:13px;color:#64748B;font-weight:400;"> /noche</span></div><a class="btn-wa" href="https://wa.me/${state.settings.whatsapp}?text=${encodeURIComponent('Hola, quiero reservar '+r.name)}" target="_blank">📱 Reservar por WhatsApp</a></div></div>`).join('')}
+</div>
+${state.settings.promotions.filter(p=>p.active).length ? `<div class="section"><h2>🎁 Promociones</h2>${state.settings.promotions.filter(p=>p.active).map(p=>`<div class="promo"><h3>${p.title}</h3><p>${p.desc}</p></div>`).join('')}</div>`:''}
+<div class="section"><h2>❓ Preguntas Frecuentes</h2>${state.settings.faqs.map(f=>`<div class="faq"><div class="faq-q">${f.q}</div><div class="faq-a">${f.a}</div></div>`).join('')}</div>
+<div class="section"><h2>📞 Contacto</h2><p>📍 ${state.settings.address}</p><p>📱 +${state.settings.whatsapp}</p><p>📧 ${state.settings.email}</p></div>
+<div class="footer"><h3 style="font-family:'Playfair Display',serif;">${state.settings.name}</h3><p style="opacity:0.7;font-size:13px;margin-top:8px;">Powered by Stay U</p></div>
+</body></html>`;
+}
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', () => {
+  if (new URLSearchParams(window.location.search).get('view') === 'public') {
+    document.body.innerHTML = generatePublicHTML();
+    document.body.style.maxWidth = 'none';
+  } else {
+    render();
+  }
+});
+</script>
+</body>
+</html>

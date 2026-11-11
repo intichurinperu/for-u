@@ -1,0 +1,33 @@
+.tourism-module { --tour-border: #e2e8f0; font-family: Inter, sans-serif; color: #0f172a; min-width: 0; }
+.tourism-module h1,.tourism-module h2,.tourism-module h3 { background: transparent; color: inherit; letter-spacing: normal; line-height: 1.3; margin: 12px 0; }
+.tourism-module h1 { font-size: 28px; } .tourism-module h2 { font-size: 24px; } .tourism-module h3 { font-size: 18px; }
+.tourism-module p { margin: 10px 0; }
+.tourism-module button { padding: 10px 16px; background: white; color: #0f172a; border: 1px solid var(--tour-border); border-radius: 8px; cursor: pointer; }
+.tourism-module button:disabled { opacity: .45; cursor: not-allowed; }
+.tourism-module :focus-visible { outline: 3px solid #7c3aed; outline-offset: 3px; }
+.tourism-module label { display: grid; gap: 6px; }
+.tourism-module input,.tourism-module textarea,.tourism-module select { width: 100%; min-width: 0; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--tour-border); border-radius: 8px; background: white; color: inherit; font: inherit; }
+.tourism-module textarea { min-height: 90px; resize: vertical; }
+.tourism-module .tour-check { display: flex; align-items: center; gap: 10px; }
+.tourism-module input[type=checkbox] { width: auto; }
+.tourism-module .tour-card { padding: 24px; margin: 20px 0; border: 1px solid var(--tour-border); border-radius: 16px; background: white; }
+.tourism-module .tour-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.tourism-module .tour-form { display: grid; gap: 16px; }
+.tourism-module .tour-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 20px; }
+.tourism-module .tour-product { padding: 20px; border: 1px solid var(--tour-border); border-radius: 12px; }
+.tourism-module .tour-product img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
+.tourism-module .tour-actions { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; margin: 12px 0; }
+.tourism-module .tour-order { padding: 16px 0; border-bottom: 1px solid var(--tour-border); }
+.tourism-module summary { cursor: pointer; font-weight: 600; }
+@media (max-width: 650px) { .tourism-module .tour-grid { grid-template-columns: minmax(0,1fr); } .tourism-module .tour-card { padding: 16px; } }
+
+.tourism-module .tour-stop, .tourism-module .tour-booking { padding: 16px 0; border-bottom: 1px solid #e2e8f0; }
+.tourism-module .tour-item { padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; }
+.tourism-module .tour-item img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; }
+.tourism-module fieldset { min-width: 0; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px; }
+.tourism-module.tourism-public { max-width: 1100px; margin: auto; padding: 24px 16px; min-height: 100vh; }
+.tourism-module.tourism-public .tour-card > img { width: 100%; max-height: 280px; object-fit: cover; border-radius: 12px; }
+.tourism-module.tourism-public .tour-card > button { margin: 12px 0; }
+.tourism-module.tourism-public strong { overflow-wrap: anywhere; }
+.tourism-module .publication-qr { display: grid; justify-items: start; gap: 12px; margin: 20px 0; }
+.tourism-module .publication-qr img { max-width: 100%; height: auto; background: white; }

@@ -1,0 +1,16 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FOR U · Rendimiento local</title>
+<style>body{font:16px system-ui;margin:24px;background:#fafafa;color:#0a0a0a}button{padding:12px}iframe{width:100%;height:700px;border:1px solid #eaeaea}output{display:block;margin:20px 0;white-space:pre-wrap}</style>
+<h1>Rendimiento de la compilación de producción</h1><p>Medición local, sin limitación de red ni CPU. No demuestra el rendimiento en internet o en otros dispositivos. Inicia la prueba y abre una herramienta en el marco.</p><button id="start">Medir carga</button><output id="results" role="status">Sin mediciones.</output><iframe id="app" title="Estudio para prueba de rendimiento"></iframe>
+<script type="module">
+const frame=document.querySelector('#app'),out=document.querySelector('#results');
+let start=0,observer;
+document.querySelector('#start').addEventListener('click',()=>{observer?.disconnect();start=performance.now();out.textContent='Midiendo…';frame.src='/herramientas/demo?benchmark='+Date.now();});
+frame.addEventListener('load',()=>{
+ if(!start)return;const doc=frame.contentDocument;const win=frame.contentWindow;let ready=false;
+ const check=()=>{if(ready||!doc.querySelector('.hoy-view'))return;ready=true;requestAnimationFrame(()=>requestAnimationFrame(()=>{out.textContent='Estudio interactivo: '+Math.round(performance.now()-start)+' ms.\n';}));};
+ observer=new MutationObserver(check);observer.observe(doc,{childList:true,subtree:true});check();
+ const begin=e=>{const button=e.target.closest('button');if(!button)return;const label=button.getAttribute('aria-label')||button.textContent.trim();const began=performance.now();requestAnimationFrame(()=>requestAnimationFrame(()=>{out.textContent+='Respuesta visual ('+label+'): '+Math.round(performance.now()-began)+' ms.\n';}));};
+ doc.addEventListener('click',begin,true);doc.addEventListener('keydown',e=>{if(e.key==='Enter')begin(e);},true);
+ win.addEventListener('pagehide',()=>observer?.disconnect(),{once:true});
+});
+</script></html>

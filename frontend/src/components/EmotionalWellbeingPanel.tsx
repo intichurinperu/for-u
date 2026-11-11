@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary, Textarea as DSTextarea } from './ui/DesignSystem';
 import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -53,9 +54,9 @@ export default function EmotionalWellbeingPanel({ projectId }: EmotionalWellbein
       <MagicCard className="foru-rewiring-card">
         <div className="foru-calm-card-top">
           <MagicBadge>Micro-hábito de hoy</MagicBadge>
-          <button type="button" onClick={toggleLowBatteryMode}>
+          <DSButtonSecondary type="button" onClick={toggleLowBatteryMode}>
             {lowBatteryMode ? 'Modo simple' : 'Batería baja'}
-          </button>
+          </DSButtonSecondary>
         </div>
         <h3>Un gesto pequeño para volver al cuerpo</h3>
         <p className="foru-habit-text">{habit.habit}</p>
@@ -81,7 +82,7 @@ export default function EmotionalWellbeingPanel({ projectId }: EmotionalWellbein
             >
               <div className="foru-mood-picker">
                 {(lowBatteryMode ? moods.slice(0, 4) : moods).map((mood) => (
-                  <button
+                  <DSButtonSecondary
                     key={mood}
                     type="button"
                     className={selectedMood === mood ? 'is-selected' : ''}
@@ -89,11 +90,11 @@ export default function EmotionalWellbeingPanel({ projectId }: EmotionalWellbein
                   >
                     <span>{moodLabels[mood].icon}</span>
                     {moodLabels[mood].label}
-                  </button>
+                  </DSButtonSecondary>
                 ))}
               </div>
               {!lowBatteryMode ? (
-                <textarea
+                <DSTextarea
                   value={notes}
                   onChange={(event) => setNotes(event.target.value)}
                   placeholder="¿Qué te hizo sentir bien? Opcional."

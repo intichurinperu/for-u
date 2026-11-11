@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary, Input as DSInput, Textarea as DSTextarea } from '../components/ui/DesignSystem';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -201,7 +202,7 @@ export default function MundoDigital() {
             automatizaciones, chatbots, reservas, productos digitales, campañas y más. <strong>Todo integrado a tu realidad.</strong>
           </p>
           <div className="foru-lp-buttons">
-            <button type="button" className="foru-btn" onClick={() => openBooking()}>Agendar cita <CalendarDays size={18} /></button>
+            <DSButtonSecondary type="button" className="foru-btn" onClick={() => openBooking()}>Agendar cita <CalendarDays size={18} /></DSButtonSecondary>
             <a href="#oferta" className="foru-btn foru-btn--outline">Ver planes con 40% OFF <ArrowRight size={18} /></a>
           </div>
           <p className="text-sm font-medium text-gray-400">Diagnóstico gratuito de 15 minutos · Sin compromiso</p>
@@ -283,13 +284,13 @@ export default function MundoDigital() {
                 <ul className="foru-lp-list">
                   {plan.items.map((item) => <li key={item}>{item}</li>)}
                 </ul>
-                <button
+                <DSButtonSecondary
                   type="button"
                   className="foru-btn w-full px-4 py-3 text-sm"
                   onClick={() => openBooking(plan.name)}
                 >
                   Quiero este plan <MessageCircle size={17} />
-                </button>
+                </DSButtonSecondary>
               </article>
             ))}
           </div>
@@ -335,9 +336,9 @@ export default function MundoDigital() {
               <CalendarDays size={32} />
               <h3>Agenda tu cita de diagnostico</h3>
               <p>Selecciona un dia y uno de los horarios disponibles. Si el horario ya fue tomado, la base evita la doble reserva.</p>
-              <button type="button" className="foru-btn w-full" onClick={() => openBooking()}>
+              <DSButtonSecondary type="button" className="foru-btn w-full" onClick={() => openBooking()}>
                 Agendar cita <MessageCircle size={18} />
-              </button>
+              </DSButtonSecondary>
             </div>
           </div>
         </div>
@@ -346,7 +347,7 @@ export default function MundoDigital() {
       {bookingOpen && (
         <div className="foru-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="booking-modal-title">
           <div className="foru-booking-modal">
-            <button type="button" className="foru-modal-close" onClick={closeBooking} aria-label="Cerrar">x</button>
+            <DSButtonSecondary type="button" className="foru-modal-close" onClick={closeBooking} aria-label="Cerrar">x</DSButtonSecondary>
             <span className="foru-lp-badge"><CalendarDays size={16} /> Reserva tu cita</span>
             <h2 id="booking-modal-title">{bookingStepLabels[bookingStep]}</h2>
             <p>{bookingStep + 1} de {bookingStepLabels.length} · Diagnostico gratuito de 15 minutos para aterrizar tu primer sistema digital.</p>
@@ -365,7 +366,7 @@ export default function MundoDigital() {
                   <div className="foru-booking-calendar">
                     <label>
                       Fecha
-                      <input
+                      <DSInput
                         type="date"
                         min={getTodayDateValue()}
                         value={form.appointmentDate}
@@ -378,14 +379,14 @@ export default function MundoDigital() {
                       <span className="foru-booking-label">Horario disponible</span>
                       <div className="foru-booking-slots">
                         {bookingSlots.map((slot) => (
-                          <button
+                          <DSButtonSecondary
                             key={slot}
                             type="button"
                             className={form.appointmentTime === slot ? 'foru-slot foru-slot--active' : 'foru-slot'}
                             onClick={() => updateField('appointmentTime', slot)}
                           >
                             {formatSlot(slot)}
-                          </button>
+                          </DSButtonSecondary>
                         ))}
                       </div>
                     </div>
@@ -399,15 +400,15 @@ export default function MundoDigital() {
                   <p>Asi puedo confirmarte el enlace sin sacarte de la pagina.</p>
                   <label>
                     Nombre
-                    <input value={form.fullName} onChange={(event) => updateField('fullName', event.target.value)} required autoFocus />
+                    <DSInput value={form.fullName} onChange={(event) => updateField('fullName', event.target.value)} required autoFocus />
                   </label>
                   <label>
                     WhatsApp
-                    <input value={form.phoneWhatsapp} onChange={(event) => updateField('phoneWhatsapp', event.target.value)} required placeholder="+51 999 999 999" />
+                    <DSInput value={form.phoneWhatsapp} onChange={(event) => updateField('phoneWhatsapp', event.target.value)} required placeholder="+51 999 999 999" />
                   </label>
                   <label>
                     Instagram opcional
-                    <input value={form.instagramHandle} onChange={(event) => updateField('instagramHandle', event.target.value)} placeholder="@tunegocio" />
+                    <DSInput value={form.instagramHandle} onChange={(event) => updateField('instagramHandle', event.target.value)} placeholder="@tunegocio" />
                   </label>
                 </div>
               )}
@@ -418,7 +419,7 @@ export default function MundoDigital() {
                   <p>Con esto puedo llegar a la cita con una idea clara de que sistema puede ayudarte.</p>
                   <label>
                     Nombre del negocio
-                    <input value={form.businessName} onChange={(event) => updateField('businessName', event.target.value)} placeholder="Ej. Studio Nicole" />
+                    <DSInput value={form.businessName} onChange={(event) => updateField('businessName', event.target.value)} placeholder="Ej. Studio Nicole" />
                   </label>
                   <label>
                     Tipo de negocio
@@ -449,7 +450,7 @@ export default function MundoDigital() {
                   </label>
                   <label>
                     Objetivo principal
-                    <textarea
+                    <DSTextarea
                       value={form.goal}
                       onChange={(event) => updateField('goal', event.target.value)}
                       required
@@ -473,18 +474,18 @@ export default function MundoDigital() {
 
               <div className="foru-booking-actions">
                 {bookingStep > 0 && (
-                  <button type="button" className="foru-btn foru-btn--outline" onClick={previousStep}>
+                  <DSButtonSecondary type="button" className="foru-btn foru-btn--outline" onClick={previousStep}>
                     <ChevronLeft size={18} /> Atrás
-                  </button>
+                  </DSButtonSecondary>
                 )}
                 {bookingStep < bookingStepLabels.length - 1 ? (
-                  <button type="button" className="foru-btn" onClick={nextStep}>
+                  <DSButtonSecondary type="button" className="foru-btn" onClick={nextStep}>
                     Siguiente <ArrowRight size={18} />
-                  </button>
+                  </DSButtonSecondary>
                 ) : (
-                  <button type="submit" className="foru-btn" disabled={status === 'sending'}>
+                  <DSButtonSecondary type="submit" className="foru-btn" disabled={status === 'sending'}>
                     {status === 'sending' ? 'Reservando...' : 'Reservar cita'} <MessageCircle size={18} />
-                  </button>
+                  </DSButtonSecondary>
                 )}
               </div>
             </form>

@@ -1,3 +1,4 @@
+import { Textarea as DSTextarea, ButtonSecondary as DSButtonSecondary } from './ui/DesignSystem';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -59,7 +60,7 @@ export default function EmotionalOnboardingModal({ project }: EmotionalOnboardin
 
           <label className="foru-soft-question">
             <span>¿Qué quieres lograr?</span>
-            <textarea
+            <DSTextarea
               value={goal}
               onChange={(event) => setGoal(event.target.value)}
               placeholder="Ej: Lanzar mi taller de velas para Navidad"
@@ -74,7 +75,7 @@ export default function EmotionalOnboardingModal({ project }: EmotionalOnboardin
                 const label = feelingLabels[feeling];
                 const isSelected = selectedFeelings.includes(feeling);
                 return (
-                  <button
+                  <DSButtonSecondary
                     key={feeling}
                     type="button"
                     className={isSelected ? 'is-selected' : ''}
@@ -93,7 +94,7 @@ export default function EmotionalOnboardingModal({ project }: EmotionalOnboardin
                         />
                       ) : null}
                     </AnimatePresence>
-                  </button>
+                  </DSButtonSecondary>
                 );
               })}
             </div>

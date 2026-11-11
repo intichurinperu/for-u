@@ -26,6 +26,6 @@ yarn-error.log*
 css/
 js/
 FOR U.code-workspace
-
 # Manual Hostinger bundle generated from frontend/dist.
+
 frontend/for-u-hostinger-dist.zip

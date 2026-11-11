@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary } from './ui/DesignSystem';
 import type { CSSProperties } from 'react';
 import { baseBranches, type ForUActiveProject, type ForUBranchKey, type ForUProjectNode } from '../stores/useActiveProjectsStore';
 
@@ -98,9 +99,9 @@ export default function MiniMapIsland({ project, isActive = false, isNew = false
             </span>
           ))}
         </div>
-        <button type="button" className="foru-mini-island-enter" onClick={onEnter}>
+        <DSButtonSecondary type="button" className="foru-mini-island-enter" onClick={onEnter}>
           Zoom a esta isla
-        </button>
+        </DSButtonSecondary>
       </div>
     </article>
   );

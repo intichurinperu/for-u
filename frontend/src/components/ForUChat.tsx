@@ -1,4 +1,5 @@
-import { FormEvent, useEffect, useRef, useState } from 'react';
+import { ButtonSecondary as DSButtonSecondary, Textarea as DSTextarea } from './ui/DesignSystem';
+import { type FormEvent, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { isGeminiConfigured, sendForUChatMessage, type ForUChatMessage } from '../lib/gemini';
 import Logo from './Logo';
@@ -12,7 +13,7 @@ const initialMessages: ForUChatMessage[] = [
   {
     role: 'model',
     text: [
-      'Hola, Nicole. Estoy aquí. 🌸',
+      'Hola. Estoy aquí. 🌸',
       '',
       'Puedes contarme cómo te sientes o qué tienes en la cabeza.',
       '',
@@ -73,11 +74,11 @@ export default function ForUChat({ isOpen, onClose }: ForUChatProps) {
               <div>
                 <span>Refugio de conversación</span>
                 <h2>For U</h2>
-                {!isGeminiConfigured ? <small>Modo calma local activo. Agrega tu API key para Gemini.</small> : <small>Jefa amable conectada.</small>}
+                {!isGeminiConfigured ? <small>La IA necesita una cuenta conectada.</small> : <small>Ayuda para tu siguiente paso.</small>}
               </div>
-              <button type="button" onClick={onClose} aria-label="Cerrar chat">
+              <DSButtonSecondary type="button" onClick={onClose} aria-label="Cerrar chat">
                 ×
-              </button>
+              </DSButtonSecondary>
             </header>
 
             <div className="foru-chat-messages">
@@ -113,7 +114,7 @@ export default function ForUChat({ isOpen, onClose }: ForUChatProps) {
             </div>
 
             <form className="foru-chat-input" onSubmit={handleSubmit}>
-              <textarea
+              <DSTextarea
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={(event) => {
@@ -125,9 +126,9 @@ export default function ForUChat({ isOpen, onClose }: ForUChatProps) {
                 placeholder="Cuéntame cómo te sientes o qué tienes en mente..."
                 rows={2}
               />
-              <button type="submit" disabled={!draft.trim() || isThinking}>
+              <DSButtonSecondary type="submit" disabled={!draft.trim() || isThinking}>
                 Enviar
-              </button>
+              </DSButtonSecondary>
             </form>
           </motion.div>
         </motion.aside>

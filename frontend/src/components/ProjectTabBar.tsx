@@ -1,3 +1,4 @@
+import { ButtonSecondary as DSButtonSecondary } from './ui/DesignSystem';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Plus, X } from '../lib/icons';
 import { useActiveProjectsStore } from '../stores/useActiveProjectsStore';
@@ -31,7 +32,7 @@ export default function ProjectTabBar() {
                 transition={{ duration: 0.18 }}
                 className={isActive ? 'foru-project-tab is-active' : 'foru-project-tab'}
               >
-                <button
+                <DSButtonSecondary
                   type="button"
                   className="foru-project-tab-main"
                   onClick={() => focusProject(project.id)}
@@ -41,30 +42,30 @@ export default function ProjectTabBar() {
                   <span className="foru-project-tab-meta">
                     {project.status} · {completedTasks}/{project.tasks.length} microacciones
                   </span>
-                </button>
+                </DSButtonSecondary>
 
-                <button
+                <DSButtonSecondary
                   type="button"
                   className="foru-project-tab-close"
                   onClick={() => closeProject(project.id)}
                   aria-label={`Cerrar ${project.name}`}
                 >
                   <X size={14} />
-                </button>
+                </DSButtonSecondary>
               </motion.div>
             );
           })}
         </AnimatePresence>
       </div>
 
-      <button
+      <DSButtonSecondary
         type="button"
         className="foru-project-tab-add"
         onClick={() => openProject({ name: `Proyecto ${activeProjectIds.length + 1}` })}
       >
         <Plus size={16} />
         Nuevo
-      </button>
+      </DSButtonSecondary>
     </nav>
   );
 }

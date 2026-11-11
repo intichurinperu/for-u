@@ -8,12 +8,12 @@ type RoomMarketingProps = {
 export default function RoomMarketing({ references }: RoomMarketingProps) {
   return (
     <group position={[-5.4, 0, 2.6]}>
-      <RoomBase color="#FFD1DC" />
+      <RoomBase color="#EAEAEA" />
       {references.slice(0, 8).map((reference, index) => (
         <group key={reference.id} position={[-1.15 + (index % 4) * 0.76, 1.1 + Math.floor(index / 4) * 0.48, -0.9]}>
           <mesh castShadow>
             <boxGeometry args={[0.56, 0.38, 0.04]} />
-            <meshPhysicalMaterial color={index % 2 ? '#E6E6FA' : '#B5EAD7'} roughness={0.76} metalness={0.02} clearcoat={0.1} />
+            <meshPhysicalMaterial color={index % 2 ? '#EAEAEA' : '#EAEAEA'} roughness={0.76} metalness={0.02} clearcoat={0.1} />
           </mesh>
           <Html position={[0, 0.3, 0]} center distanceFactor={7}>
             <div className="foru-world-room-chip">{reference.title.slice(0, 20)}</div>
